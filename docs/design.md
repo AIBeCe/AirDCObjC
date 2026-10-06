@@ -1,6 +1,6 @@
 # AirDCObjC design
 
-Status: written design awaiting user review. Date: 2026-10-06.
+Status: approved by user on 2026-10-06. Implementation requires approval of the relevant detailed plan and code proposal.
 
 ## Purpose and success
 

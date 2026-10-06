@@ -1,6 +1,8 @@
 # AirDCObjC roadmap
 
-Status: master roadmap for design review. This is not an executable implementation plan.
+Status: approved master roadmap. This is not an executable implementation plan.
+
+Detailed plan: [Phase 0 — Core contract inventory](plans/2026-10-06-phase-0-core-contract-inventory.md), awaiting review.
 
 Every phase follows analysis -> focused code/test proposal -> explicit approval -> implementation -> relevant verification -> independent review where material -> durable progress update. Work proceeds point by point; do not treat roadmap approval as blanket implementation authorization.
 
