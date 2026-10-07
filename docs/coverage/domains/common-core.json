@@ -10780,7 +10780,7 @@
           "kind": "ConditionalSourceRegion",
           "name": "conditional source region",
           "signature": "(defined (__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER))",
-          "declaration_text": "// warning: �long unsigned int __atomic_sub_fetch_8(volatile void*, long unsigned int, int)� writing 8 bytes into a region of size 0 overflows the destination\n// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107694\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored \"-Wstringop-overflow\"",
+          "declaration_text": "// warning: \ufffdlong unsigned int __atomic_sub_fetch_8(volatile void*, long unsigned int, int)\ufffd writing 8 bytes into a region of size 0 overflows the destination\n// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107694\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored \"-Wstringop-overflow\"",
           "source_ref": {
             "path": "airdcpp/core/classes/Pointer.h",
             "start_line": 54,
@@ -16647,7 +16647,7 @@
         {
           "given": "A cross-device POSIX rename where copying succeeds but source deletion fails",
           "when": "renameFile is called",
-          "then": "the implementation does not check deleteFile’s false result and may return normally with both source and target present."
+          "then": "the implementation does not check deleteFile\u2019s false result and may return normally with both source and target present."
         },
         {
           "given": "On POSIX, a slash-terminated path whose directory already exists",
@@ -21196,7 +21196,7 @@
         "cancellation": "No cancellation token is declared by this operation.",
         "persistence": [],
         "resources": [
-          "zlib CRC32 implementation and the filter’s initialized checksum state."
+          "zlib CRC32 implementation and the filter\u2019s initialized checksum state."
         ]
       },
       "ownership_evidence": [],
@@ -31121,7 +31121,7 @@
         ],
         "events": [],
         "errors": [
-          "Malformed input is reported through the parser’s error state/exception contract in the implementation."
+          "Malformed input is reported through the parser\u2019s error state/exception contract in the implementation."
         ],
         "completion": "Parsing and callbacks are synchronous for the direct parse entry points; the explicit threaded callback wrapper is separately represented.",
         "cancellation": "No cancellation token is declared by this operation.",
@@ -73588,7 +73588,7 @@
     },
     {
       "id": "common-core.core-version.file-scope.operations",
-      "kind": "internal",
+      "kind": "operation",
       "upstream_symbols": [
         "FunctionDecl getGitCommit: string () noexcept",
         "FunctionDecl getBuildNumber: int () noexcept",
@@ -73605,6 +73605,11 @@
           "path": "airdcpp/core/version.h",
           "start_line": 33,
           "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/version.cpp",
+          "start_line": 33,
+          "end_line": 71
         }
       ],
       "availability": {
@@ -73618,24 +73623,52 @@
       },
       "behavior": {
         "inputs": [
-          "Inputs and defaults are declared by the source members listed for `file-scope`; signatures and explicit defaults are preserved in upstream_symbols/defaults."
+          "No arguments. Compile-time generated version.inc constants; getConfigurationType additionally queries uname on non-Windows."
         ],
-        "preconditions": [],
+        "preconditions": [
+          "No Core startup or manager instance is required. Accepted distribution generated constants differ from the ignored source checkout and are the binary authority."
+        ],
         "defaults": [],
         "effects": [
-          "Provides the `file-scope` member operations named in upstream_symbols; concrete field state/defaults and implementation text are linked by structural_declaration_ids and source_refs."
+          "getGitCommit returns GIT_COMMIT; getBuildNumber returns numeric GIT_COMMIT_COUNT; getBuildNumberStr stringifies that macro; getVersionTag returns GIT_TAG; getVersionDate returns VERSION_DATE; getAppName/getAppId return static APPNAME_INC/APPID_INC C strings.",
+          "getConfigurationType returns x64 on _WIN64, x86 on _WIN32; otherwise uname machine text, or (unknown architecture) on uname failure.",
+          "getVersionType returns VERSION_NIGHTLY when the tag has more than four bytes and byte index 4 is 'a', VERSION_BETA for 'b', otherwise VERSION_STABLE. This is the source index test, not general semantic-version parsing."
         ],
         "events": [],
-        "errors": [],
-        "completion": "These declared helper operations return synchronously unless the named source operation explicitly queues work or invokes callbacks; this cohort declares no completion callback contract.",
-        "cancellation": "Not applicable to synchronous declaration/state families; no cancellation API is declared.",
+        "errors": [
+          "Functions are noexcept. Allocation failures while constructing returned strings terminate rather than yield a recoverable error. uname failure is represented by the explicit fallback string."
+        ],
+        "completion": "Synchronous return; no manager, asynchronous completion or network activity.",
+        "cancellation": "No cancellation operation.",
         "persistence": [],
-        "resources": []
+        "resources": [
+          "Generated version.inc is compiled into the binary; no runtime file is read."
+        ]
       },
-      "ownership_evidence": [],
-      "threading_evidence": [],
-      "proposed_bridge_requirement": "Keep `file-scope` behind its owning Core workflow; do not turn this C++ helper/state family into a standalone bridge facade.",
-      "acceptance_scenarios": [],
+      "ownership_evidence": [
+        "Returned std::string values are owned copies. Application name/ID are borrowed static C string literals with process lifetime; the Objective-C bridge must return owned NSString values."
+      ],
+      "threading_evidence": [
+        "Getter bodies access compiled constants or a local uname buffer without shared manager state. Metadata-only calls do not initialize Core."
+      ],
+      "proposed_bridge_requirement": "Expose original build identity as copied Foundation values, preserving numeric build/date types and exact tag classification. Phase 1 implements only commit/tag/build/name; the other five remain explicit future requirements.",
+      "acceptance_scenarios": [
+        {
+          "given": "The accepted distribution was generated with commit 55d51ceb817ec006d4ec844d9e3788e1b0ccc352, tag 0.0.0, count 0, date 1774518197, name AirDCCore-macOS and ID org.airdcpp.core.macos.configure; Core has not been started.",
+          "when": "The seven constant getters are called.",
+          "then": "Commit/tag/name/ID equal those exact strings, numeric count is 0, string count is \"0\", and date is 1774518197."
+        },
+        {
+          "given": "A non-Windows call has a successful uname returning machine arm64; a second injected syscall case fails.",
+          "when": "getConfigurationType is evaluated in each source characterization case.",
+          "then": "It returns arm64 for success and (unknown architecture) for failure; Windows build branches return x64/x86 respectively."
+        },
+        {
+          "given": "Generated tags 0.0.0, 1.2.a, 1.2.b and abcd are characterized separately.",
+          "when": "getVersionType examines each tag.",
+          "then": "Results are VERSION_STABLE, VERSION_NIGHTLY, VERSION_BETA and VERSION_STABLE respectively because only byte index 4 is tested when length exceeds four."
+        }
+      ],
       "bridge_api": null,
       "implementation_tests": [],
       "example_scenario": null,
@@ -73655,8 +73688,8 @@
         "decl:airdcpp/core/version.h:41:FunctionDecl:getVersionType()"
       ],
       "structural_member_count": 9,
-      "surface_classification": "internal helper",
-      "surface_rationale": "Structural cohort for file-scope; inspect the source-linked declarations as part of the owning Core workflow.",
+      "surface_classification": "public metadata operations",
+      "surface_rationale": "These nine public version functions provide externally useful build/application identity. They are not hidden as internal helpers; only four will be bridged in Phase 1.",
       "structural_members": [
         {
           "id": "decl:airdcpp/core/version.h:33:FunctionDecl:getGitCommit()",
@@ -73784,7 +73817,17 @@
           "extraction_kind": "libclang",
           "access": "invalid"
         }
-      ]
+      ],
+      "contract_evidence": "source-traced",
+      "accepted_generated_constants": {
+        "evidence": "../../core-baseline.json and accepted Dist/include/airdcpp/core/version.inc",
+        "commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+        "tag": "0.0.0",
+        "count": 0,
+        "date": 1774518197,
+        "application_name": "AirDCCore-macOS",
+        "application_id": "org.airdcpp.core.macos.configure"
+      }
     },
     {
       "id": "common-core.core-version.file-scope.state",
