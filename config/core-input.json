@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "upstream_url": "https://github.com/airdcpp/airdcpp-core.git",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "distribution": "AirDCCore-macOS v1.0.0 Dist",
+  "baseline": "docs/core-baseline.json",
+  "input_policy": "The caller must pass the accepted distribution Dist directory explicitly; this file contains no machine-specific path."
+}

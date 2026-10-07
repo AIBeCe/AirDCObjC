@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DERIVED_DATA="$ROOT/Build/WorkspaceDerivedData"
+mkdir -p "$ROOT/Build/Logs"
+"$ROOT/scripts/generate-project"
+xcodebuild build -quiet \
+  -workspace "$ROOT/AirDCObjC.xcworkspace" \
+  -scheme AirDCObjC \
+  -configuration Debug \
+  -destination 'platform=macOS' \
+  -derivedDataPath "$DERIVED_DATA" \
+  2>&1 | tee "$ROOT/Build/Logs/workspace-build.log"
