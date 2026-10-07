@@ -2,9 +2,9 @@
 
 Status: approved master roadmap. This is not an executable implementation plan.
 
-Detailed plan: [Phase 0 — Core contract inventory](plans/2026-10-06-phase-0-core-contract-inventory.md), awaiting review.
+Detailed plans: [Phase 0 — Core contract inventory](plans/2026-10-06-phase-0-core-contract-inventory.md) and [Phase 1 — Framework/SPM proof](plans/2026-10-07-phase-1-framework-spm-proof.md). Phases 0 and 1 are complete and independently accepted; implementation is integrated on `develop`. Phase 2 has not started.
 
-Every phase follows analysis -> focused code/test proposal -> explicit approval -> implementation -> relevant verification -> independent review where material -> durable progress update. Work proceeds point by point; do not treat roadmap approval as blanket implementation authorization.
+Every phase follows analysis -> focused code/test proposal -> explicit approval -> implementation -> relevant verification -> independent review where material -> durable progress update. Work proceeds point by point; the user explicitly authorized all points of Phases 0 and 1 without routine stops. That authorization does not extend to Phase 2 or later.
 
 Repository setup occurs early on GitFlow: `AIBeCe/AirDCObjC` under `Momachilles`; `develop` is the integration branch and all features/points/phases start there. See [Git workflow](git-workflow.md).
 
@@ -33,4 +33,4 @@ Each domain phase adds example scenarios and tests concurrently with its bridge.
 
 Optional modules and NAT-PMP may need a revised Core artifact. Their dependency work is a separate Project 1 proposal, tracked here as blocking parity where applicable. Windows implementation details may require a macOS capability equivalent or explicit user-approved resolution. Do not quietly redefine ALL as only v1.0.0 compiled features.
 
-Final publication/push/tag actions need authorization at the appropriate release step. No production release is part of this documentation-only approval.
+Final publication/push/tag actions need authorization at the appropriate release step. The authorized Phase 0/1 publication is development progress; no production release is part of these phases.

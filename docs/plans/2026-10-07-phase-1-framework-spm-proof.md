@@ -37,8 +37,8 @@
 - `Source/AirDCObjC/Private/ADCBuildInfo.mm`: calls `dcpp::getGitCommit`, `getVersionTag`, `getBuildNumber`, and `getAppName` from `airdcpp/core/version.h` using private string/time declarations.
 - `Test/AirDCObjC/Private/ADCBuildInfoTests.swift`: real Core metadata tests mirroring private ADCBuildInfo.mm; no mocks or runtime startup. Public Objective-C consumer tests mirror the public header in a separate Objective-C test target, so both language suites can retain the exact ADCBuildInfoTests basename without object-output collisions.
 - `Test/AirDCObjC/Public/ADCBuildInfoTests.m`: Objective-C import/value contract tests.
-- `Example/AirDCExample/Source/BuildInfo/BuildInfoViewModel.swift`: native app's immutable snapshot from public API.
-- `Example/AirDCExample/Test/BuildInfo/BuildInfoViewModelTests.swift`: Swift Testing, real Core snapshot, Given/When/Then.
+- `Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift`: native app's immutable snapshot from public API.
+- `Example/AirDCExample/Test/BuildInfo/BuildInfoSnapshotTests.swift`: Swift Testing, real Core snapshot, Given/When/Then.
 - `Example/AirDCExample/Source/AirDCExampleApp.swift`: minimal window showing version/name/commit and scope status.
 - `config/core-input.json`: accepted Core source/distribution identity, no arbitrary developer paths as published build requirements.
 - `config/project.yml`: shared XcodeGen source of workspace framework/app/tests targets.
@@ -52,44 +52,44 @@
 
 ## Task 1 — Verified Core inputs and test-first public contract
 
-- [ ] Copy only verified Core distribution inputs into ignored Dependencies/AirDCCore; validate source digest/metadata/header bytes against Phase 0 baseline. Add a failure check with a deliberately changed copy, never modify accepted original files.
-- [ ] Write Swift/Objective-C metadata tests first. Given imported framework, When reading Core metadata, Then exact commit `55d51ceb817ec006d4ec844d9e3788e1b0ccc352`, version `0.0.0`, build number 0 and Core name `AirDCCore-macOS`. Verify the original version.inc/getters before pinning these assertions.
-- [ ] Generate minimal framework/test target configuration with public declarations and deliberately missing/stubbed implementation. Observe an expected missing-behavior test failure, not an unrelated tool error.
-- [ ] Implement complete public API and private version calls. No runtime initialization in metadata getters.
-- [ ] Run focused Swift and Objective-C tests, verify repeated/threaded reads remain consistent, and commit the bounded bridge.
+- [x] Copy only verified Core distribution inputs into ignored Dependencies/AirDCCore; validate source digest/metadata/header bytes against Phase 0 baseline. Add a failure check with a deliberately changed copy, never modify accepted original files.
+- [x] Write Swift/Objective-C metadata tests first. Given imported framework, When reading Core metadata, Then exact commit `55d51ceb817ec006d4ec844d9e3788e1b0ccc352`, version `0.0.0`, build number 0 and Core name `AirDCCore-macOS`. Verify the original version.inc/getters before pinning these assertions.
+- [x] Generate minimal framework/test target configuration with public declarations and deliberately missing/stubbed implementation. Observe an expected missing-behavior test failure, not an unrelated tool error.
+- [x] Implement complete public API and private version calls. No runtime initialization in metadata getters.
+- [x] Run focused Swift and Objective-C tests, verify repeated/threaded reads remain consistent, and commit the bounded bridge.
 
 ## Task 2 — Dynamic containment and real consumers
 
-- [ ] Force-load the aggregate Core archive into the framework with `DEAD_CODE_STRIPPING=NO` in all framework configurations, link SDK Iconv/libc++/Foundation and restrict exports to intended Objective-C class/metaclass symbols.
-- [ ] Compile/run standalone Objective-C and Swift consumers using only the framework public module. Use no Core include paths in consumer commands.
-- [ ] Inspect binary architecture/platform/minimum OS, exports and load commands. Expected ARM64 macOS, no Homebrew/private archive loads and no public dcpp/third-party C++ API exports.
-- [ ] Full Core force-load closure succeeds; do not use dead-strip success as a replacement. Preserve normalized link/consumer evidence under a tracked report and raw output under ignored Build.
-- [ ] Verify all public headers as Objective-C, independently of private implementation include paths.
+- [x] Force-load the aggregate Core archive into the framework with `DEAD_CODE_STRIPPING=NO` in all framework configurations, link SDK Iconv/libc++/Foundation and restrict exports to intended Objective-C class/metaclass symbols.
+- [x] Compile/run standalone Objective-C and Swift consumers using only the framework public module. Use no Core include paths in consumer commands.
+- [x] Inspect binary architecture/platform/minimum OS, exports and load commands. Expected ARM64 macOS, no Homebrew/private archive loads and no public dcpp/third-party C++ API exports.
+- [x] Full Core force-load closure succeeds; do not use dead-strip success as a replacement. Preserve normalized link/consumer evidence under a tracked report and raw output under ignored Build.
+- [x] Verify all public headers as Objective-C, independently of private implementation include paths.
 
 ## Task 3 — Swift example and its unit tests
 
-- [ ] Write Given/When/Then @Suite/@Test tests for the app view model's public-framework snapshot. Observe expected missing/incorrect behavior before production implementation.
-- [ ] Implement the minimal real snapshot model and native SwiftUI window. Avoid adding later-phase lifecycle/network APIs or claiming completed Core feature coverage.
-- [ ] Build app and run tests through workspace shared schemes. Launch .app through the project run script; inspect actual window contents if desktop automation is available.
-- [ ] Confirm UI displays real Core values and clearly labels this as the Phase 1 integration proof.
+- [x] Write Given/When/Then @Suite/@Test tests for the app view model's public-framework snapshot. Observe expected missing/incorrect behavior before production implementation.
+- [x] Implement the minimal real snapshot model and native SwiftUI window. Avoid adding later-phase lifecycle/network APIs or claiming completed Core feature coverage.
+- [x] Build app and run tests through workspace shared schemes. Launch .app through the project run script; inspect actual window contents if desktop automation is available.
+- [x] Confirm UI displays real Core values and clearly labels this as the Phase 1 integration proof.
 
 ## Task 4 — XCFramework and package-only consumption
 
-- [ ] Archive/package the dynamic macOS ARM64 framework as `Dist/AirDCObjC.xcframework`.
-- [ ] Define SPM library product AirDCObjC backed by `.binaryTarget(name: "AirDCObjC", path: "Dist/AirDCObjC.xcframework")` for the local proof. Remote ZIP hosting/checksum release is a later publication task.
-- [ ] Run `swift test` for public-interface tests against the binary target.
-- [ ] Create a temporary relocated package consumer using copied XCFramework and public app/test sources; resolve/import/build/run without workspace targets or Core distribution inputs.
-- [ ] Build the same native example against the SPM artifact in its package-validation configuration, rather than a different demo program.
-- [ ] Verify framework embedding, resource-free metadata behavior and ad-hoc signing for the local app proof. Production signing/notarization is outside this phase.
+- [x] Archive/package the dynamic macOS ARM64 framework as `Dist/AirDCObjC.xcframework`.
+- [x] Define SPM library product AirDCObjC backed by `.binaryTarget(name: "AirDCObjC", path: "Dist/AirDCObjC.xcframework")` for the local proof. Remote ZIP hosting/checksum release is a later publication task.
+- [x] Run `swift test` for public-interface tests against the binary target.
+- [x] Create a temporary relocated package consumer using copied XCFramework and public app/test sources; resolve/import/build/run without workspace targets or Core distribution inputs.
+- [x] Build the same native example against the SPM artifact in its package-validation configuration, rather than a different demo program.
+- [x] Verify framework embedding, resource-free metadata behavior and ad-hoc signing for the local app proof. Production signing/notarization is outside this phase.
 
 ## Task 5 — Gate review and integration
 
-- [ ] Run all available framework/example tests plus acquisition/containment/package consumer checks.
-- [ ] Independent review checks implemented code, tests, Core containment, public module, exact example/SPM path, mirrored test paths and evidence.
-- [ ] Preserve worker/reviewer identity through all fixes until blocking findings PASS.
-- [ ] Update README/build guides, coverage rows for only implemented metadata APIs, progress and the Phase 1 report with exact commands/results and limitations.
-- [ ] Commit small cohesive changes, integrate the passing phase into develop and publish authorized project progress.
-- [ ] Stop at the end of Phase 1; do not start runtime lifecycle Phase 2 or publish a production release/tag.
+- [x] Run all available framework/example tests plus acquisition/containment/package consumer checks.
+- [x] Independent review checks implemented code, tests, Core containment, public module, exact example/SPM path, mirrored test paths and evidence.
+- [x] Preserve worker/reviewer identity through all fixes until blocking findings PASS.
+- [x] Update README/build guides, coverage rows for only implemented metadata APIs, progress and the Phase 1 report with exact commands/results and limitations.
+- [x] Commit small cohesive changes, integrate the passing phase into develop and publish authorized project progress.
+- [x] Stop at the end of Phase 1; do not start runtime lifecycle Phase 2 or publish a production release/tag.
 
 ## Acceptance scope
 
@@ -140,3 +140,14 @@ struct ADCBuildInfoTests {
 Private implementation includes `<string>`, `<ctime>`, a private `dcpp::string` alias and `<airdcpp/core/version.h>`; each getter calls the corresponding original Core function. Tests first run against deliberately incomplete getter behavior and must fail for the expected metadata assertions. The placeholder is replaced by real Core calls before acceptance; none may survive the gate.
 
 The app view model is an immutable Swift value snapshot with Core name/version/commit/build number and a display title. Its Given/When/Then tests assert real framework values; UI composition uses that snapshot and does not initialize Core or contact the network.
+
+## Implementation observations
+
+The example’s immutable value model is named `BuildInfoSnapshot`, with mirrored `BuildInfoSnapshotTests`, to reflect capture of the public metadata rather than mutable UI state. Its behavior and native-app scope are unchanged. The observed host cannot connect to `testmanagerd` through `xcodebuild test`, including one escalated attempt. Shared schemes build the test bundles with `build-for-testing`; direct `xcrun xctest` execution provides the actual Swift Testing/XCTest assertion results. Record this distinction in Gate 1 evidence rather than claiming the ordinary test action succeeded.
+
+
+## Verified gate evidence
+
+The full verification workflow exited 0 after independent review corrections. Five native tests pass; four SwiftPM tests pass in both root and isolated relocated-package environments. Both native and package-built app bundles pass strict deep signature checks. The actual native window displays the accepted metadata and Phase 1 scope label. The public framework exports only the intended Objective-C class/metaclass and its load commands pass exact SDK allowlists. Product review, including the Run configuration and cache-ignore additions, is PASS. See the [normalized report](../reports/phase-1-framework-spm-proof.md).
+
+Implementation committed on the Phase 1 feature branch as `7cc867b` after independent product review PASS. Documentation/coverage review returned PASS. The implementation was integrated into develop at `180ee8c` and published. This reviewed documentation records Gate 1 PASS and the stop before Phase 2.

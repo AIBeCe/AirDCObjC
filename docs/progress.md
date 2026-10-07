@@ -4,42 +4,33 @@ Updated: 2026-10-07.
 
 ## Current stage
 
-Phase 0 evidence and all 31 domain reviews are complete; final gate documentation review returned PASS. The inventory accounts for 11,728 indexed declarations with 1,873 domain records, including 628 settings. Phase 1 is authorized through its end and prepared for implementation after Gate 0 integration. No product code, workspace, package manifest, build scripts, or runnable example exist.
+Phase 0 is complete and independently accepted, integrated and published on `develop` at `f2896c7`. Its historical inventory accounts for 11,728 indexed declarations with 1,873 records across 31 domains, including 628 settings.
 
-## Established decisions
+Phase 1 is complete and independently accepted. The real dynamic Objective-C framework, native Swift example and binary SwiftPM proof were implemented on `feature/framework-spm-proof`, created from Phase 0 develop integration. Implementation commit `7cc867b` was integrated into `develop` at `180ee8c` and published. Final documentation/coverage review is PASS; this update records the accepted gate closure.
 
-- Objective-C public framework, private Objective-C++ bridge, contained static Core.
-- Dynamic framework/XCFramework via SPM is the approved recommended direction, subject to real linking proof.
-- Native macOS ARM64, macOS 14+; Swift example with SwiftUI/AppKit.
-- Singular `Source`, `Test`, and `Example`; test paths mirror source paths.
-- Swift Testing and Given/When/Then for Swift units; XCTest for required ObjC++/UI coverage.
-- TDD where practical and original Core functional authority.
-- Full functional parity tracked explicitly, including disabled/optional feature gaps.
+## Established implementation
 
-## Evidence baseline
+- Objective-C public framework; private Objective-C++ bridge contains the entire accepted static Core aggregate with force-loading and dead stripping disabled.
+- Four read-only Foundation metadata properties call original Core getters. Lifecycle and networking have not been started or bridged.
+- Native macOS ARM64/macOS 14+ target; SwiftUI example uses the same source in workspace and relocated SwiftPM builds.
+- Singular `Source`, `Test`, `Example`; tested units preserve mirrored paths. Swift Testing uses Given/When/Then; Objective-C uses XCTest.
+- Path-based XCFramework binary target supports the local package proof; remote production hosting remains a release task.
+- Current coverage splits four verified metadata operations from the remaining version functions: 1,877 records, all 11,728 declarations mapped, zero structural validation errors.
 
-Inspected pinned Core source, packaged headers, upstream CMake feature exclusions, lifecycle declarations, and listener dispatch behavior. Generated a source-header inventory with source byte hashes and distribution-header availability. This inventory supports discovery; it does not establish operation-level parity or runtime correctness.
+## Gate evidence
 
-## Open work
+[Phase 0 report](reports/phase-0-core-contract-inventory.md) preserves source contract and gap acceptance. [Phase 1 report](reports/phase-1-framework-spm-proof.md) records test-first failures, real getter success, full archive containment, public Objective-C/Swift consumption, native UI inspection and package relocation.
 
-1. Commit the accepted Gate 0 report and integrate into `develop`.
-2. Execute the authorized [Phase 1 plan](plans/2026-10-07-phase-1-framework-spm-proof.md): real Core metadata, Objective-C/Swift consumers, framework containment, native example and SPM proof.
-3. Complete independent Phase 1 review and integration, then stop before Phase 2.
+Final verification passed: five native tests, four SwiftPM tests in each of root and relocated package environments, ARM64/macOS/minimum-OS/export/dependency checks, exact-path app launch checks and strict deep signatures for both native and relocated apps. Independent product review returned PASS after all three Important findings were corrected.
 
-## Repository setup
+The ordinary `xcodebuild test` action could not connect to host `testmanagerd`; shared schemes built test bundles and direct `xcrun xctest` ran their real assertions. This limitation is explicit in the report.
 
-Public repository https://github.com/AIBeCe/AirDCObjC created using `Momachilles`. Initialized `develop` with a minimal empty bootstrap commit; created `feature/project-documentation` from it. `main` is reserved for a future production release. Approved initial documentation was integrated into `develop`; the approved Phase 0 plan was integrated into `develop`; execution is on `feature/core-contract-inventory`. Baseline evidence is committed as `77694fc`; structural accounting as `698e126`; reviewed semantic units as `a9ecbe7`, `d0a2bda`, `5f53b71`, `76f8d33`, `4f16a21` `a9be850` `3d926b1` `4eeb6cc` `5cba12f` `7e97740` and `e3f2548`. Reviewed Phase 0 commits through `7e97740` are published on `feature/core-contract-inventory`; `develop` includes the approved Phase 0 plan at `25ce811`. No product code was introduced.
+## Remaining work and boundary
 
-## Limitations and ownership
+Work stops at the completed Phase 1 boundary. Phase 2 runtime lifecycle and Phases 3–11 are not started. ALL original Core functionality remains the goal, with disabled/platform/resource gaps preserved in the coverage ledgers. Only the four metadata APIs are currently verified through AirDCObjC.
 
-No product tests or builds have run because no implementation exists. A separate disposable aggregate-link probe does not constitute a Phase 1 gate. No Core files were modified. API signatures, lifecycle failure/restart semantics, event dispatch policy, toolchain floor and release hosting remain decisions at their specified evidence gates.
+No production tag, hosted binary release, production signing/notarization or general supported-OS/toolchain execution claim is made. The original Core source and accepted distribution were not modified.
 
-The documentation does not claim the framework is functional or that all upstream features are already represented by the initial header ledger. Subsequent phases must maintain this file and coverage evidence as durable state.
+## Repository and authorization
 
-## Documentation verification
-
-Local-link/code-fence checks and the 263-row header inventory consistency check passed. Independent documentation review found one stale repository-visibility prerequisite; it was corrected to the selected public visibility and completed setup. Final scoped re-review: PASS.
-
-## Execution authorization
-
-User explicitly approved all points of Phases 0 and 1 without routine stops. Concrete proposals remain documented in the plans; bounded implementation and review/fix cycles proceed autonomously. Material conflicts are recorded and escalated when a required design decision cannot be resolved within the approved scope.
+Public repository: [AIBeCe/AirDCObjC](https://github.com/AIBeCe/AirDCObjC), created using Momachilles. GitFlow uses `develop` for integration and feature branches starting there; `main` is reserved for a future production release. The user authorized all points of Phases 0 and 1 without routine stops. Phase 1 uses `feature/framework-spm-proof`; implementation `7cc867b` and GitFlow merge `180ee8c` are published. Gate-closure documentation and coverage were independently reviewed before their feature-branch integration.

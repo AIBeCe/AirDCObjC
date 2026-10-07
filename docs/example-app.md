@@ -15,6 +15,14 @@ Example/AirDCExample/Test/<domain>/<type>Tests.swift
 
 The mirrored path is preserved for view models, scenario controllers, and other app units. Domain fixtures/scenarios stay near those units. Visual automation uses a separate test target but keeps source-relative domain organization.
 
+## Current integration proof
+
+`Source/BuildInfo/BuildInfoSnapshot.swift` captures the four public `ADCBuildInfo` properties into an immutable Swift value. Its mirrored `Test/BuildInfo/BuildInfoSnapshotTests.swift` uses Swift Testing and Given/When/Then assertions against real framework values. `BuildInfoView.swift` presents the snapshot in a native SwiftUI window.
+
+Run `./script/build_and_run.sh` from the repository root. The inspected window shows `AirDCCore-macOS 0.0.0`, commit `55d51ceb817ec006d4ec844d9e3788e1b0ccc352`, build `0`, and the explicit Phase 1 scope message. This proof does not initialize Core or contact a network.
+
+The workspace source target and relocated SwiftPM executable build the same app source. `./scripts/package` stages, embeds and ad-hoc signs the package-built app, then checks its launch. The root package's `AirDCExampleModel` target compiles the exact snapshot source used by the app; its two tests pass alongside two binary-framework metadata tests. Workspace tests also pass through the direct test-bundle runner described in [build guidance](build-and-distribution.md).
+
 ## Functional scenarios
 
 The coverage ledger determines the scenario set: lifecycle/settings; hubs/users/messages; private chat; connectivity; search; sharing/hashing/profiles; file lists; queue/bundles/download/upload; favorites/recents/ignore/commands/viewed files; logs/security resources; optional modules.

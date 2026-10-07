@@ -1,35 +1,51 @@
-# Build and distribution design
+# Build and distribution
 
-Status: requirements; no build or package commands are implemented.
+## Inputs and tools
 
-## Development
+Use macOS on Apple Silicon with Xcode and its command-line tools, XcodeGen, Python 3 and ripgrep. Phase 1 was verified with Xcode 26.6 (17F113), Swift 6.3.3, SDK 26.5 and XcodeGen 2.44.1. The framework targets macOS 14+, ARM64 and C++20/libc++; execution on macOS 14 and other toolchains is not yet established.
 
-The workspace contains the Objective-C framework target, native Swift example app, and test targets. The framework compiles private `.mm` files as C++20 against verified Core inputs. Public module headers must compile as Objective-C and import from Swift independently of Core headers.
+Acquire the accepted AirDCCore-macOS distribution explicitly:
 
-Pin the supported Xcode/SDK/toolchain after the first real build gate. The Core README records a validated host but does not prove this framework has been tested on that host or every macOS version from 14 onward.
+```sh
+./scripts/acquire-core --dist /path/to/AirDCCore-macOS/Dist
+```
 
-## First packaging gate
+The accepted Core commit is `55d51ceb817ec006d4ec844d9e3788e1b0ccc352`. Acquisition validates the distribution's 16,430 checksum entries and the [baseline](core-baseline.json), including the aggregate archive, 245 installed Core headers and pinned metadata. It copies validated inputs into ignored `Dependencies/AirDCCore/Dist`. A deliberately altered header copy was rejected. Original source and distribution inputs remain unchanged.
 
-Build a minimal real bridge and dynamic framework containing Core. Compile/run an Objective-C consumer and a Swift consumer. Inspect Mach-O architecture, platform/minimum OS, dependency load commands, exports and symbol closure. Validate both ordinary use and full Core closure; dead-stripped unused objects cannot conceal missing dependencies.
+## Workspace workflows
 
-If archive containment or export policy cannot be achieved safely, stop and propose a correction before changing the approved packaging design.
+From the repository root:
 
-## SPM publication
+```sh
+./scripts/generate-project
+./scripts/build
+./scripts/test
+./script/build_and_run.sh
+```
 
-Package `AirDCObjC.framework` in `AirDCObjC.xcframework`, initially with one macOS ARM64 variant. Expose a named SPM library product backed by a binary target. Final manifest, artifact location, checksum, tool-version floor, and any auxiliary target must be proposed after the gate establishes exact requirements.
+XcodeGen reads `config/project.yml`; the generated project/workspace and shared schemes are versioned. The workspace builds the framework from `Source`, tests from mirrored `Test` paths, and the native Swift example from `Example/AirDCExample/Source`.
 
-Local development artifacts may use a path-based binary target. Published artifacts require a stable downloadable archive and matching SPM checksum. Source and provenance remain available according to the release policy; binary packaging does not imply closed-source distribution.
+`./scripts/test` builds test bundles through shared schemes and runs them with `xcrun xctest`: two Swift framework tests, one Objective-C XCTest and two Swift example tests. The observed host could not connect to `testmanagerd` through `xcodebuild test`, including an escalated attempt. Direct execution ran the actual assertions successfully; ordinary Xcode test-action execution remains a host limitation.
 
-The example's package mode and a clean external consumer must resolve the package and run without sibling source/build paths or Homebrew libraries. Verify required system link information is carried correctly through the chosen package, rather than assuming XCFramework metadata supplies it.
+The canonical app script supports `--debug`, `--logs`, `--telemetry` and `--verify` as well as normal build-and-launch. Its process handling selects the exact built app path. The Codex Run action invokes this script.
 
-## Outputs and resources
+## Containment and binary package
 
-`Build` contains disposable build/test evidence. `Dist` contains publishable XCFramework/artifact, metadata/checksums and attribution materials. Keep runtime resources explicit and verify bundle/resource lookup after relocation and app embedding.
+```sh
+./scripts/package
+./scripts/verify
+```
 
-A dynamic framework must be embedded and signed correctly by the app. Signing identity, artifact signing, release hosting and distribution automation need their own concrete proposal; do not assume notarization or deployment is authorized.
+The dynamic framework force-loads the complete accepted Core aggregate with dead-code stripping disabled. Public headers expose Foundation types only. An explicit export list exposes the Objective-C class and metaclass; Core and dependency C++ APIs stay private. The verifier asserts ARM64/macOS/minimum OS 14.0, the install ID, rpaths, dynamic exports and exact SDK dependency allowlists.
 
-## Final verification
+Packaging archives the Release framework and creates `Dist/AirDCObjC.xcframework`, initially with one macOS ARM64 variant. `Package.swift` uses a path-based binary target for the `AirDCObjC` library. Generate this artifact before resolving the package; it is intentionally absent from a fresh clone.
 
-Check package resolution, public API import, actual runtime scenarios, binary containment, clean-host-path independence, tests, resource configuration, and license/provenance inventory. Define byte reproducibility versus semantic reproducibility based on observed Xcode outputs, without claiming either in advance.
+Package verification runs four Swift Testing tests and copies only the XCFramework, manifest and example sources and public API consumer tests into an isolated package under `Build/relocated-spm`. That copy has no workspace bridge `Source` or Core `Dependencies`. It builds the same SwiftUI example, stages and ad-hoc signs an app with the embedded dynamic framework, launches it and verifies the exact executable process. No sibling Core archive or private include path is available to that consumer.
 
-References: [Binary frameworks through SPM](https://developer.apple.com/documentation/xcode/distributing-binary-frameworks-as-swift-packages), [XCFramework bundles](https://developer.apple.com/documentation/xcode/creating-a-multi-platform-binary-framework-bundle).
+`./scripts/verify` runs acquisition integrity, native tests, package/relocation, source build and canonical launch checks, then inspects Mach-O containment. [Phase 1 evidence](reports/phase-1-framework-spm-proof.md) records results and limits.
+
+## Outputs and release scope
+
+`Build` holds disposable build/test logs and staged validation apps. `Dependencies`, `Dist`, SwiftPM caches and personal Xcode state are ignored. `Dist/AirDCObjC.xcframework` is a local integration artifact; release metadata, attribution and provenance packaging still need their release gate.
+
+Hosted ZIP/checksum publication, production signing/notarization, clean-machine execution, all runtime resources and full functional parity remain future work. Embedded OpenSSL configuration/provider defaults are distinct from Mach-O dylib dependencies; metadata-only execution does not validate TLS resource configuration. Byte reproducibility of Xcode outputs is not claimed.

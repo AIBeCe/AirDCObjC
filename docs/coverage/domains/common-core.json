@@ -73590,12 +73590,8 @@
       "id": "common-core.core-version.file-scope.operations",
       "kind": "operation",
       "upstream_symbols": [
-        "FunctionDecl getGitCommit: string () noexcept",
-        "FunctionDecl getBuildNumber: int () noexcept",
         "FunctionDecl getBuildNumberStr: string () noexcept",
-        "FunctionDecl getVersionTag: string () noexcept",
         "FunctionDecl getVersionDate: time_t () noexcept",
-        "FunctionDecl getAppName: const char *() noexcept",
         "FunctionDecl getAppId: const char *() noexcept",
         "FunctionDecl getConfigurationType: string () noexcept",
         "FunctionDecl getVersionType: VersionType () noexcept"
@@ -73630,7 +73626,7 @@
         ],
         "defaults": [],
         "effects": [
-          "getGitCommit returns GIT_COMMIT; getBuildNumber returns numeric GIT_COMMIT_COUNT; getBuildNumberStr stringifies that macro; getVersionTag returns GIT_TAG; getVersionDate returns VERSION_DATE; getAppName/getAppId return static APPNAME_INC/APPID_INC C strings.",
+          "getBuildNumberStr stringifies GIT_COMMIT_COUNT; getVersionDate returns VERSION_DATE; getAppId returns the static APPID_INC C string.",
           "getConfigurationType returns x64 on _WIN64, x86 on _WIN32; otherwise uname machine text, or (unknown architecture) on uname failure.",
           "getVersionType returns VERSION_NIGHTLY when the tag has more than four bytes and byte index 4 is 'a', VERSION_BETA for 'b', otherwise VERSION_STABLE. This is the source index test, not general semantic-version parsing."
         ],
@@ -73655,8 +73651,8 @@
       "acceptance_scenarios": [
         {
           "given": "The accepted distribution was generated with commit 55d51ceb817ec006d4ec844d9e3788e1b0ccc352, tag 0.0.0, count 0, date 1774518197, name AirDCCore-macOS and ID org.airdcpp.core.macos.configure; Core has not been started.",
-          "when": "The seven constant getters are called.",
-          "then": "Commit/tag/name/ID equal those exact strings, numeric count is 0, string count is \"0\", and date is 1774518197."
+          "when": "The remaining three constant getters getBuildNumberStr, getVersionDate and getAppId are called.",
+          "then": "String count is \"0\", date is 1774518197 and application ID is org.airdcpp.core.macos.configure."
         },
         {
           "given": "A non-Windows call has a successful uname returning machine arm64; a second injected syscall case fails.",
@@ -73677,48 +73673,16 @@
         "availability.unverified"
       ],
       "structural_declaration_ids": [
-        "decl:airdcpp/core/version.h:33:FunctionDecl:getGitCommit()",
-        "decl:airdcpp/core/version.h:34:FunctionDecl:getBuildNumber()",
         "decl:airdcpp/core/version.h:35:FunctionDecl:getBuildNumberStr()",
-        "decl:airdcpp/core/version.h:36:FunctionDecl:getVersionTag()",
         "decl:airdcpp/core/version.h:37:FunctionDecl:getVersionDate()",
-        "decl:airdcpp/core/version.h:38:FunctionDecl:getAppName()",
         "decl:airdcpp/core/version.h:39:FunctionDecl:getAppId()",
         "decl:airdcpp/core/version.h:40:FunctionDecl:getConfigurationType()",
         "decl:airdcpp/core/version.h:41:FunctionDecl:getVersionType()"
       ],
-      "structural_member_count": 9,
+      "structural_member_count": 5,
       "surface_classification": "public metadata operations",
-      "surface_rationale": "These nine public version functions provide externally useful build/application identity. They are not hidden as internal helpers; only four will be bridged in Phase 1.",
+      "surface_rationale": "Five remaining public version functions are future bridge requirements; the four Phase 1 getters have separate verified records.",
       "structural_members": [
-        {
-          "id": "decl:airdcpp/core/version.h:33:FunctionDecl:getGitCommit()",
-          "kind": "FunctionDecl",
-          "name": "getGitCommit",
-          "signature": "string () noexcept",
-          "declaration_text": "string getGitCommit() noexcept;",
-          "source_ref": {
-            "path": "airdcpp/core/version.h",
-            "start_line": 33,
-            "end_line": 33
-          },
-          "extraction_kind": "libclang",
-          "access": "invalid"
-        },
-        {
-          "id": "decl:airdcpp/core/version.h:34:FunctionDecl:getBuildNumber()",
-          "kind": "FunctionDecl",
-          "name": "getBuildNumber",
-          "signature": "int () noexcept",
-          "declaration_text": "int getBuildNumber() noexcept;",
-          "source_ref": {
-            "path": "airdcpp/core/version.h",
-            "start_line": 34,
-            "end_line": 34
-          },
-          "extraction_kind": "libclang",
-          "access": "invalid"
-        },
         {
           "id": "decl:airdcpp/core/version.h:35:FunctionDecl:getBuildNumberStr()",
           "kind": "FunctionDecl",
@@ -73734,20 +73698,6 @@
           "access": "invalid"
         },
         {
-          "id": "decl:airdcpp/core/version.h:36:FunctionDecl:getVersionTag()",
-          "kind": "FunctionDecl",
-          "name": "getVersionTag",
-          "signature": "string () noexcept",
-          "declaration_text": "string getVersionTag() noexcept;",
-          "source_ref": {
-            "path": "airdcpp/core/version.h",
-            "start_line": 36,
-            "end_line": 36
-          },
-          "extraction_kind": "libclang",
-          "access": "invalid"
-        },
-        {
           "id": "decl:airdcpp/core/version.h:37:FunctionDecl:getVersionDate()",
           "kind": "FunctionDecl",
           "name": "getVersionDate",
@@ -73757,20 +73707,6 @@
             "path": "airdcpp/core/version.h",
             "start_line": 37,
             "end_line": 37
-          },
-          "extraction_kind": "libclang",
-          "access": "invalid"
-        },
-        {
-          "id": "decl:airdcpp/core/version.h:38:FunctionDecl:getAppName()",
-          "kind": "FunctionDecl",
-          "name": "getAppName",
-          "signature": "const char *() noexcept",
-          "declaration_text": "const char* getAppName() noexcept;",
-          "source_ref": {
-            "path": "airdcpp/core/version.h",
-            "start_line": 38,
-            "end_line": 38
           },
           "extraction_kind": "libclang",
           "access": "invalid"
@@ -75607,6 +75543,442 @@
       "structural_members": [],
       "structural_declaration_ids": [],
       "structural_member_count": 0
+    },
+    {
+      "id": "common-core.core-version.coreCommit",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FunctionDecl getGitCommit: string () noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/version.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/core/version.cpp",
+          "start_line": 37,
+          "end_line": 37
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-present",
+        "evidence_refs": [
+          "Phase 1 full-force-loaded accepted archive and real Core getter tests; docs/reports/phase-1-framework-spm-proof.md."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No arguments; accepted generated version.inc constant."
+        ],
+        "preconditions": [
+          "No Core startup or manager instance is required. Accepted distribution generated constants differ from the ignored source checkout and are the binary authority."
+        ],
+        "defaults": [],
+        "effects": [
+          "getGitCommit returns the compiled original identity value 55d51ceb817ec006d4ec844d9e3788e1b0ccc352. The bridge copies it into a Foundation value."
+        ],
+        "events": [],
+        "errors": [
+          "Original string getter is noexcept; C++ allocation failure terminates. The accepted ASCII identity converts to UTF-8 NSString; invalid UTF-8 falls back to an empty string in the bridge."
+        ],
+        "completion": "Synchronous return; no manager, asynchronous completion or network activity.",
+        "cancellation": "No cancellation operation.",
+        "persistence": [],
+        "resources": [
+          "Generated version.inc is compiled into the binary; no runtime file is read."
+        ]
+      },
+      "ownership_evidence": [
+        "Core returns an owned std::string value; the bridge copies its UTF-8 bytes into NSString, exposed as Swift String."
+      ],
+      "threading_evidence": [
+        "Reads a compiled constant without manager state; the bridge uses local values. 64 concurrent consumer iterations passed exact-value assertions."
+      ],
+      "proposed_bridge_requirement": "Read-only public Foundation build identity, as implemented in ADCBuildInfo.",
+      "acceptance_scenarios": [
+        {
+          "given": "The accepted Core archive is contained in AirDCObjC; Core has not been started.",
+          "when": "Read ADCBuildInfo.coreCommit from Objective-C or Swift, including repeated concurrent reads.",
+          "then": "The value equals 55d51ceb817ec006d4ec844d9e3788e1b0ccc352 and remains consistent without runtime startup."
+        }
+      ],
+      "bridge_api": {
+        "objc": "ADCBuildInfo.coreCommit",
+        "swift": "ADCBuildInfo.coreCommit",
+        "value_type": "NSString / String",
+        "implementation": "Source/AirDCObjC/Private/ADCBuildInfo.mm"
+      },
+      "implementation_tests": [
+        "Test/AirDCObjC/Private/ADCBuildInfoTests.swift",
+        "Test/AirDCObjC/Public/ADCBuildInfoTests.m",
+        "Example/AirDCExample/Test/BuildInfo/BuildInfoSnapshotTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift and BuildInfoView.swift display original build identity.",
+      "status": "verified",
+      "gap_ids": [],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/version.h:33:FunctionDecl:getGitCommit()"
+      ],
+      "structural_member_count": 1,
+      "surface_classification": "public metadata operations",
+      "surface_rationale": "Public original metadata getter bridged and verified in Phase 1; no lifecycle or network claim.",
+      "structural_members": [
+        {
+          "id": "decl:airdcpp/core/version.h:33:FunctionDecl:getGitCommit()",
+          "kind": "FunctionDecl",
+          "name": "getGitCommit",
+          "signature": "string () noexcept",
+          "declaration_text": "string getGitCommit() noexcept;",
+          "source_ref": {
+            "path": "airdcpp/core/version.h",
+            "start_line": 33,
+            "end_line": 33
+          },
+          "extraction_kind": "libclang",
+          "access": "invalid"
+        }
+      ],
+      "contract_evidence": "source-traced",
+      "accepted_generated_constants": {
+        "evidence": "../../core-baseline.json and accepted Dist/include/airdcpp/core/version.inc",
+        "commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+        "tag": "0.0.0",
+        "count": 0,
+        "date": 1774518197,
+        "application_name": "AirDCCore-macOS",
+        "application_id": "org.airdcpp.core.macos.configure"
+      }
+    },
+    {
+      "id": "common-core.core-version.coreVersion",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FunctionDecl getVersionTag: string () noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/version.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/core/version.cpp",
+          "start_line": 41,
+          "end_line": 41
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-present",
+        "evidence_refs": [
+          "Phase 1 full-force-loaded accepted archive and real Core getter tests; docs/reports/phase-1-framework-spm-proof.md."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No arguments; accepted generated version.inc constant."
+        ],
+        "preconditions": [
+          "No Core startup or manager instance is required. Accepted distribution generated constants differ from the ignored source checkout and are the binary authority."
+        ],
+        "defaults": [],
+        "effects": [
+          "getVersionTag returns the compiled original identity value 0.0.0. The bridge copies it into a Foundation value."
+        ],
+        "events": [],
+        "errors": [
+          "Original string getter is noexcept; C++ allocation failure terminates. The accepted ASCII identity converts to UTF-8 NSString; invalid UTF-8 falls back to an empty string in the bridge."
+        ],
+        "completion": "Synchronous return; no manager, asynchronous completion or network activity.",
+        "cancellation": "No cancellation operation.",
+        "persistence": [],
+        "resources": [
+          "Generated version.inc is compiled into the binary; no runtime file is read."
+        ]
+      },
+      "ownership_evidence": [
+        "Core returns an owned std::string value; the bridge copies its UTF-8 bytes into NSString, exposed as Swift String."
+      ],
+      "threading_evidence": [
+        "Reads a compiled constant without manager state; the bridge uses local values. 64 concurrent consumer iterations passed exact-value assertions."
+      ],
+      "proposed_bridge_requirement": "Read-only public Foundation build identity, as implemented in ADCBuildInfo.",
+      "acceptance_scenarios": [
+        {
+          "given": "The accepted Core archive is contained in AirDCObjC; Core has not been started.",
+          "when": "Read ADCBuildInfo.coreVersion from Objective-C or Swift, including repeated concurrent reads.",
+          "then": "The value equals 0.0.0 and remains consistent without runtime startup."
+        }
+      ],
+      "bridge_api": {
+        "objc": "ADCBuildInfo.coreVersion",
+        "swift": "ADCBuildInfo.coreVersion",
+        "value_type": "NSString / String",
+        "implementation": "Source/AirDCObjC/Private/ADCBuildInfo.mm"
+      },
+      "implementation_tests": [
+        "Test/AirDCObjC/Private/ADCBuildInfoTests.swift",
+        "Test/AirDCObjC/Public/ADCBuildInfoTests.m",
+        "Example/AirDCExample/Test/BuildInfo/BuildInfoSnapshotTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift and BuildInfoView.swift display original build identity.",
+      "status": "verified",
+      "gap_ids": [],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/version.h:36:FunctionDecl:getVersionTag()"
+      ],
+      "structural_member_count": 1,
+      "surface_classification": "public metadata operations",
+      "surface_rationale": "Public original metadata getter bridged and verified in Phase 1; no lifecycle or network claim.",
+      "structural_members": [
+        {
+          "id": "decl:airdcpp/core/version.h:36:FunctionDecl:getVersionTag()",
+          "kind": "FunctionDecl",
+          "name": "getVersionTag",
+          "signature": "string () noexcept",
+          "declaration_text": "string getVersionTag() noexcept;",
+          "source_ref": {
+            "path": "airdcpp/core/version.h",
+            "start_line": 36,
+            "end_line": 36
+          },
+          "extraction_kind": "libclang",
+          "access": "invalid"
+        }
+      ],
+      "contract_evidence": "source-traced",
+      "accepted_generated_constants": {
+        "evidence": "../../core-baseline.json and accepted Dist/include/airdcpp/core/version.inc",
+        "commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+        "tag": "0.0.0",
+        "count": 0,
+        "date": 1774518197,
+        "application_name": "AirDCCore-macOS",
+        "application_id": "org.airdcpp.core.macos.configure"
+      }
+    },
+    {
+      "id": "common-core.core-version.coreBuildNumber",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FunctionDecl getBuildNumber: int () noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/version.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/core/version.cpp",
+          "start_line": 38,
+          "end_line": 38
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-present",
+        "evidence_refs": [
+          "Phase 1 full-force-loaded accepted archive and real Core getter tests; docs/reports/phase-1-framework-spm-proof.md."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No arguments; accepted generated version.inc constant."
+        ],
+        "preconditions": [
+          "No Core startup or manager instance is required. Accepted distribution generated constants differ from the ignored source checkout and are the binary authority."
+        ],
+        "defaults": [],
+        "effects": [
+          "getBuildNumber returns numeric GIT_COMMIT_COUNT (0 for the accepted artifact); the bridge preserves it as NSInteger."
+        ],
+        "events": [],
+        "errors": [
+          "Original integer getter is noexcept and returns the compiled constant; no Core error result."
+        ],
+        "completion": "Synchronous return; no manager, asynchronous completion or network activity.",
+        "cancellation": "No cancellation operation.",
+        "persistence": [],
+        "resources": [
+          "Generated version.inc is compiled into the binary; no runtime file is read."
+        ]
+      },
+      "ownership_evidence": [
+        "Original int and bridged NSInteger/Swift Int are value types; no borrowed storage or manager lifetime."
+      ],
+      "threading_evidence": [
+        "Reads a compiled constant without manager state; the bridge uses local values. 64 concurrent consumer iterations passed exact-value assertions."
+      ],
+      "proposed_bridge_requirement": "Read-only public Foundation build identity, as implemented in ADCBuildInfo.",
+      "acceptance_scenarios": [
+        {
+          "given": "The accepted Core archive is contained in AirDCObjC; Core has not been started.",
+          "when": "Read ADCBuildInfo.coreBuildNumber from Objective-C or Swift, including repeated concurrent reads.",
+          "then": "The value equals 0 and remains consistent without runtime startup."
+        }
+      ],
+      "bridge_api": {
+        "objc": "ADCBuildInfo.coreBuildNumber",
+        "swift": "ADCBuildInfo.coreBuildNumber",
+        "value_type": "NSInteger / Int",
+        "implementation": "Source/AirDCObjC/Private/ADCBuildInfo.mm"
+      },
+      "implementation_tests": [
+        "Test/AirDCObjC/Private/ADCBuildInfoTests.swift",
+        "Test/AirDCObjC/Public/ADCBuildInfoTests.m",
+        "Example/AirDCExample/Test/BuildInfo/BuildInfoSnapshotTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift and BuildInfoView.swift display original build identity.",
+      "status": "verified",
+      "gap_ids": [],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/version.h:34:FunctionDecl:getBuildNumber()"
+      ],
+      "structural_member_count": 1,
+      "surface_classification": "public metadata operations",
+      "surface_rationale": "Public original metadata getter bridged and verified in Phase 1; no lifecycle or network claim.",
+      "structural_members": [
+        {
+          "id": "decl:airdcpp/core/version.h:34:FunctionDecl:getBuildNumber()",
+          "kind": "FunctionDecl",
+          "name": "getBuildNumber",
+          "signature": "int () noexcept",
+          "declaration_text": "int getBuildNumber() noexcept;",
+          "source_ref": {
+            "path": "airdcpp/core/version.h",
+            "start_line": 34,
+            "end_line": 34
+          },
+          "extraction_kind": "libclang",
+          "access": "invalid"
+        }
+      ],
+      "contract_evidence": "source-traced",
+      "accepted_generated_constants": {
+        "evidence": "../../core-baseline.json and accepted Dist/include/airdcpp/core/version.inc",
+        "commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+        "tag": "0.0.0",
+        "count": 0,
+        "date": 1774518197,
+        "application_name": "AirDCCore-macOS",
+        "application_id": "org.airdcpp.core.macos.configure"
+      }
+    },
+    {
+      "id": "common-core.core-version.coreName",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FunctionDecl getAppName: const char *() noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/version.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/core/version.cpp",
+          "start_line": 35,
+          "end_line": 35
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-present",
+        "evidence_refs": [
+          "Phase 1 full-force-loaded accepted archive and real Core getter tests; docs/reports/phase-1-framework-spm-proof.md."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No arguments; accepted generated version.inc constant."
+        ],
+        "preconditions": [
+          "No Core startup or manager instance is required. Accepted distribution generated constants differ from the ignored source checkout and are the binary authority."
+        ],
+        "defaults": [],
+        "effects": [
+          "getAppName returns the compiled original identity value AirDCCore-macOS. The bridge copies it into a Foundation value."
+        ],
+        "events": [],
+        "errors": [
+          "Original C-string getter is noexcept. The accepted ASCII name converts to UTF-8 NSString; the bridge has an empty-string fallback for a null name."
+        ],
+        "completion": "Synchronous return; no manager, asynchronous completion or network activity.",
+        "cancellation": "No cancellation operation.",
+        "persistence": [],
+        "resources": [
+          "Generated version.inc is compiled into the binary; no runtime file is read."
+        ]
+      },
+      "ownership_evidence": [
+        "Core returns a borrowed static application-name C string with process lifetime; the bridge creates an NSString copy exposed as Swift String."
+      ],
+      "threading_evidence": [
+        "Reads a compiled constant without manager state; the bridge uses local values. 64 concurrent consumer iterations passed exact-value assertions."
+      ],
+      "proposed_bridge_requirement": "Read-only public Foundation build identity, as implemented in ADCBuildInfo.",
+      "acceptance_scenarios": [
+        {
+          "given": "The accepted Core archive is contained in AirDCObjC; Core has not been started.",
+          "when": "Read ADCBuildInfo.coreName from Objective-C or Swift, including repeated concurrent reads.",
+          "then": "The value equals AirDCCore-macOS and remains consistent without runtime startup."
+        }
+      ],
+      "bridge_api": {
+        "objc": "ADCBuildInfo.coreName",
+        "swift": "ADCBuildInfo.coreName",
+        "value_type": "NSString / String",
+        "implementation": "Source/AirDCObjC/Private/ADCBuildInfo.mm"
+      },
+      "implementation_tests": [
+        "Test/AirDCObjC/Private/ADCBuildInfoTests.swift",
+        "Test/AirDCObjC/Public/ADCBuildInfoTests.m",
+        "Example/AirDCExample/Test/BuildInfo/BuildInfoSnapshotTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift and BuildInfoView.swift display original build identity.",
+      "status": "verified",
+      "gap_ids": [],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/version.h:38:FunctionDecl:getAppName()"
+      ],
+      "structural_member_count": 1,
+      "surface_classification": "public metadata operations",
+      "surface_rationale": "Public original metadata getter bridged and verified in Phase 1; no lifecycle or network claim.",
+      "structural_members": [
+        {
+          "id": "decl:airdcpp/core/version.h:38:FunctionDecl:getAppName()",
+          "kind": "FunctionDecl",
+          "name": "getAppName",
+          "signature": "const char *() noexcept",
+          "declaration_text": "const char* getAppName() noexcept;",
+          "source_ref": {
+            "path": "airdcpp/core/version.h",
+            "start_line": 38,
+            "end_line": 38
+          },
+          "extraction_kind": "libclang",
+          "access": "invalid"
+        }
+      ],
+      "contract_evidence": "source-traced",
+      "accepted_generated_constants": {
+        "evidence": "../../core-baseline.json and accepted Dist/include/airdcpp/core/version.inc",
+        "commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+        "tag": "0.0.0",
+        "count": 0,
+        "date": 1774518197,
+        "application_name": "AirDCCore-macOS",
+        "application_id": "org.airdcpp.core.macos.configure"
+      }
     }
   ]
 }
