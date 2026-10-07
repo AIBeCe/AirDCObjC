@@ -20,9 +20,9 @@ Date: 2026-10-07. These are evidence/implementation gaps, not scope exclusions. 
 
 ## Resource observations
 
-`DCPlusPlus.cpp:64-187` initializes paths/utilities, creates a RUNNING flag and singleton managers, loads settings/favorites/language/certificates/hash/queue/share/ignore/recents, optionally initializes GeoIP, starts connectivity, and invokes module/post-load hooks. These reads and writes make arbitrary real-profile startup inappropriate for a metadata link proof.
+`DCPlusPlus.cpp:64-187` initializes paths/utilities, attempts RUNNING flag creation without checking its boolean result, and creates singleton managers, loads settings/favorites/language/certificates/hash/queue/share/ignore/recents, optionally initializes GeoIP, starts connectivity, and invokes module/post-load hooks. These reads and writes make arbitrary real-profile startup inappropriate for a metadata link proof.
 
-`util/AppUtil.cpp:228-260` uses configured global/resource directories on non-Windows, defaults user config to `$HOME/.airdc++/`, sets downloads and user-local paths, and creates profile/local/language directories. Boot configuration and an explicit config path can affect this behavior. Phase 2 must bind all paths safely for a macOS host, not only change one directory string.
+`util/AppUtil.cpp:228-260` uses configured global/resource directories on non-Windows, defaults user config to `$HOME/.airdc++/`, sets downloads and user-local paths, and attempts to ensure profile/local/language directories without checking those return values. Boot configuration and an explicit config path can affect this behavior. Phase 2 must bind all paths safely for a macOS host, not only change one directory string.
 
 `core/crypto/CryptoManager.cpp:152-243,387-390` covers TLS availability and certificate generation/path configuration; defaults alone do not establish trust policy. `core/geo/GeoManager.cpp` owns database initialization/closure; the data source is a runtime prerequisite. Preserve original certificate/keyprint semantics and inspect them before exposing security-sensitive options.
 

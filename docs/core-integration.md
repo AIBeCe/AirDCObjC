@@ -48,3 +48,7 @@ Preserve the Core's GPL-3.0-or-later notices and all dependency license texts, n
 ## Phase 0 resource audit
 
 See [coverage gaps](coverage/gaps.md) for exact observed startup/profile/resource anchors and the unresolved host policy. Phase 1 metadata getters do not initialize Core or access profile/network resources. Full startup, trust configuration and path migration belong to Phase 2/3 and their relevant tests.
+
+The ignored generated checkout version.inc differs from the accepted installed input (empty tag/count 1 versus 0.0.0/count 0). Its provenance and both hashes are recorded in [source accounting](coverage/source-accounting.json). Phase 1 uses only accepted distribution headers/archive; checkout-generated values are not the binary metadata authority.
+
+The accepted manifest binds OpenSSL 3.5.8 static inputs with runtime defaults `OPENSSLDIR=/usr/local/ssl`, `ENGINESDIR=/usr/local/lib/engines-3`, and `MODULESDIR=/usr/local/lib/ossl-modules`. These are runtime configuration/provider defaults, not framework dynamic-load dependencies. Phase 1 checks Mach-O load paths for undeclared dependencies; it must not claim a metadata-only proof validates trust stores, provider/config discovery or network TLS. Those paths and host-supplied resources remain part of `resources.host-policy` for later lifecycle/crypto tests.
