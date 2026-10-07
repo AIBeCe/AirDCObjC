@@ -1,0 +1,1065 @@
+{
+  "schema_version": 1,
+  "domain_id": "platform",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "platform.zip.lifetime",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::ZipFile",
+        "dcpp::ZipFile::~ZipFile",
+        "dcpp::ZipFile::Open",
+        "dcpp::ZipFile::Close",
+        "dcpp::ZipFile::IsOpen"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 63,
+          "end_line": 87
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:73:class:ZipFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:93:constructor:ZipFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:94:constructor:ZipFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:95:destructor:~ZipFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:97:method:Open",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:98:method:Close",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:100:method:IsOpen"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Archive path for Open/path constructor."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Default handle is null; path constructor opens. Open first closes old handle; failed unzOpen throws. Close checks handle, throws on non-UNZ_OK, then nulls handle. Destructor calls Close. IsOpen tests nonnull."
+        ],
+        "events": [],
+        "errors": [
+          "ZipFileException for open/close errors; destructor calls a potentially throwing Close, which needs explicit bridge lifetime policy."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "minizip and archive filesystem."
+        ]
+      },
+      "ownership_evidence": [
+        "Noncopyable instance owns minizip unzFile."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "A default ZipFile and a readable valid ZIP path.",
+          "when": "Call Open, IsOpen, Close, then IsOpen.",
+          "then": "State transitions closed/open/closed; opening invalid archive raises ZipFileException."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.navigate",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::GoToFirstFile",
+        "dcpp::ZipFile::GoToNextFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 89,
+          "end_line": 95
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:102:method:GoToFirstFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:103:method:GoToNextFile"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Open archive handle."
+        ],
+        "defaults": [],
+        "effects": [
+          "Returns whether minizip navigation returns UNZ_OK."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "An open ZIP with two entries.",
+          "when": "Call GoToFirstFile then GoToNextFile twice.",
+          "then": "Navigation returns true for the two entries and false after the last entry."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.entry-open-close",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::OpenCurrentFile",
+        "dcpp::ZipFile::CloseCurrentFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 97,
+          "end_line": 105
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:105:method:OpenCurrentFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:106:method:CloseCurrentFile"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Open archive and selected entry."
+        ],
+        "defaults": [],
+        "effects": [
+          "Delegates minizip entry open/close; non-UNZ_OK raises ZipFileException."
+        ],
+        "events": [],
+        "errors": [
+          "ZipFileException identifies failed minizip operation/error."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "An open archive with a selected valid entry.",
+          "when": "Call OpenCurrentFile then CloseCurrentFile.",
+          "then": "Both succeed; a minizip error is translated to ZipFileException."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.entry-metadata",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::GetCurrentFileName",
+        "dcpp::ZipFile::GetCurrentFileInfo"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 107,
+          "end_line": 134
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:108:method:GetCurrentFileName",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:109:method:GetCurrentFileInfo"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Open archive and selected entry."
+        ],
+        "defaults": [],
+        "effects": [
+          "Reads name into fixed1024-byte buffer; FileInfo has uncompressed size and local mktime converted archive timestamp."
+        ],
+        "events": [],
+        "errors": [
+          "ZipFileException from unzGetCurrentFileInfo."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned FileInfo is a value with owned string."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Selected archive entry named a.txt with known uncompressed size/timestamp.",
+          "when": "Call GetCurrentFileName and GetCurrentFileInfo.",
+          "then": "Name,size and local mktime timestamp match archive metadata; failed metadata query raises ZipFileException."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.read-memory",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::ReadCurrentFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 136,
+          "end_line": 147
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:111:method:ReadCurrentFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:112:method:ReadCurrentFile"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Selected entry opened."
+        ],
+        "defaults": [],
+        "effects": [
+          "Queries uncompressed size, allocates new[] buffer of that size, reads once, requires exact byte count, returns raw pointer/count pair."
+        ],
+        "events": [],
+        "errors": [
+          "Minizip metadata/read errors; allocation failure remains a C++ exception."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Caller owns returned new[] buffer and must delete[]; inspected exceptional read path does not free allocation before throw."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "An opened entry containing known bytes abc.",
+          "when": "Call zero-argument ReadCurrentFile, copy result, and delete[] its returned buffer.",
+          "then": "Copied bytes equal abc and returned size3; short read raises original ZIP error."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.read-path",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::ReadCurrentFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 149,
+          "end_line": 175
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:111:method:ReadCurrentFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:112:method:ReadCurrentFile"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Destination directory path or exact target file path."
+        ],
+        "preconditions": [
+          "Selected entry opened and caller-approved destination."
+        ],
+        "defaults": [],
+        "effects": [
+          "Skips entries ending slash/backslash. Directory destination appends archive name; exact-file destination is used directly. Ensures directory, opens/truncates file, writes bytes then deletes buffer. Windows normalizes slash separators."
+        ],
+        "events": [],
+        "errors": [
+          "File/Zip exceptions translated; original entry names are concatenated without a containment check in this function."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Creates/overwrites extracted files."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Buffer is deleted on successful write; exceptional file path requires separate cleanup/containment policy."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Opened file entry a.txt and an isolated destination directory ending in directory separator.",
+          "when": "Call ReadCurrentFile(destination).",
+          "then": "Destination/a.txt is created/truncated with entry bytes; directory entries are skipped."
+        },
+        {
+          "given": "An archive entry containing a parent-directory name.",
+          "when": "Resolve extraction using original ReadCurrentFile path logic in an isolated fixture.",
+          "then": "Original concatenation has no containment check; host policy must be decided before exposing extraction."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.read-map",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::ReadFiles"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 177,
+          "end_line": 193
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:113:method:ReadFiles"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Caller-owned FileMap reference."
+        ],
+        "preconditions": [
+          "Open archive."
+        ],
+        "defaults": [],
+        "effects": [
+          "Traverses first/next, opens each entry, skips directories, reads bytes and assigns name -> FileInfo/owned buffer, closes current entry."
+        ],
+        "events": [],
+        "errors": [
+          "Exceptions become ZipFileException."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "FileMap takes FileContentType ownership of returned buffer."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "ZIP with a file entry and directory entry and an existing FileMap.",
+          "when": "Call ReadFiles.",
+          "then": "File entry metadata/owned content are assigned by name; directory entry is skipped."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.create-list",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::CreateZipFileList"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 275,
+          "end_line": 313
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:117:method:CreateZipFileList"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Output list, source directory, destination archive prefix, pattern and keepEmpty."
+        ],
+        "preconditions": [
+          "Directory paths follow source concatenation conventions."
+        ],
+        "defaults": [
+          "aPattern empty; keepEmpty=true."
+        ],
+        "effects": [
+          "Skips hidden/link/empty names. Applies regex to current-level entries only; recursive call omits pattern and keepEmpty arguments so defaults apply below. Adds directory entries when keepEmpty or descendants exist; adds source/archive name pairs for files; returns count of files."
+        ],
+        "events": [],
+        "errors": [
+          "Declared noexcept despite regex construction; invalid pattern may terminate rather than produce a recoverable result."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "Directory enumeration."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Source directory with hidden file, symlink, matching top-level directory and child names not matching the top-level regex.",
+          "when": "Call CreateZipFileList with pattern selecting that directory and keepEmpty=false.",
+          "then": "Hidden/symlink entries are skipped; recursion uses default empty regex/keepEmpty=true; returned count counts files."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip.create-archive",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ZipFile::CreateZipFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 196,
+          "end_line": 273
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 39,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:116:method:CreateZipFile",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:119:method:CreateZipFile"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Destination ZIP path and source/archive name pairs, or source directory with pattern/keepEmpty overload."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Directory overload: empty pattern and keepEmpty=true."
+        ],
+        "effects": [
+          "Creates archive, strips leading slash/backslash from stored names, writes directory entries, compresses files with best compression using16KiB buffers, carries file timestamps, closes entries/archive. Header overload first builds a file list."
+        ],
+        "events": [],
+        "errors": [
+          "zipOpen/entry open/write/close/archive close errors; FileException translated."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Creates/replaces destination archive."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Raw buffer and zip handle cleanup on exceptional paths need explicit bridge ownership policy."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Source/archive-name pairs for file bytes and an empty directory.",
+          "when": "Call CreateZipFile(destination,pairs).",
+          "then": "ZIP stores stripped-leading-separator names, file bytes/timestamps and directory entry; minizip/file errors are translated."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ]
+    },
+    {
+      "id": "platform.zip-model-and-errors",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::ZipFileException",
+        "dcpp::ZipFile::FileInfo"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.h",
+          "start_line": 62,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/core/io/compress/ZipFile.cpp",
+          "start_line": 50,
+          "end_line": 61
+        }
+      ],
+      "structural_declaration_ids": [
+        "lexical:airdcpp/core/io/compress/ZipFile.h:61:class:ZipFileException",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:64:constructor:ZipFileException",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:65:constructor:ZipFileException",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:66:constructor:ZipFileException",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:76:struct:FileInfo",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:77:constructor:FileInfo",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:78:constructor:FileInfo",
+        "decl:airdcpp/core/io/compress/ZipFile.h:64:lexical:Constructor:ZipFileException",
+        "decl:airdcpp/core/io/compress/ZipFile.h:65:lexical:Constructor:ZipFileException",
+        "decl:airdcpp/core/io/compress/ZipFile.h:66:lexical:Constructor:ZipFileException",
+        "decl:airdcpp/core/io/compress/ZipFile.h:77:lexical:Constructor:FileInfo",
+        "decl:airdcpp/core/io/compress/ZipFile.h:78:lexical:Constructor:FileInfo",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:67:destructor:~ZipFileException",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:70:method:TranslateError",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:79:destructor:~FileInfo",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:81:field:name",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:82:field:time",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:83:field:size",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:87:typedef:FileContentType",
+        "lexical:airdcpp/core/io/compress/ZipFile.h:91:typedef:FileMap",
+        "decl:airdcpp/core/io/compress/ZipFile.h:67:lexical:Destructor:ZipFileException",
+        "decl:airdcpp/core/io/compress/ZipFile.h:79:lexical:Destructor:FileInfo",
+        "decl:airdcpp/core/io/compress/ZipFile.h:42-42:conditional-region",
+        "decl:airdcpp/core/io/compress/ZipFile.h:49-49:conditional-region",
+        "decl:airdcpp/core/io/compress/ZipFile.h:87-87:conditional-region",
+        "decl:airdcpp/core/io/compress/ZipFile.h:89-89:conditional-region"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Function/error information; FileInfo optional name/time/size."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "FileInfo time=-1,size=-1."
+        ],
+        "effects": [
+          "Exception constructors combine function/message or translated minizip error. FileInfo default is empty name,time=-1,size=-1. FileContentType owns arrays; helper types support ZIP capability representation."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.zip"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:67:destructor:~ZipFileException",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:70:method:TranslateError",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:79:destructor:~FileInfo",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:81:field:name",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:82:field:time",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:83:field:size",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:87:typedef:FileContentType",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "lexical:airdcpp/core/io/compress/ZipFile.h:91:typedef:FileMap",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:67:lexical:Destructor:ZipFileException",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:79:lexical:Destructor:FileInfo",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:42-42:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:49-49:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:87-87:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/io/compress/ZipFile.h:89-89:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        }
+      ]
+    },
+    {
+      "id": "platform.windows-upnp",
+      "kind": "platform-implementation",
+      "upstream_symbols": [
+        "dcpp::Mapper_WinUPnP"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 31,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.cpp",
+          "start_line": 30,
+          "end_line": 185
+        },
+        {
+          "path": "CMakeLists.txt",
+          "start_line": 46,
+          "end_line": 51
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:30:ClassDecl:Mapper_WinUPnP",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:33:CXCursor_Constructor:aa725fe45ec1",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:35:VarDecl:name",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:38:CXXMethod:init()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:39:CXXMethod:uninit()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:41:CXXMethod:add(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:42:CXXMethod:remove(const string &, const Protocol)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:43:CXXMethod:supportsProtocol(bool)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:45:CXXMethod:renewal()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:47:CXXMethod:getDeviceName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:48:CXXMethod:getExternalIP()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:50:CXXMethod:getName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:53:CXXMethod:getStaticPortMappingCollection()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:58:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:59:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55-59:conditional-region"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Local IP, IPv6 flag; port/protocol/description mapping inputs."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Windows COM mapper supports IPv4 only, initializes apartment COM and NAT object, adds/removes same external/internal port, tracks most recently successful mapping to obtain external IP. Device name is empty; renewal is zero. Collection lookup retries3times with1500ms sleep."
+        ],
+        "events": [],
+        "errors": [
+          "COM failures return false/null/empty."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "Windows COM UPnP NAT SDK."
+        ]
+      },
+      "ownership_evidence": [
+        "COM objects/BSTR acquired/released in inspected method paths; object lifetime is internal to mapper."
+      ],
+      "threading_evidence": [
+        "COM apartment initialization and blocking sleeps belong to implementation, not public UI thread."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Original Windows COM mapper with local IPv4 and a working mapping collection.",
+          "when": "Add a TCP port mapping, query external IP, remove the matching port/protocol, then query again.",
+          "then": "Successful mapping enables address lookup; removing it clears last-port state so address query is empty; IPv6 is unsupported."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.win-mapper"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:35:VarDecl:name",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:38:CXXMethod:init()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:39:CXXMethod:uninit()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:41:CXXMethod:add(const string &, const Protocol, const string &)",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:42:CXXMethod:remove(const string &, const Protocol)",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:43:CXXMethod:supportsProtocol(bool)",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:45:CXXMethod:renewal()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:47:CXXMethod:getDeviceName()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:48:CXXMethod:getExternalIP()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:50:CXXMethod:getName()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:53:CXXMethod:getStaticPortMappingCollection()",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55:conditional-source",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:58:conditional-source",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:59:conditional-source",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55-59:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        }
+      ]
+    },
+    {
+      "id": "platform.windows-sdk-policy",
+      "kind": "internal",
+      "upstream_symbols": [
+        "_WIN32",
+        "UNC_MAX_PATH",
+        "_WIN32_WINNT",
+        "WINVER"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/header/w.h",
+          "start_line": 19,
+          "end_line": 43
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/header/w.h:23-24:conditional-region",
+        "decl:airdcpp/core/header/w.h:26-26:conditional-region",
+        "decl:airdcpp/core/header/w.h:30-30:conditional-region",
+        "decl:airdcpp/core/header/w.h:34-34:conditional-region",
+        "decl:airdcpp/core/header/w.h:36-42:conditional-region"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Windows-only SDK wrapper defines UNC_MAX_PATH1024 and default Windows target0x600, includes Windows socket/platform headers. This is dependency/platform policy, not a portable user capability."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "platform.win-mapper"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/header/w.h:23-24:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/header/w.h:26-26:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/header/w.h:30-30:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/header/w.h:34-34:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/header/w.h:36-42:conditional-region",
+          "rationale": "Exact ZIP model/owned handle, Windows mapper implementation or SDK conditional support for the inspected platform contract; this link does not assert macOS availability."
+        }
+      ]
+    }
+  ]
+}

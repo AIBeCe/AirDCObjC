@@ -1,0 +1,2477 @@
+{
+  "schema_version": 1,
+  "domain_id": "filelist",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "filelist.open-session",
+      "kind": "operation",
+      "upstream_symbols": [
+        "openOwnList",
+        "openLocalFileList",
+        "openRemoteFileListHookedThrow",
+        "findList",
+        "getLists"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.h",
+          "start_line": 43,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.h",
+          "start_line": 68,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 444,
+          "end_line": 505
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 535,
+          "end_line": 579
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Profile+ADC path, local path+user, or FilelistAddData+queue flags."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Directories default to ADC root; local full list is default."
+        ],
+        "effects": [
+          "Own-list opens reuse session and schedule profile switch; local opens return null on existing session and require local file unless partial; remote opens return null on duplicate, may select the online hub with largest share when hint stale, queue request, create full/partial listing from flags, and mark target queued. ListingCreated means stored in viewedLists; OpenListing requests presentation."
+        ],
+        "events": [
+          "ListingCreated",
+          "OpenListing"
+        ],
+        "errors": [
+          "Remote queue errors propagate; duplicate session returns null."
+        ],
+        "completion": "Allocation is synchronous; parsing/navigation for client-view sessions are asynchronous.",
+        "cancellation": "removeList closes or marks closing; close stops queued listing tasks.",
+        "persistence": [
+          "Filelist session/tree is in-memory; local list file is an external input."
+        ],
+        "resources": [
+          "QueueManager, ClientManager hub choice, XML file/decompressor, listing task queue."
+        ]
+      },
+      "ownership_evidence": [
+        "viewedLists owns DirectoryListingPtr per user; createList inserts before notifying."
+      ],
+      "threading_evidence": [
+        "Manager map is locked; client-view listing work runs serially on its task queue."
+      ],
+      "proposed_bridge_requirement": "Represent listing as a session with ID and value snapshots; keep Core pointers, files, and queue flags internal.",
+      "acceptance_scenarios": [
+        "Given no listing exists, when opening a local list, then manager stores a session and emits ListingCreated and OpenListing.",
+        "Given the original hub is offline and another hub is online with the greatest share, when opening remote list, then the request uses that hub and flags determine partial/full mode.",
+        "Given an own listing exists with another profile, when openOwnList is called, then it reuses that session and schedules profile switch."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManager.h:36:ClassDecl:DirectoryListingManager",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:38:TypedefDecl:DirectoryListingMap",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:40:FieldDecl:loadHooks",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:43:CXXMethod:openOwnList(ProfileToken, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:46:CXXMethod:openLocalFileList(const HintedUser &, const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:50:CXXMethod:openRemoteFileListHookedThrow(const FilelistAddData &, Flags::MaskType)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:51:CXXMethod:removeList(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:56:CXXMethod:processListHooked(const string &, const string &, const HintedUser &, const string &, int)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:57:CXXMethod:processListActionHooked(DirectoryListingPtr, const string &, int)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:61:CXXMethod:addDirectoryDownloadHookedThrow(const FilelistAddData &, const string &, const string &, Priority, DirectoryDownload::ErrorMethod)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:62:CXXMethod:getDirectoryDownloads()",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:63:CXXMethod:getDirectoryDownload(DirectoryDownloadId)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:65:CXXMethod:hasDirectoryDownload(const string &, void *)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:66:CXXMethod:cancelDirectoryDownload(DirectoryDownloadId)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:68:CXXMethod:getLists()",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:69:CXXMethod:findList(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:71:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:73:CXXMethod:removeDirectoryDownload(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:74:CXXMethod:getPendingDirectoryDownloadsUnsafe(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:75:CXXMethod:getPendingDirectoryDownloadUnsafe(const UserPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:77:CXXMethod:maybeReportDownloadError(const DirectoryDownloadPtr &, const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:78:CXXMethod:failDirectoryDownload(const DirectoryDownloadPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:81:CXXMethod:queueListHookedThrow(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:83:CXXMethod:handleDownloadHooked(const DirectoryDownloadPtr &, const DirectoryListingPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:85:CXXMethod:createList(const HintedUser &, bool, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:91:CXXMethod:checkDownloadUrl(const HintedUser &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:96:FieldDecl:cs",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:99:FieldDecl:dlDirectories",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:102:FieldDecl:viewedLists",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:104:CXXMethod:on(QueueManagerListener::ItemAdded, const QueueItemPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:105:CXXMethod:on(QueueManagerListener::ItemFinished, const QueueItemPtr &, const string &, const HintedUser &, int64_t)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:106:CXXMethod:on(QueueManagerListener::ItemRemoved, const QueueItemPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:108:CXXMethod:on(QueueManagerListener::PartialListFinished, const HintedUser &, const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:110:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:27:ClassDecl:DirectoryListingManagerListener",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/filelist/DirectoryListingManagerListener.h:30:29)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:32:TypedefDecl:ListingCreated",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:33:TypedefDecl:OpenListing",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:34:TypedefDecl:ListingClosed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:36:TypedefDecl:DirectoryDownloadAdded",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:37:TypedefDecl:DirectoryDownloadRemoved",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:38:TypedefDecl:DirectoryDownloadProcessed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:39:TypedefDecl:DirectoryDownloadFailed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:41:CXXMethod:on(ListingCreated, const DirectoryListingPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:42:CXXMethod:on(OpenListing, const DirectoryListingPtr &, const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:43:CXXMethod:on(ListingClosed, const DirectoryListingPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:45:CXXMethod:on(DirectoryDownloadAdded, const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:46:CXXMethod:on(DirectoryDownloadRemoved, const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:47:CXXMethod:on(DirectoryDownloadProcessed, const DirectoryDownloadPtr &, const DirectoryBundleAddResult &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:48:CXXMethod:on(DirectoryDownloadFailed, const DirectoryDownloadPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:29:CXCursor_Destructor:045a079d4db3",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:53:CXCursor_Constructor:40ab5acf700a",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:54:CXCursor_Destructor:108b5ceecfaa"
+      ]
+    },
+    {
+      "id": "filelist.remove-session",
+      "kind": "operation",
+      "upstream_symbols": [
+        "removeList",
+        "DirectoryListing::close"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 557,
+          "end_line": 575
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.h",
+          "start_line": 136,
+          "end_line": 136
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 375,
+          "end_line": 388
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User identity."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Returns false if no session. With active list downloads, sets closing and asks QueueManager to remove each; final session erase occurs later through queue callbacks. Without downloads, erases map, stops task queue and fires Close then ListingClosed."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "May return before closure when queue downloads remain.",
+        "cancellation": "Close stops listing tasks; associated filelist queue items are removed asynchronously.",
+        "persistence": [],
+        "resources": [
+          "Viewed list map, queue entries, task queue."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager owns map entry until actual close."
+      ],
+      "threading_evidence": [
+        "Queue removal callbacks drive deferred cleanup."
+      ],
+      "proposed_bridge_requirement": "Preserve deferred close while queue items remain.",
+      "acceptance_scenarios": [
+        "Given list downloads remain, when removeList is called, then it marks closing and queues removals without immediate session erase.",
+        "Given no list downloads remain, when removeList is called, then it erases, closes, and emits Close and ListingClosed."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManager.h:51:CXXMethod:removeList(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:136:CXXMethod:close()"
+      ]
+    },
+    {
+      "id": "filelist.parse-full-partial",
+      "kind": "operation",
+      "upstream_symbols": [
+        "loadFile",
+        "loadPartialXml",
+        "loadXML",
+        "ListLoader callbacks"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListing.h",
+          "start_line": 83,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 233,
+          "end_line": 268
+        },
+        {
+          "path": "airdcpp/filelist/ListLoader.h",
+          "start_line": 34,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/filelist/ListLoader.cpp",
+          "start_line": 34,
+          "end_line": 225
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Local file or partial XML plus expected ADC path."
+        ],
+        "preconditions": [
+          "Partial base and incoming FileListing Base must be valid ADC paths and match case-insensitively."
+        ],
+        "defaults": [],
+        "effects": [
+          "Full list reads .bz2 by decompression or .xml directly; partial XML is applied to expected ADC base. File entry requires valid name plus nonempty size and TTH; missing fields skip the item. Directory entries preserve incomplete child counts. Parser checks FileListing Base against expected partial base and marks loaded base complete. Validation hooks remove rejected files/directories after parsing except queue-match-only processing."
+        ],
+        "events": [],
+        "errors": [
+          "Malformed XML is converted to AbortException; load dispatch emits LoadingFailed. Closing while loading aborts with empty error. QueueException is converted to status text. Unsupported extension has no XML parse branch; characterize explicitly."
+        ],
+        "completion": "Direct load methods are synchronous; client-view task queue runs parse asynchronously then emits LoadingFinished.",
+        "cancellation": "Closing listing makes ListLoader throw empty AbortException; LoadingFailed may carry empty cancellation message.",
+        "persistence": [],
+        "resources": [
+          "Filesystem or memory stream, decompressor, XML reader, list tree, validation hooks."
+        ]
+      },
+      "ownership_evidence": [
+        "Listing owns tree; ListLoader uses raw DirectoryListing pointer during parse."
+      ],
+      "threading_evidence": [
+        "Client-view tasks are serialized; non-view processing dispatches immediately."
+      ],
+      "proposed_bridge_requirement": "Retain full/partial parsing, validation and cancellation behavior; do not expose parser callbacks.",
+      "acceptance_scenarios": [
+        "Given partial-list XML Base matches expected ADC path, when parsed, then only that subtree is updated and marked complete.",
+        "Given file XML entry omits TTH or size, when parsed, then that file is skipped.",
+        "Given partial-list base differs, when parsed, then LoadingFailed reports base mismatch.",
+        "Given close interrupts parsing, when loader checks closing, then it aborts and reports an empty cancellation reason."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListing.h:48:ClassDecl:DirectoryListing",
+        "decl:airdcpp/filelist/DirectoryListing.h:54:TypeAliasDecl:DirectoryPtr",
+        "decl:airdcpp/filelist/DirectoryListing.h:57:TypeAliasDecl:FilePtr",
+        "decl:airdcpp/filelist/DirectoryListing.h:62:TypeAliasDecl:FileValidationHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:63:TypeAliasDecl:DirectoryValidationHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:65:StructDecl:ValidationHooks",
+        "decl:airdcpp/filelist/DirectoryListing.h:66:FieldDecl:directoryLoadHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:67:FieldDecl:fileLoadHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:69:CXXMethod:hasSubscribers()",
+        "decl:airdcpp/filelist/DirectoryListing.h:78:CXXMethod:getToken()",
+        "decl:airdcpp/filelist/DirectoryListing.h:83:CXXMethod:loadFile()",
+        "decl:airdcpp/filelist/DirectoryListing.h:84:CXXMethod:isLoaded()",
+        "decl:airdcpp/filelist/DirectoryListing.h:89:CXXMethod:loadPartialXml(const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:91:CXXMethod:createBundleHooked(const DirectoryPtr &, const string &, const string &, Priority, string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:93:CXXMethod:getDownloadSourceUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:95:CXXMethod:getTotalListSizeUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListing.h:96:CXXMethod:getDirectorySizeUnsafe(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:97:CXXMethod:getTotalFileCountUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListing.h:99:CXXMethod:getRoot()",
+        "decl:airdcpp/filelist/DirectoryListing.h:102:CXXMethod:getLocalPathsUnsafe(const DirectoryPtr &, StringList &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:105:CXXMethod:getLocalPathsUnsafe(const FilePtr &, StringList &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:107:CXXMethod:isMyCID()",
+        "decl:airdcpp/filelist/DirectoryListing.h:108:CXXMethod:getNick(bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:109:CXXMethod:getNickFromFilename(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:110:CXXMethod:getUserFromFilename(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:112:CXXMethod:getShareProfile()",
+        "decl:airdcpp/filelist/DirectoryListing.h:114:CXXMethod:addShareProfileChangeTask(ProfileToken)",
+        "decl:airdcpp/filelist/DirectoryListing.h:115:CXXMethod:addHubUrlChangeTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:117:CXXMethod:getPartialListInfo(int64_t &, size_t &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:119:CXXMethod:getUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:120:CXXMethod:getHintedUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:121:CXXMethod:getHubUrl()",
+        "decl:airdcpp/filelist/DirectoryListing.h:123:FieldDecl:partialList",
+        "decl:airdcpp/filelist/DirectoryListing.h:124:FieldDecl:fileName",
+        "decl:airdcpp/filelist/DirectoryListing.h:125:FieldDecl:closing",
+        "decl:airdcpp/filelist/DirectoryListing.h:127:CXXMethod:addListDiffTask(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:129:CXXMethod:addPartialListLoadTask(const string &, const string &, bool, const AsyncF &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:130:CXXMethod:addOwnListLoadTask(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:132:CXXMethod:addFullListTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:133:CXXMethod:addQueueMatchTask()",
+        "decl:airdcpp/filelist/DirectoryListing.h:135:CXXMethod:addAsyncTask(Callback &&)",
+        "decl:airdcpp/filelist/DirectoryListing.h:136:CXXMethod:close()",
+        "decl:airdcpp/filelist/DirectoryListing.h:138:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:139:CXXMethod:findDirectoryUnsafe(const string &, const Directory *)",
+        "decl:airdcpp/filelist/DirectoryListing.h:141:CXXMethod:supportsASCH()",
+        "decl:airdcpp/filelist/DirectoryListing.h:143:StructDecl:LocationInfo",
+        "decl:airdcpp/filelist/DirectoryListing.h:144:FieldDecl:totalSize",
+        "decl:airdcpp/filelist/DirectoryListing.h:145:FieldDecl:files",
+        "decl:airdcpp/filelist/DirectoryListing.h:146:FieldDecl:directories",
+        "decl:airdcpp/filelist/DirectoryListing.h:148:FieldDecl:directory",
+        "decl:airdcpp/filelist/DirectoryListing.h:151:CXXMethod:getCurrentLocationInfo()",
+        "decl:airdcpp/filelist/DirectoryListing.h:155:CXXMethod:onListRemovedQueue(const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:156:CXXMethod:addDisableLoadingTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:158:CXXMethod:isRead()",
+        "decl:airdcpp/filelist/DirectoryListing.h:162:CXXMethod:setRead()",
+        "decl:airdcpp/filelist/DirectoryListing.h:164:CXXMethod:addDirectoryChangeTask(const string &, DirectoryLoadType, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:166:CXXMethod:getIsOwnList()",
+        "decl:airdcpp/filelist/DirectoryListing.h:170:CXXMethod:getIsClientView()",
+        "decl:airdcpp/filelist/DirectoryListing.h:174:CXXMethod:onStateChanged()",
+        "decl:airdcpp/filelist/DirectoryListing.h:177:FieldDecl:loadHooks",
+        "decl:airdcpp/filelist/DirectoryListing.h:179:FieldDecl:isOwnList",
+        "decl:airdcpp/filelist/DirectoryListing.h:180:FieldDecl:isClientView",
+        "decl:airdcpp/filelist/DirectoryListing.h:182:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListing.h:184:CXXMethod:setDirectoryLoadingState(const DirectoryPtr &, DirectoryLoadType)",
+        "decl:airdcpp/filelist/DirectoryListing.h:188:CXXMethod:loadXML(InputStream &, bool, const string &, time_t)",
+        "decl:airdcpp/filelist/DirectoryListing.h:191:CXXMethod:createBaseDirectory(const string &, time_t)",
+        "decl:airdcpp/filelist/DirectoryListing.h:193:CXXMethod:changeDirectoryImpl(const string &, DirectoryLoadType, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:195:CXXMethod:setShareProfileImpl(ProfileToken)",
+        "decl:airdcpp/filelist/DirectoryListing.h:196:CXXMethod:setHubUrlImpl(const string_view &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:198:FieldDecl:currentLocation",
+        "decl:airdcpp/filelist/DirectoryListing.h:199:CXXMethod:updateCurrentLocation(const DirectoryPtr &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:203:FieldDecl:root",
+        "decl:airdcpp/filelist/DirectoryListing.h:205:CXXMethod:dispatch(Callback &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:207:FieldDecl:running",
+        "decl:airdcpp/filelist/DirectoryListing.h:210:CXXMethod:on(ClientManagerListener::UserConnected, const OnlineUser &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:211:CXXMethod:on(ClientManagerListener::UserUpdated, const OnlineUser &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:212:CXXMethod:on(ClientManagerListener::UserDisconnected, const UserPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:214:CXXMethod:onUserUpdated(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:217:CXXMethod:on(ShareManagerListener::RefreshCompleted, const ShareRefreshTask &, bool, const ShareRefreshStats &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:220:CXXMethod:loadShareDirectory(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:223:CXXMethod:listDiffImpl(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:225:CXXMethod:updateStatus(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:228:CXXMethod:loadFileImpl(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:231:CXXMethod:loadPartialImpl(const string &, const string &, bool, const AsyncF &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:233:CXXMethod:matchQueueImpl()",
+        "decl:airdcpp/filelist/DirectoryListing.h:235:FieldDecl:hintedUser",
+        "decl:airdcpp/filelist/DirectoryListing.h:236:FieldDecl:read",
+        "decl:airdcpp/filelist/DirectoryListing.h:238:CXXMethod:checkDupes()",
+        "decl:airdcpp/filelist/DirectoryListing.h:239:CXXMethod:onLoadingFinished(int64_t, const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:241:FieldDecl:tasks",
+        "decl:airdcpp/filelist/ListLoader.h:29:ClassDecl:ListLoader",
+        "decl:airdcpp/filelist/ListLoader.h:36:CXXMethod:startTag(const string &, StringPairList &, bool)",
+        "decl:airdcpp/filelist/ListLoader.h:37:CXXMethod:endTag(const string &)",
+        "decl:airdcpp/filelist/ListLoader.h:39:CXXMethod:loadFile(StringPairList &, bool)",
+        "decl:airdcpp/filelist/ListLoader.h:40:CXXMethod:loadDirectory(StringPairList &, bool)",
+        "decl:airdcpp/filelist/ListLoader.h:41:CXXMethod:loadListing(StringPairList &, bool)",
+        "decl:airdcpp/filelist/ListLoader.h:43:CXXMethod:getLoadedDirs()",
+        "decl:airdcpp/filelist/ListLoader.h:45:CXXMethod:runHooksRecursive(const DirectoryListing::DirectoryPtr &)",
+        "decl:airdcpp/filelist/ListLoader.h:47:CXXMethod:parseDirectoryType(bool, const DirectoryContentInfo &)",
+        "decl:airdcpp/filelist/ListLoader.h:48:CXXMethod:validateName(const string_view &)",
+        "decl:airdcpp/filelist/ListLoader.h:50:FieldDecl:list",
+        "decl:airdcpp/filelist/ListLoader.h:51:FieldDecl:cur",
+        "decl:airdcpp/filelist/ListLoader.h:53:FieldDecl:inListing",
+        "decl:airdcpp/filelist/ListLoader.h:54:FieldDecl:dirsLoaded",
+        "decl:airdcpp/filelist/ListLoader.h:56:FieldDecl:base",
+        "decl:airdcpp/filelist/ListLoader.h:57:FieldDecl:updating",
+        "decl:airdcpp/filelist/ListLoader.h:58:FieldDecl:partialList",
+        "decl:airdcpp/filelist/ListLoader.h:59:FieldDecl:listDownloadDate",
+        "decl:airdcpp/filelist/DirectoryListing.h:123:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:124:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:125:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:75:CXCursor_Constructor:5c46c80b2980",
+        "decl:airdcpp/filelist/DirectoryListing.h:76:CXCursor_Destructor:a6b8ecb691a4",
+        "decl:airdcpp/filelist/ListLoader.h:31:CXCursor_Constructor:4e1a2ec2eaed",
+        "decl:airdcpp/filelist/ListLoader.h:34:CXCursor_Destructor:0abce0ad38b3"
+      ]
+    },
+    {
+      "id": "filelist.navigate-match",
+      "kind": "operation",
+      "upstream_symbols": [
+        "addDirectoryChangeTask",
+        "addQueueMatchTask",
+        "setRead",
+        "findDirectoryUnsafe",
+        "getCurrentLocationInfo"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListing.h",
+          "start_line": 138,
+          "end_line": 164
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 357,
+          "end_line": 375
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 497,
+          "end_line": 504
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 553,
+          "end_line": 560
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 591,
+          "end_line": 655
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ADC directory path, load type, optional forceQueue; read or queue-match request."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Partial navigation creates missing virtual base; full-list path must exist. ChangeDirectory only fires on changed location except LOAD_CONTENT. Unloaded partial path queues a client-view partial list if own list, user online, or forced; otherwise status USER_OFFLINE. Loaded directory is not reloaded unless CHANGE_RELOAD. Queue match uses QueueManager and suppresses partial results when REPORT_ADDED_SOURCES is false or no new files/bundles. setRead is idempotent and emits Read after task sets flag."
+        ],
+        "events": [],
+        "errors": [
+          "Queue failure resets loading state and emits LoadingFailed; absent path in complete list asserts and returns."
+        ],
+        "completion": "Client-view navigation is asynchronous and serialized.",
+        "cancellation": "Close stops queued tasks.",
+        "persistence": [],
+        "resources": [
+          "QueueManager, ShareManager for own lists, directory tree."
+        ]
+      },
+      "ownership_evidence": [
+        "Tree mutations belong to DirectoryListing task queue."
+      ],
+      "threading_evidence": [
+        "addAsyncTask enqueues for client-view and dispatches directly for non-client-view."
+      ],
+      "proposed_bridge_requirement": "Expose async browse state and copied location/tree values.",
+      "acceptance_scenarios": [
+        "Given partial list lacks a path for an online user, when navigation is requested, then a virtual node is created and partial-list download is queued.",
+        "Given partial list belongs to an offline user and forceQueue=false, when unloaded path is opened, then it reports offline and does not queue.",
+        "Given partial queue match has no new files and added-source reporting is disabled, when matching finishes, then QueueMatched is not emitted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListing.h:48:ClassDecl:DirectoryListing",
+        "decl:airdcpp/filelist/DirectoryListing.h:54:TypeAliasDecl:DirectoryPtr",
+        "decl:airdcpp/filelist/DirectoryListing.h:57:TypeAliasDecl:FilePtr",
+        "decl:airdcpp/filelist/DirectoryListing.h:62:TypeAliasDecl:FileValidationHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:63:TypeAliasDecl:DirectoryValidationHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:65:StructDecl:ValidationHooks",
+        "decl:airdcpp/filelist/DirectoryListing.h:66:FieldDecl:directoryLoadHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:67:FieldDecl:fileLoadHook",
+        "decl:airdcpp/filelist/DirectoryListing.h:69:CXXMethod:hasSubscribers()",
+        "decl:airdcpp/filelist/DirectoryListing.h:78:CXXMethod:getToken()",
+        "decl:airdcpp/filelist/DirectoryListing.h:83:CXXMethod:loadFile()",
+        "decl:airdcpp/filelist/DirectoryListing.h:84:CXXMethod:isLoaded()",
+        "decl:airdcpp/filelist/DirectoryListing.h:89:CXXMethod:loadPartialXml(const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:91:CXXMethod:createBundleHooked(const DirectoryPtr &, const string &, const string &, Priority, string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:93:CXXMethod:getDownloadSourceUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:95:CXXMethod:getTotalListSizeUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListing.h:96:CXXMethod:getDirectorySizeUnsafe(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:97:CXXMethod:getTotalFileCountUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListing.h:99:CXXMethod:getRoot()",
+        "decl:airdcpp/filelist/DirectoryListing.h:102:CXXMethod:getLocalPathsUnsafe(const DirectoryPtr &, StringList &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:105:CXXMethod:getLocalPathsUnsafe(const FilePtr &, StringList &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:107:CXXMethod:isMyCID()",
+        "decl:airdcpp/filelist/DirectoryListing.h:108:CXXMethod:getNick(bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:109:CXXMethod:getNickFromFilename(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:110:CXXMethod:getUserFromFilename(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:112:CXXMethod:getShareProfile()",
+        "decl:airdcpp/filelist/DirectoryListing.h:114:CXXMethod:addShareProfileChangeTask(ProfileToken)",
+        "decl:airdcpp/filelist/DirectoryListing.h:115:CXXMethod:addHubUrlChangeTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:117:CXXMethod:getPartialListInfo(int64_t &, size_t &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:119:CXXMethod:getUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:120:CXXMethod:getHintedUser()",
+        "decl:airdcpp/filelist/DirectoryListing.h:121:CXXMethod:getHubUrl()",
+        "decl:airdcpp/filelist/DirectoryListing.h:123:FieldDecl:partialList",
+        "decl:airdcpp/filelist/DirectoryListing.h:124:FieldDecl:fileName",
+        "decl:airdcpp/filelist/DirectoryListing.h:125:FieldDecl:closing",
+        "decl:airdcpp/filelist/DirectoryListing.h:127:CXXMethod:addListDiffTask(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:129:CXXMethod:addPartialListLoadTask(const string &, const string &, bool, const AsyncF &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:130:CXXMethod:addOwnListLoadTask(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:132:CXXMethod:addFullListTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:133:CXXMethod:addQueueMatchTask()",
+        "decl:airdcpp/filelist/DirectoryListing.h:135:CXXMethod:addAsyncTask(Callback &&)",
+        "decl:airdcpp/filelist/DirectoryListing.h:136:CXXMethod:close()",
+        "decl:airdcpp/filelist/DirectoryListing.h:138:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:139:CXXMethod:findDirectoryUnsafe(const string &, const Directory *)",
+        "decl:airdcpp/filelist/DirectoryListing.h:141:CXXMethod:supportsASCH()",
+        "decl:airdcpp/filelist/DirectoryListing.h:143:StructDecl:LocationInfo",
+        "decl:airdcpp/filelist/DirectoryListing.h:144:FieldDecl:totalSize",
+        "decl:airdcpp/filelist/DirectoryListing.h:145:FieldDecl:files",
+        "decl:airdcpp/filelist/DirectoryListing.h:146:FieldDecl:directories",
+        "decl:airdcpp/filelist/DirectoryListing.h:148:FieldDecl:directory",
+        "decl:airdcpp/filelist/DirectoryListing.h:151:CXXMethod:getCurrentLocationInfo()",
+        "decl:airdcpp/filelist/DirectoryListing.h:155:CXXMethod:onListRemovedQueue(const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:156:CXXMethod:addDisableLoadingTask(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:158:CXXMethod:isRead()",
+        "decl:airdcpp/filelist/DirectoryListing.h:162:CXXMethod:setRead()",
+        "decl:airdcpp/filelist/DirectoryListing.h:164:CXXMethod:addDirectoryChangeTask(const string &, DirectoryLoadType, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:166:CXXMethod:getIsOwnList()",
+        "decl:airdcpp/filelist/DirectoryListing.h:170:CXXMethod:getIsClientView()",
+        "decl:airdcpp/filelist/DirectoryListing.h:174:CXXMethod:onStateChanged()",
+        "decl:airdcpp/filelist/DirectoryListing.h:177:FieldDecl:loadHooks",
+        "decl:airdcpp/filelist/DirectoryListing.h:179:FieldDecl:isOwnList",
+        "decl:airdcpp/filelist/DirectoryListing.h:180:FieldDecl:isClientView",
+        "decl:airdcpp/filelist/DirectoryListing.h:182:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListing.h:184:CXXMethod:setDirectoryLoadingState(const DirectoryPtr &, DirectoryLoadType)",
+        "decl:airdcpp/filelist/DirectoryListing.h:188:CXXMethod:loadXML(InputStream &, bool, const string &, time_t)",
+        "decl:airdcpp/filelist/DirectoryListing.h:191:CXXMethod:createBaseDirectory(const string &, time_t)",
+        "decl:airdcpp/filelist/DirectoryListing.h:193:CXXMethod:changeDirectoryImpl(const string &, DirectoryLoadType, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:195:CXXMethod:setShareProfileImpl(ProfileToken)",
+        "decl:airdcpp/filelist/DirectoryListing.h:196:CXXMethod:setHubUrlImpl(const string_view &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:198:FieldDecl:currentLocation",
+        "decl:airdcpp/filelist/DirectoryListing.h:199:CXXMethod:updateCurrentLocation(const DirectoryPtr &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:203:FieldDecl:root",
+        "decl:airdcpp/filelist/DirectoryListing.h:205:CXXMethod:dispatch(Callback &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:207:FieldDecl:running",
+        "decl:airdcpp/filelist/DirectoryListing.h:210:CXXMethod:on(ClientManagerListener::UserConnected, const OnlineUser &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:211:CXXMethod:on(ClientManagerListener::UserUpdated, const OnlineUser &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:212:CXXMethod:on(ClientManagerListener::UserDisconnected, const UserPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:214:CXXMethod:onUserUpdated(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:217:CXXMethod:on(ShareManagerListener::RefreshCompleted, const ShareRefreshTask &, bool, const ShareRefreshStats &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:220:CXXMethod:loadShareDirectory(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:223:CXXMethod:listDiffImpl(const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:225:CXXMethod:updateStatus(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:228:CXXMethod:loadFileImpl(const string &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:231:CXXMethod:loadPartialImpl(const string &, const string &, bool, const AsyncF &)",
+        "decl:airdcpp/filelist/DirectoryListing.h:233:CXXMethod:matchQueueImpl()",
+        "decl:airdcpp/filelist/DirectoryListing.h:235:FieldDecl:hintedUser",
+        "decl:airdcpp/filelist/DirectoryListing.h:236:FieldDecl:read",
+        "decl:airdcpp/filelist/DirectoryListing.h:238:CXXMethod:checkDupes()",
+        "decl:airdcpp/filelist/DirectoryListing.h:239:CXXMethod:onLoadingFinished(int64_t, const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListing.h:241:FieldDecl:tasks",
+        "decl:airdcpp/filelist/DirectoryListing.h:123:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:124:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:125:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListing.h:75:CXCursor_Constructor:5c46c80b2980",
+        "decl:airdcpp/filelist/DirectoryListing.h:76:CXCursor_Destructor:a6b8ecb691a4"
+      ]
+    },
+    {
+      "id": "filelist.directory-download",
+      "kind": "operation",
+      "upstream_symbols": [
+        "addDirectoryDownloadHookedThrow",
+        "cancelDirectoryDownload",
+        "getDirectoryDownloads/getDirectoryDownload/hasDirectoryDownload"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.h",
+          "start_line": 61,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 37,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 55,
+          "end_line": 105
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 114,
+          "end_line": 189
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 250,
+          "end_line": 305
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 432,
+          "end_line": 440
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "FilelistAddData, bundle name, local target, priority, ErrorMethod or request ID."
+        ],
+        "preconditions": [
+          "Target/listPath/bundleName nonempty (asserted); source queueable."
+        ],
+        "defaults": [],
+        "effects": [
+          "Adds one pending request per user/list path; duplicate same path returns existing record. Emits Added, then queues list or handles open list. ADC requests partial recursive list; NMDC serializes to one pending list. Validates requested directory exists and is complete, creates queue bundle, sets QUEUED/result/error/processed tick and emits Processed. Missing/incomplete after a fetched list fails to avoid infinite retry. Pending task cancellation removes queue item and awaits callback; completed/failed task cancellation removes immediately. Processed/failed records expire after 120 seconds."
+        ],
+        "events": [
+          "DirectoryDownloadAdded",
+          "Processed",
+          "Failed",
+          "Removed"
+        ],
+        "errors": [
+          "Queue errors set FAILED and rethrow; duplicate list queue is swallowed; directory missing/incomplete yields fixed error. Logging only when ErrorMethod::LOG."
+        ],
+        "completion": "Async; state PENDING\u2192QUEUED or FAILED; record expiry 120s after processed tick.",
+        "cancellation": "Unknown ID returns false; pending removal is callback-driven; processed/failed removal immediate.",
+        "persistence": [],
+        "resources": [
+          "DirectoryListing cache, QueueManager list/bundle operations, timer."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager owns vector of shared task records; task retains queue info and FilelistAddData."
+      ],
+      "threading_evidence": [
+        "Manager/queue/list callbacks coordinate; task mutations lock manager state."
+      ],
+      "proposed_bridge_requirement": "Expose asynchronous task state, ID, result/error and cancellation outcome; no persistence claim.",
+      "acceptance_scenarios": [
+        "Given same-user same-path task is pending, when a duplicate add arrives, then existing ID is returned without a second Added event.",
+        "Given a downloaded list lacks requested directory, when processing occurs, then task fails rather than looping.",
+        "Given a processed task ID is cancelled, when cancellation runs, then record is removed and Removed fires.",
+        "Given a processed task is over 120 seconds old, when minute timer runs, then it is removed."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryDownload.h:29:TypeAliasDecl:DirectoryDownloadOwner",
+        "decl:airdcpp/filelist/DirectoryDownload.h:30:TypeAliasDecl:DirectoryDownloadId",
+        "decl:airdcpp/filelist/DirectoryDownload.h:31:ClassDecl:DirectoryDownload",
+        "decl:airdcpp/filelist/DirectoryDownload.h:33:EnumDecl:State",
+        "decl:airdcpp/filelist/DirectoryDownload.h:34:EnumConstantDecl:PENDING",
+        "decl:airdcpp/filelist/DirectoryDownload.h:35:EnumConstantDecl:QUEUED",
+        "decl:airdcpp/filelist/DirectoryDownload.h:36:EnumConstantDecl:FAILED",
+        "decl:airdcpp/filelist/DirectoryDownload.h:39:EnumDecl:ErrorMethod",
+        "decl:airdcpp/filelist/DirectoryDownload.h:40:EnumConstantDecl:NONE",
+        "decl:airdcpp/filelist/DirectoryDownload.h:41:EnumConstantDecl:LOG",
+        "decl:airdcpp/filelist/DirectoryDownload.h:46:FieldDecl:queueItem",
+        "decl:airdcpp/filelist/DirectoryDownload.h:47:FieldDecl:processedTick",
+        "decl:airdcpp/filelist/DirectoryDownload.h:48:FieldDecl:state",
+        "decl:airdcpp/filelist/DirectoryDownload.h:50:FieldDecl:queueInfo",
+        "decl:airdcpp/filelist/DirectoryDownload.h:51:FieldDecl:error",
+        "decl:airdcpp/filelist/DirectoryDownload.h:53:StructDecl:HasOwner",
+        "decl:airdcpp/filelist/DirectoryDownload.h:55:CXXMethod:operator()(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryDownload.h:57:FieldDecl:a",
+        "decl:airdcpp/filelist/DirectoryDownload.h:58:FieldDecl:owner",
+        "decl:airdcpp/filelist/DirectoryDownload.h:60:CXXMethod:operator=(const HasOwner &)",
+        "decl:airdcpp/filelist/DirectoryDownload.h:63:CXXMethod:getUser()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:64:CXXMethod:getBundleName()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:65:CXXMethod:getTarget()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:66:CXXMethod:getListPath()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:67:CXXMethod:getPriority()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:68:CXXMethod:getOwner()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:69:CXXMethod:getId()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:70:CXXMethod:getErrorMethod()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:71:CXXMethod:getListData()",
+        "decl:airdcpp/filelist/DirectoryDownload.h:73:FieldDecl:id",
+        "decl:airdcpp/filelist/DirectoryDownload.h:74:FieldDecl:priority",
+        "decl:airdcpp/filelist/DirectoryDownload.h:75:FieldDecl:target",
+        "decl:airdcpp/filelist/DirectoryDownload.h:76:FieldDecl:bundleName",
+        "decl:airdcpp/filelist/DirectoryDownload.h:77:FieldDecl:created",
+        "decl:airdcpp/filelist/DirectoryDownload.h:78:FieldDecl:listData",
+        "decl:airdcpp/filelist/DirectoryDownload.h:79:FieldDecl:errorMethod",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:36:ClassDecl:DirectoryListingManager",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:38:TypedefDecl:DirectoryListingMap",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:40:FieldDecl:loadHooks",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:43:CXXMethod:openOwnList(ProfileToken, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:46:CXXMethod:openLocalFileList(const HintedUser &, const string &, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:50:CXXMethod:openRemoteFileListHookedThrow(const FilelistAddData &, Flags::MaskType)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:51:CXXMethod:removeList(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:56:CXXMethod:processListHooked(const string &, const string &, const HintedUser &, const string &, int)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:57:CXXMethod:processListActionHooked(DirectoryListingPtr, const string &, int)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:61:CXXMethod:addDirectoryDownloadHookedThrow(const FilelistAddData &, const string &, const string &, Priority, DirectoryDownload::ErrorMethod)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:62:CXXMethod:getDirectoryDownloads()",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:63:CXXMethod:getDirectoryDownload(DirectoryDownloadId)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:65:CXXMethod:hasDirectoryDownload(const string &, void *)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:66:CXXMethod:cancelDirectoryDownload(DirectoryDownloadId)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:68:CXXMethod:getLists()",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:69:CXXMethod:findList(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:71:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:73:CXXMethod:removeDirectoryDownload(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:74:CXXMethod:getPendingDirectoryDownloadsUnsafe(const UserPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:75:CXXMethod:getPendingDirectoryDownloadUnsafe(const UserPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:77:CXXMethod:maybeReportDownloadError(const DirectoryDownloadPtr &, const string &, LogMessage::Severity)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:78:CXXMethod:failDirectoryDownload(const DirectoryDownloadPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:81:CXXMethod:queueListHookedThrow(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:83:CXXMethod:handleDownloadHooked(const DirectoryDownloadPtr &, const DirectoryListingPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:85:CXXMethod:createList(const HintedUser &, bool, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:91:CXXMethod:checkDownloadUrl(const HintedUser &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:96:FieldDecl:cs",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:99:FieldDecl:dlDirectories",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:102:FieldDecl:viewedLists",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:104:CXXMethod:on(QueueManagerListener::ItemAdded, const QueueItemPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:105:CXXMethod:on(QueueManagerListener::ItemFinished, const QueueItemPtr &, const string &, const HintedUser &, int64_t)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:106:CXXMethod:on(QueueManagerListener::ItemRemoved, const QueueItemPtr &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:108:CXXMethod:on(QueueManagerListener::PartialListFinished, const HintedUser &, const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:110:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:27:ClassDecl:DirectoryListingManagerListener",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/filelist/DirectoryListingManagerListener.h:30:29)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:32:TypedefDecl:ListingCreated",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:33:TypedefDecl:OpenListing",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:34:TypedefDecl:ListingClosed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:36:TypedefDecl:DirectoryDownloadAdded",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:37:TypedefDecl:DirectoryDownloadRemoved",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:38:TypedefDecl:DirectoryDownloadProcessed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:39:TypedefDecl:DirectoryDownloadFailed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:41:CXXMethod:on(ListingCreated, const DirectoryListingPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:42:CXXMethod:on(OpenListing, const DirectoryListingPtr &, const string &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:43:CXXMethod:on(ListingClosed, const DirectoryListingPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:45:CXXMethod:on(DirectoryDownloadAdded, const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:46:CXXMethod:on(DirectoryDownloadRemoved, const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:47:CXXMethod:on(DirectoryDownloadProcessed, const DirectoryDownloadPtr &, const DirectoryBundleAddResult &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:48:CXXMethod:on(DirectoryDownloadFailed, const DirectoryDownloadPtr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryDownload.h:46:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryDownload.h:47:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryDownload.h:48:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryDownload.h:50:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryDownload.h:51:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryDownload.h:44:CXCursor_Constructor:c1213c0e83f8",
+        "decl:airdcpp/filelist/DirectoryDownload.h:54:CXCursor_Constructor:6b24c1bf5103",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:29:CXCursor_Destructor:045a079d4db3",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:53:CXCursor_Constructor:40ab5acf700a",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:54:CXCursor_Destructor:108b5ceecfaa"
+      ]
+    },
+    {
+      "id": "filelist.owner-matcher-source-behavior",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DirectoryDownload::HasOwner::operator()",
+        "hasDirectoryDownload"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryDownload.h",
+          "start_line": 53,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 40,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 114,
+          "end_line": 117
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Bundle name and opaque owner pointer."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Predicate returns owner equal AND case-insensitive bundle-name comparison NOT equal. Thus same owner and same bundle name returns false; different bundle name returns true. hasDirectoryDownload applies this predicate. This may contradict intuitive method naming and must not be silently normalized."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous under manager shared lock.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Owner pointer and normalized bundle name."
+        ]
+      },
+      "ownership_evidence": [
+        "Source implementation at DirectoryListingManager.cpp:40-42."
+      ],
+      "threading_evidence": [
+        "Manager shared lock held."
+      ],
+      "proposed_bridge_requirement": "Keep observed predicate pending explicit bug decision; add characterization before choosing public semantics.",
+      "acceptance_scenarios": [
+        "Given record owner/name match both query values, when hasDirectoryDownload runs, then source returns false.",
+        "Given owner matches but bundle name differs case-insensitively, when checked, then source returns true."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryDownload.h:55:CXXMethod:operator()(const DirectoryDownloadPtr &)",
+        "decl:airdcpp/filelist/DirectoryListingManager.h:65:CXXMethod:hasDirectoryDownload(const string &, void *)"
+      ]
+    },
+    {
+      "id": "filelist.tree-values",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DirectoryListing::File/Directory/VirtualDirectory",
+        "DirectoryContentInfo"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingDirectory.h",
+          "start_line": 36,
+          "end_line": 179
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingDirectory.cpp",
+          "start_line": 49,
+          "end_line": 186
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingDirectory.cpp",
+          "start_line": 208,
+          "end_line": 318
+        },
+        {
+          "path": "airdcpp/core/types/DirectoryContentInfo.h",
+          "start_line": 1,
+          "end_line": 60
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Remote names, sizes, TTH roots, dates, partial content counts and optional virtual path."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Case-insensitive directory map and ordered file list; complete directories recursively sum files/subdirectories, incomplete directories return cached partialSize. Virtual directories may be excluded from totals. Tree exposes incomplete/complete-child checks, ADC path building, dupe checks and recursive bundle-file extraction with relative paths. VirtualDirectory retains full ADC path separately. File isInQueue recognizes queue or finished dupe."
+        ],
+        "events": [],
+        "errors": [
+          "Unsafe traversal/local path methods require serialized access and valid tree nodes."
+        ],
+        "completion": "Tree is listing-owned and mutated by parse/navigation tasks.",
+        "cancellation": "Closing stops tasks but retained tree snapshots remain while shared refs exist.",
+        "persistence": [],
+        "resources": [
+          "Parent owns shared child nodes; parent raw backrefs remain internal."
+        ]
+      },
+      "ownership_evidence": [
+        "Directory maps/files own shared nodes; parent refs are raw."
+      ],
+      "threading_evidence": [
+        "Unsafe methods are not thread-safe; listing task queue owns mutable traversal."
+      ],
+      "proposed_bridge_requirement": "Expose tree as stable values with completeness/virtual/dupe metadata; hide raw pointers and unsafe traversal.",
+      "acceptance_scenarios": [
+        "Given an incomplete folder has cached partial size, when total size is read, then cached partial size is returned.",
+        "Given a complete folder has a virtual child and countVirtual=false, when size is read, then that child is excluded.",
+        "Given nested files are converted to bundle info, when a folder is queued, then relative path structure is retained."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:27:StructDecl:DirectoryContentInfo",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:28:CXXMethod:uninitialized()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:32:CXXMethod:empty()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:38:FieldDecl:directories",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:39:FieldDecl:files",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:41:CXXMethod:isInitialized()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:45:CXXMethod:isEmpty()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:49:CXXMethod:Sort(const DirectoryContentInfo &, const DirectoryContentInfo &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:36:ClassDecl:File",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:39:TypeAliasDecl:Owner",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:40:TypeAliasDecl:Ptr",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:42:CXXMethod:operator()(const Ptr &, const Ptr &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:42:StructDecl:Sort",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:44:TypeAliasDecl:List",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:45:TypeAliasDecl:Iter",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:52:CXXMethod:getAdcPathUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:54:FieldDecl:name",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:55:FieldDecl:size",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:56:FieldDecl:parent",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:57:FieldDecl:tthRoot",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:58:FieldDecl:dupe",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:59:FieldDecl:remoteDate",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:61:CXXMethod:isInQueue()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:63:CXXMethod:getOwner()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:66:CXXMethod:getToken()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:69:CXXMethod:getLocalPathsUnsafe(StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:71:FieldDecl:owner",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:72:FieldDecl:token",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:75:EnumDecl:DirectoryLoadType",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:76:EnumConstantDecl:CHANGE_NORMAL",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:77:EnumConstantDecl:CHANGE_RELOAD",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:78:EnumConstantDecl:LOAD_CONTENT",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:79:EnumConstantDecl:NONE",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:82:ClassDecl:Directory",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:84:EnumDecl:DirType",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:85:EnumConstantDecl:TYPE_NORMAL",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:86:EnumConstantDecl:TYPE_INCOMPLETE_CHILD",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:87:EnumConstantDecl:TYPE_INCOMPLETE_NOCHILD",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:88:EnumConstantDecl:TYPE_VIRTUAL",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:91:TypeAliasDecl:Ptr",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:93:CXXMethod:operator()(const Ptr &, const Ptr &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:93:StructDecl:Sort",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:95:TypeAliasDecl:List",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:96:TypeAliasDecl:TTHSet",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:97:TypeAliasDecl:Map",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:99:FieldDecl:directories",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:100:FieldDecl:files",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:102:CXXMethod:create(Directory *, const string &, DirType, time_t, const DirectoryContentInfo &, const string &, time_t)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:108:CXXMethod:getTotalSize(bool)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:109:CXXMethod:filterList(TTHSet &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:110:CXXMethod:getHashList(TTHSet &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:111:CXXMethod:clearVirtualDirectories()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:112:CXXMethod:clearAll()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:113:CXXMethod:getLocalPathsUnsafe(StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:115:CXXMethod:findIncomplete()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:116:CXXMethod:findCompleteChildren()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:118:CXXMethod:getAdcPathUnsafe()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:119:CXXMethod:checkDupesRecursive()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:121:FieldDecl:partialSize",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:122:FieldDecl:parent",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:123:FieldDecl:type",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:124:FieldDecl:dupe",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:125:FieldDecl:remoteDate",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:126:FieldDecl:lastUpdateDate",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:127:FieldDecl:loading",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:129:CXXMethod:isComplete()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:130:CXXMethod:setComplete()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:131:CXXMethod:isVirtual()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:132:CXXMethod:isRoot()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:135:CXXMethod:toBundleInfoList()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:137:CXXMethod:getName()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:142:CXXMethod:getContentInfoRecursive(bool)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:145:CXXMethod:getContentInfo()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:149:CXXMethod:setContentInfo(const DirectoryContentInfo &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:154:CXXMethod:NotVirtual(const Directory::Ptr &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:158:CXXMethod:getToken()",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:162:CXXMethod:toBundleInfoList(const string &, BundleFileAddData::List &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:166:CXXMethod:getContentInfo(size_t &, size_t &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:168:FieldDecl:contentInfo",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:169:FieldDecl:name",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:170:FieldDecl:token",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:173:ClassDecl:VirtualDirectory",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:175:TypeAliasDecl:Ptr",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:176:FieldDecl:fullAdcPath",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:177:CXXMethod:create(const string &, Directory *, const string &, bool)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:182:FunctionDecl:operator==(const DirectoryListing::Directory::Ptr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:183:FunctionDecl:operator==(const DirectoryListing::File::Ptr &, const string &)",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:54:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:55:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:56:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:57:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:58:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:59:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:121:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:122:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:123:macro:GETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:124:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:125:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:126:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:127:macro:IGETSET",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:176:macro:GETSET",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:36:CXCursor_Constructor:bb478541da4f",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:47:CXCursor_Constructor:40e65eb596a8",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:48:CXCursor_Constructor:681206501466",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:50:CXCursor_Destructor:ae4858f0e0cf",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:106:CXCursor_Destructor:f79097e529f6",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:164:CXCursor_Constructor:20df24f0f056",
+        "decl:airdcpp/filelist/DirectoryListingDirectory.h:179:CXCursor_Constructor:5c1385f84974"
+      ]
+    },
+    {
+      "id": "filelist.event.loading-started",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::LoadingStarted(bool changeDir)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 448,
+          "end_line": 448
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Before full parse false; partial parse uses true only when loading new directory, not reload."
+        ],
+        "events": [
+          "LoadingStarted(bool changeDir)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given a partial directory loads first time, when loading starts, then event carries true before tree mutation."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:33:TypedefDecl:LoadingStarted",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:47:CXXMethod:on(LoadingStarted, bool)"
+      ]
+    },
+    {
+      "id": "filelist.event.loading-finished",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::LoadingFinished(int64_t start, const string& path, uint8_t changeType)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 494,
+          "end_line": 494
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "After loaded tree and current location are settled; includes canonical ADC path/load kind."
+        ],
+        "events": [
+          "LoadingFinished(int64_t start, const string& path, uint8_t changeType)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given valid XML completes, when event fires, then it reports loaded path and resolved load type."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:31:TypedefDecl:LoadingFinished",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:45:CXXMethod:on(LoadingFinished, int64_t, const string &, uint8_t)"
+      ]
+    },
+    {
+      "id": "filelist.event.loading-failed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::LoadingFailed(const string& error)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 632,
+          "end_line": 632
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Exceptions are converted; cancellation AbortException can have empty string."
+        ],
+        "events": [
+          "LoadingFailed(const string& error)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given malformed XML aborts with a reason, when dispatch catches it, then LoadingFailed carries the parser error."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:32:TypedefDecl:LoadingFailed",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:46:CXXMethod:on(LoadingFailed, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.event.queue-matched",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::QueueMatched(const string& summary)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 559,
+          "end_line": 559
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "After queue match if partial reporting gate passes."
+        ],
+        "events": [
+          "QueueMatched(const string& summary)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given matching finds new files and reporting is on, when match completes, then summary is emitted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:34:TypedefDecl:QueueMatched",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:48:CXXMethod:on(QueueMatched, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.event.close",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::Close()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 378,
+          "end_line": 378
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Task queue stop callback."
+        ],
+        "events": [
+          "Close()"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given listing closes, when queued work drains/stops, then Close fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:35:TypedefDecl:Close",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:49:CXXMethod:on(Close)"
+      ]
+    },
+    {
+      "id": "filelist.event.change-directory",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::ChangeDirectory(const string& path, uint8_t type)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 615,
+          "end_line": 615
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Only on actual location change and not LOAD_CONTENT."
+        ],
+        "events": [
+          "ChangeDirectory(const string& path, uint8_t type)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given location changes, when applied, then canonical ADC path and type are sent."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:37:TypedefDecl:ChangeDirectory",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:51:CXXMethod:on(ChangeDirectory, const string &, uint8_t)"
+      ]
+    },
+    {
+      "id": "filelist.event.status",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::UpdateStatusMessage(const string& message)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 418,
+          "end_line": 418
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Offline, hook progress and queue failure statuses use this channel."
+        ],
+        "events": [
+          "UpdateStatusMessage(const string& message)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given navigation requires an offline user, when it cannot queue, then offline status is emitted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:38:TypedefDecl:UpdateStatusMessage",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:52:CXXMethod:on(UpdateStatusMessage, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.event.removed-queue",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::RemovedQueue(const string& path)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 671,
+          "end_line": 671
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Queue cancellation resets load marker and reports path."
+        ],
+        "events": [
+          "RemovedQueue(const string& path)"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given queued directory list is removed, when callback completes, then loading is reset and path reported."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:39:TypedefDecl:RemovedQueue",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:53:CXXMethod:on(RemovedQueue, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.event.user-updated",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::UserUpdated()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 126,
+          "end_line": 126
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Hub hint changes trigger notification and QueueManager URL update."
+        ],
+        "events": [
+          "UserUpdated()"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given hub URL changes, when scheduled mutation runs, then UserUpdated fires and queue URL updates."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:40:TypedefDecl:UserUpdated",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:54:CXXMethod:on(UserUpdated)"
+      ]
+    },
+    {
+      "id": "filelist.event.state-changed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::StateChanged()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 212,
+          "end_line": 212
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Delivered through queued onStateChanged task."
+        ],
+        "events": [
+          "StateChanged()"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given listing state changes, when notification task executes, then StateChanged fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:41:TypedefDecl:StateChanged",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:55:CXXMethod:on(StateChanged)"
+      ]
+    },
+    {
+      "id": "filelist.event.read",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::Read()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 654,
+          "end_line": 654
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Idempotent setRead flips flag then notifies."
+        ],
+        "events": [
+          "Read()"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given unread listing is marked read, when task runs, then Read fires once."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:42:TypedefDecl:Read",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:56:CXXMethod:on(Read)"
+      ]
+    },
+    {
+      "id": "filelist.event.share-profile-changed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingListener::ShareProfileChanged()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListing.cpp",
+          "start_line": 144,
+          "end_line": 144
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Own-list profile change persists LAST_LIST_PROFILE and reloads current listing."
+        ],
+        "events": [
+          "ShareProfileChanged()"
+        ],
+        "errors": [],
+        "completion": "Synchronous from listing task context.",
+        "cancellation": "No per-event cancellation; Close halts future queued work.",
+        "persistence": [],
+        "resources": [
+          "Value-only payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener payloads are strings/scalars."
+      ],
+      "threading_evidence": [
+        "Client-view listener callbacks run on serialized task queue."
+      ],
+      "proposed_bridge_requirement": "Preserve payload/order; deliver copied values and empty cancellation message.",
+      "acceptance_scenarios": [
+        "Given own share profile changes, when scheduled mutation executes, then preference persists, reload is scheduled and event fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:43:TypedefDecl:ShareProfileChanged",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:57:CXXMethod:on(ShareProfileChanged)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.listing-created",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::ListingCreated(const DirectoryListingPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 484,
+          "end_line": 484
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Session is inserted before fire."
+        ],
+        "events": [
+          "ListingCreated(const DirectoryListingPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given new session is created, when stored in map, then ListingCreated fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:32:TypedefDecl:ListingCreated",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:41:CXXMethod:on(ListingCreated, const DirectoryListingPtr &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.open-listing",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::OpenListing(const DirectoryListingPtr&, const string& dir, const string& XML)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 472,
+          "end_line": 472
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Presentation request; XML may be provided for partial response to incomplete view."
+        ],
+        "events": [
+          "OpenListing(const DirectoryListingPtr&, const string& dir, const string& XML)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given partial response arrives while a view is loading, when manager handles it, then OpenListing carries base and XML."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:33:TypedefDecl:OpenListing",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:42:CXXMethod:on(OpenListing, const DirectoryListingPtr &, const string &, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.listing-closed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::ListingClosed(const DirectoryListingPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 573,
+          "end_line": 573
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "After session erased and listing closed."
+        ],
+        "events": [
+          "ListingClosed(const DirectoryListingPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given no queue files remain, when session closes, then ListingClosed follows close."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:34:TypedefDecl:ListingClosed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:43:CXXMethod:on(ListingClosed, const DirectoryListingPtr &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.directory-added",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::DirectoryDownloadAdded(const DirectoryDownloadPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 179,
+          "end_line": 179
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Inserted pending task before list request."
+        ],
+        "events": [
+          "DirectoryDownloadAdded(const DirectoryDownloadPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given a new directory task is inserted, when addition succeeds, then Added fires before processing."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:36:TypedefDecl:DirectoryDownloadAdded",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:45:CXXMethod:on(DirectoryDownloadAdded, const DirectoryDownloadPtr &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.directory-removed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::DirectoryDownloadRemoved(const DirectoryDownloadPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 96,
+          "end_line": 96
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "After task erase."
+        ],
+        "events": [
+          "DirectoryDownloadRemoved(const DirectoryDownloadPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given task expires, when erased, then Removed fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:37:TypedefDecl:DirectoryDownloadRemoved",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:46:CXXMethod:on(DirectoryDownloadRemoved, const DirectoryDownloadPtr &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.directory-processed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::DirectoryDownloadProcessed(const DirectoryDownloadPtr&, const DirectoryBundleAddResult&, const string& error)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 293,
+          "end_line": 293
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Bundle creation succeeded; error may contain per-file failures."
+        ],
+        "events": [
+          "DirectoryDownloadProcessed(const DirectoryDownloadPtr&, const DirectoryBundleAddResult&, const string& error)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given some files fail but bundle still created, when processed event fires, then result and error text are both present."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:38:TypedefDecl:DirectoryDownloadProcessed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:47:CXXMethod:on(DirectoryDownloadProcessed, const DirectoryDownloadPtr &, const DirectoryBundleAddResult &, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.manager-event.directory-failed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DirectoryListingManagerListener::DirectoryDownloadFailed(const DirectoryDownloadPtr&, const string& error)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/filelist/DirectoryListingManager.cpp",
+          "start_line": 439,
+          "end_line": 439
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "State/error/processedTick updated before event."
+        ],
+        "events": [
+          "DirectoryDownloadFailed(const DirectoryDownloadPtr&, const string& error)"
+        ],
+        "errors": [],
+        "completion": "Synchronous manager Speaker callback.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Shared listing/task value."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager-owned shared records can outlive map/list removal if callback retains them."
+      ],
+      "threading_evidence": [
+        "Synchronous from manager/queue/listing task path."
+      ],
+      "proposed_bridge_requirement": "Preserve copied payload and exact before/after state order.",
+      "acceptance_scenarios": [
+        "Given downloaded list lacks directory, when it fails, then reason is included."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:39:TypedefDecl:DirectoryDownloadFailed",
+        "decl:airdcpp/filelist/DirectoryListingManagerListener.h:48:CXXMethod:on(DirectoryDownloadFailed, const DirectoryDownloadPtr &, const string &)"
+      ]
+    },
+    {
+      "id": "filelist.internal.DirectoryListingListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining loader/model declarations in airdcpp/filelist/DirectoryListingListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/filelist/DirectoryListingListener.h",
+          "start_line": 26,
+          "end_line": 58
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are parser callbacks, type aliases, backing fields, nested constructors, and internal listing integrations that support the contracts above; no bridge-facing operation is inferred solely from these declarations."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent client operation beyond linked contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Listing tree, XML parser, queue or listing-task state by source file."
+        ]
+      },
+      "ownership_evidence": [
+        "Listing owns tree and task queue; parent pointers are internal."
+      ],
+      "threading_evidence": [
+        "See owning listing/manager contracts for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account for source surface without declaring untraced C++ internals to be public parity.",
+      "acceptance_scenarios": [
+        "Given bridge code needs file-list data, when adapting a Core node or callback, then it returns values and keeps parser/tree ownership private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/filelist/DirectoryListingListener.h:26:ClassDecl:DirectoryListingListener",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/filelist/DirectoryListingListener.h:29:29)",
+        "decl:airdcpp/filelist/DirectoryListingListener.h:28:CXCursor_Destructor:e889bd24d108"
+      ]
+    }
+  ]
+}

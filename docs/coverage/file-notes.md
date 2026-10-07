@@ -1,0 +1,43 @@
+# Phase 0 file notes: queue and transfer families, sharing, optional modules, platform gaps
+
+Audit input: `airdcpp-core` commit `55d51ceb817ec006d4ec844d9e3788e1b0ccc352` as selected by `docs/design.md`. Paths and line numbers below are relative to its `airdcpp/` directory. This note records discovery anchors; it is not a completed method-level domain ledger and makes no compiled-parity claim.
+
+## Core domain declaration anchors
+
+- Queue: `queue/QueueManager.h` declares queue item and bundle lookup/add/remove, source management, prioritization, download admission, serialization, completion/recheck, and download event handling. It is a large API (roughly 80 public declaration candidates); review public access sections and overloads individually before converting them to records. `queue/QueueManagerListener.h:57-77` declares item added/finished/removed/source/status/tick/priority, partial-list completion, source-file update, bundle source/removal/size/priority/add/status, and file-recheck events.
+- Downloads: `transfer/download/DownloadManager.h`; `transfer/download/DownloadManagerListener.h:59-88` declares requesting, starting, tick, complete (including tree flag), bundle tick, failed (with message), idle, and removal callbacks.
+- Uploads: `transfer/upload/UploadManager.h`; `transfer/upload/UploadManagerListener.h:43-49` declares starting, tick, complete, failed (with message), created (including the new slot), and removed callbacks. Upload queue behavior also has a separate `UploadQueueManager.h` and `UploadQueueManagerListener.h`.
+- Transfer information: `transfer/TransferInfoManager.h`; `transfer/TransferInfoManagerListener.h:42-48` declares added, updated (integer and boolean auxiliary fields), removed, failed, starting, completed, and tick (list plus integer) callbacks.
+- File lists: `filelist/DirectoryListingManager.h`; `filelist/DirectoryListingManagerListener.h:41-47` declares listing created/opened/closed, directory download added/removed/processed (queue result and error string)/failed (error string).
+- Hashing: `hash/HashManager.h`; `hash/HashManagerListener.h:40-45` declares file hashed/failed (path and error payload), maintenance started/finished, directory hashed (stats), and hasher finished (counts and stats). Hash work is internally threaded; callback delivery and object lifetime need per-operation tracing.
+- Shares: `share/ShareManager.h`; `share/ShareManagerListener.h:48-63` declares refresh queued/started/completed (success plus stats), root created/removed/updated/refresh-state, and exclude added/removed.
+- Share profiles: `share/profiles/ShareProfileManager.h` and `ShareProfileManagerListener.h:36-39` declare profile added/updated (major-change flag)/removed and default-profile changed (old/new tokens).
+- Temporary shares: `share/temp_share/TempShareManager.h` and `TempShareManagerListener.h:34-35` declare temporary file added/removed. Persistence, expiry, and generated URL/token semantics still require implementation tracing.
+
+These anchors enumerate listener payloads but do not establish registration locking, exact ordering, cancellation guarantees, persistence failure behavior, or compiled availability. For example, `Speaker` invokes listeners synchronously under its listener lock per `docs/lifecycle-and-threading.md`; manager-specific emitter paths still need tracing before bridge requirements are accepted.
+
+## Optional-module source anchors and gap status
+
+The pinned source contains these module headers; `docs/core-coverage.md` records that the inspected distribution lacks the 17 optional-module headers. Treat these capabilities as source-present and installed-declaration-absent according to that inventory. The binary's actual compiled status remains unverified pending symbol/runtime evidence.
+
+- `modules/AutoSearchManager.h:56-92` exposes add/update/remove/search/activation, load/save, group and menu/path operations. Listener events are in `AutoSearchManagerListener.h:38-42`; timer/search/queue/listing subscriptions are declared/implemented in the manager. AutoSearch also consumes `DirectoryListingManagerListener` events (`AutoSearchManager.h:144-145`).
+- `modules/ADLSearch.h:92-114,142-155` contains matching configuration and collection load/save/add/remove/enable/update operations. `matchListing` is the matching entry point. `ColorSettings.h:54-63` adds match/regexp and display toggles used by highlighting; do not silently fold those settings into a UI-only exclusion.
+- `modules/DirectSearch.h:38-60` declares a per-user direct search with result count/results, completion, ADC paths, timeout observation, and listener removal; it listens for search results and direct-search end.
+- `modules/DirectoryListingSearch.h:36-55` declares asynchronous listing search tasks, forward/backward result navigation, current path, ASCH support, timeout-driven completion, and explicit endSearch.
+- `modules/FinishedManager.h:41-45,53` exposes a lock/unlock list protocol, remove/removeAll, and observes completed uploads. `FinishedManagerListener.h:33` exposes AddedUl.
+- `modules/HighlightManager.h:55-75` exposes replacement/clear/empty and XML load/save; settings load/save are registered callbacks.
+- `modules/HublistManager.h:50-59,72-77` exposes selected-list changes, refresh (force flag), list type/public hub snapshot/downloading state and HTTP callbacks. `HublistManagerListener.h:39-44` declares start/failure/finish, cache-load and corruption events.
+- `modules/PreviewAppManager.h:58-88` exposes preview-application add/remove/get/update plus XML load/save callbacks. `PreviewApplication` stores name, executable/application, arguments, and extension (`PreviewAppManager.h:30-43`); launching/integration behavior needs implementation inspection.
+- `modules/RSSManager.h:179-221,225-238` exposes feed/data load/save, clear/filter, lookup, download, feed/filter updates, enable/remove, data removal and AutoSearch creation. `RSSManagerListener.h:161-167` declares data added/removed/cleared and feed updated/changed/removed/added events. Feed and filter defaults are present in `RSSManager.h:53-68,83-113` (e.g. interval 60, enabled true, filter action DOWNLOAD, expiry 3 days); persistence and network completion require implementation-level review.
+
+Source presence plus header inventory evidence identifies gaps; it does not prove which inline declarations or module code made it into any archive. Do not mark these records `verified-absent` from absent installed headers alone.
+
+## Updater, ZIP and platform mapper distinctions
+
+- Update source is present under `core/update/`: `UpdateManager.h`, `UpdateManagerListener.h`, `UpdateDownloader.h`, `UpdateVersion.h`, and updater sources under `core/update/updater/`. `docs/core-integration.md` establishes the distribution's `NO_CLIENT_UPDATER` definition and describes updater implementation as omitted on macOS. Exact public operations, listener events, and source/build exclusions still need line-by-line classification; no complete updater record is claimed here.
+- ZIP source is present in `core/io/compress/ZipFile.h` and `.cpp`; the inventory says the header is absent from the installed include tree. The header offers archive open/close/navigation/read and creation/list helpers (including overloads), but absence from installed headers alone does not settle whether an equivalent capability exists elsewhere or whether implementation is linked.
+- `connectivity/MappingManager.cpp:27-55` includes/registers MiniUPnPc, conditionally registers NAT-PMP, and includes/registers `Mapper_WinUPnP` only under `WIN32`. `Mapper_WinUPnP.cpp` implements the Windows mapping adapter; the distribution's platform policy and `docs/core-integration.md` identify Windows UPnP as unavailable on macOS. NAT-PMP is a separate disabled gap. The macOS distribution can still have MiniUPnPc mapping, subject to the inspected build's `NO_MINIUPNP`/dependency configuration and linked-symbol proof.
+
+## Remaining work / confidence boundary
+
+This assignment is not complete as a Task 3 inventory: there are no per-operation JSON records yet for the assigned domains, and method-level contracts still need definitions, call sites, defaults, concrete error/completion/cancellation semantics, ownership/threading proof, and Given/When/Then scenarios. The directory `docs/coverage/domains/` and Task 2's `ledger-format.md` were absent when this audit started. Keep compiled status `unverified` until the exact archive, effective build configuration and relevant symbols/behavior are checked. Do not treat this discovery note as approval of any Objective-C API or as evidence of parity.

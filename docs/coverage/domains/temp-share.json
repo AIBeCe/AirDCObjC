@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "domain_id": "temp-share",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "temp-share.admit-remove",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::TempShareManager::addTempShare",
+        "dcpp::TempShareManager::removeTempShare"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 111,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 131,
+          "end_line": 146
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManager.h:38:CXXMethod:addTempShare(const TTHValue &, const string &, const string &, int64_t, ProfileToken, const UserPtr &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:39:CXXMethod:removeTempShare(TempShareToken)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "TTH,name,path,size,profile and optional authorized user; removal token."
+        ],
+        "preconditions": [
+          "ShareManager initialized; caller supplies accurate file/hash/size (no hashing/file validation here)."
+        ],
+        "defaults": [],
+        "effects": [
+          "Already regular-shared TTH/profile returns nullopt. Under write lock, same TTH with accessible existing entry returns that item without Added. Otherwise creates random token/timeAdded and stores by TTH; fires Added after unlock. Removal erases matching ID, returns false if absent, fires Removed after unlock if found."
+        ],
+        "events": [
+          "TempFileAdded(info), TempFileRemoved(info)."
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "No load/save or timer expiry path exists in this manager; entries remain in-memory until removal/runtime teardown."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Storage and event local values own copied strings/hash/user shared_ptr."
+      ],
+      "threading_evidence": [
+        "Write lock for mutation; listener event after unlock."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "TTH already regularly shared in selected profile.",
+          "when": "Call addTempShare for the same TTH/profile.",
+          "then": "Return is nullopt and no TempFileAdded is emitted."
+        },
+        {
+          "given": "Existing unrestricted temporary TTH item and a requested user.",
+          "when": "Call addTempShare again for that TTH/user.",
+          "then": "Existing item/token is returned and no duplicate Added is emitted."
+        },
+        {
+          "given": "New temporary file for user pointerA and no regular share.",
+          "when": "Add it, remove its token, then remove token again.",
+          "then": "First add emits Added; first removal emits Removed/true; repeated removal returns false with no event."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "temp-share.query",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::TempShareManager::getTempShares",
+        "dcpp::TempShareManager::isTempShared"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 102,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 89,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManager.h:43:CXXMethod:getTempShares()",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:44:CXXMethod:getTempShares(const TTHValue &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:46:CXXMethod:isTempShared(const UserPtr &, const TTHValue &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Optional TTH filter and user."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "All-items query copies under read lock. TTH query copies equal_range without acquiring cs in the inspected definition. isTempShared uses read lock and returns first same-TTH item permitting user or nullopt."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Results copy TempShareInfo values; UserPtr identity determines access, not CID string comparison in hasAccess."
+      ],
+      "threading_evidence": [
+        "TTH overload lacks manager lock, an explicit concurrency gap."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Same TTH has an unrestricted item and an item restricted to user pointerA; pointerB is distinct.",
+          "when": "Query isTempShared forA/B and getTempShares(TTH) under coordinated access.",
+          "then": "Restricted item permits only identical pointer; unrestricted permits either; filtered snapshot requires explicit synchronization."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "temp-share.concurrent-snapshot"
+      ]
+    },
+    {
+      "id": "temp-share.upload-resolution",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::TempShareManager::toRealWithSize",
+        "dcpp::TempShareManager::getRealPaths"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 47,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 62,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManager.h:48:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:49:CXXMethod:getRealPaths(const TTHValue &, StringList &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "UploadFileQuery and path/size/noAccess outputs; TTH/path-vector."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Iterates filtered items; access-checked unauthorized entry sets noAccess=true; first permitted entry fills path/size,noAccess=false and returns true. Failure returns false; no match leaves noAccess unchanged. getRealPaths appends every matching real path independent of access."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Uses unlocked TTH snapshot overload."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "A restricted same-TTH item for userA and an access-checked query for distinct userB.",
+          "when": "Call toRealWithSize; repeat forA, then missingTTH.",
+          "then": "Denied-only returns false/noAccess=true; allowed fills path,size/noAccess=false; missingTTH leaves output flags unpromised."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "temp-share.concurrent-snapshot"
+      ]
+    },
+    {
+      "id": "temp-share.search-bloom",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::TempShareManager::search",
+        "dcpp::TempShareManager::getBloom",
+        "dcpp::TempShareManager::getBloomFileCount"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 79,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 68,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 74,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManager.h:50:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:51:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:52:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "TTH and ShareSearch optionalUser; profile argument, bloom/count outputs."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Search appends permitted temp FILE results with size,/tmp/name,TTH,timeAdded and uninitialized directory stats. Bloom adds every temp TTH; count increments by tempShares.size; profile parameter is ignored."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Bloom/count acquire read lock; search uses unlocked TTH query."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "One restricted userA temp item and one unrestricted item, plus userB search.",
+          "when": "Call search, getBloom and getBloomFileCount with different profile tokens.",
+          "then": "Search excludesA-only item forB; bloom/count include allstored items independent ofprofile argument."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "temp-share.concurrent-snapshot"
+      ]
+    },
+    {
+      "id": "temp-share.model-lifetime",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::TempShareInfo::TempShareInfo",
+        "dcpp::TempShareInfo::hasAccess",
+        "dcpp::TempShareInfo::getVirtualPath",
+        "dcpp::TempShareManager::TempShareManager"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareItem.h",
+          "start_line": 1,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 32,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 35,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 39,
+          "end_line": 41
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareItem.h:29:StructDecl:TempShareInfo",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:40:CXXMethod:hasAccess(const UserPtr &)",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:42:CXXMethod:getVirtualPath()",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:33:ClassDecl:TempShareManager",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:30:CXCursor_Constructor:cc48dce8967f",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:35:CXCursor_Constructor:9eb0a9fdaa95"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "File metadata and optional UserPtr."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Info immutable fields contain random ID,metadata,user,TTH,timeAdded; virtual path is /tmp/ plus name; hasAccess tests absent stored user or pointer equality. Manager registers itself as upload provider; destructor body is empty. ProviderName is temp_share."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "TempShareManager borrowed provider registration must be detached by owning share/runtime teardown; empty destructor is not proof of safe concurrent removal."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "ShareManager exists and TempShareInfo is created for name a.txt,metadata and user pointerA.",
+          "when": "Construct TempShareManager; query info virtual path and access forA/B.",
+          "then": "Provider registers as temp_share; virtual path is /tmp/a.txt; only identical stored user pointer has access."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "temp-share.support",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::TempShareManager::addTempShareImpl",
+        "dcpp::TempShareManager::removeTempShareImpl"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.h",
+          "start_line": 1,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareItem.h",
+          "start_line": 1,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManagerListener.h",
+          "start_line": 1,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 148,
+          "end_line": 161
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 176,
+          "end_line": 191
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManager.h:65:CXXMethod:addTempShareImpl(const TTHValue &, const string &, const string &, int64_t, const UserPtr &)",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:66:CXXMethod:removeTempShareImpl(TempShareToken)",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:28:TypedefDecl:TempShareToken",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:32:FieldDecl:id",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:33:FieldDecl:name",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:34:FieldDecl:user",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:35:FieldDecl:realPath",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:36:FieldDecl:size",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:37:FieldDecl:tth",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:38:FieldDecl:timeAdded",
+        "decl:airdcpp/share/temp_share/TempShareItem.h:47:TypedefDecl:TempShareInfoList",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:41:TypeAliasDecl:TempShareMap",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:53:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:57:FieldDecl:providerName",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:59:FieldDecl:cs",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:61:FieldDecl:tempShares",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:26:ClassDecl:TempShareManagerListener",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/temp_share/TempShareManagerListener.h:29:30)",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:34:CXXMethod:on(TempFileAdded, const TempShareInfo &)",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:35:CXXMethod:on(TempFileRemoved, const TempShareInfo &)",
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:28:CXCursor_Destructor:276dc5b5ef6d",
+        "decl:airdcpp/share/temp_share/TempShareManager.h:36:CXCursor_Destructor:b2a8ab6ba65b"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Private mutation helpers implement duplicate/access test and ID erase described by admit-remove; unordered multimap and SharedMutex remain Core internals."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:28:TypedefDecl:TempShareToken",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:32:FieldDecl:id",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:33:FieldDecl:name",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:34:FieldDecl:user",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:35:FieldDecl:realPath",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:36:FieldDecl:size",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:37:FieldDecl:tth",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:38:FieldDecl:timeAdded",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareItem.h:47:TypedefDecl:TempShareInfoList",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:41:TypeAliasDecl:TempShareMap",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:53:CXXMethod:getProviderName()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:57:FieldDecl:providerName",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:59:FieldDecl:cs",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:61:FieldDecl:tempShares",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:26:ClassDecl:TempShareManagerListener",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:ClassTemplate:X<I>",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:EnumConstantDecl:TYPE",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/temp_share/TempShareManagerListener.h:29:30)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:34:CXXMethod:on(TempFileAdded, const TempShareInfo &)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:35:CXXMethod:on(TempFileRemoved, const TempShareInfo &)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManagerListener.h:28:CXCursor_Destructor:276dc5b5ef6d",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/temp_share/TempShareManager.h:36:CXCursor_Destructor:b2a8ab6ba65b",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        }
+      ]
+    },
+    {
+      "id": "temp-share.event.TempFileAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::TempShareManagerListener::TempFileAdded"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 111,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 131,
+          "end_line": 146
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:31:TypedefDecl:TempFileAdded"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(TempFileAdded, const TempShareInfo&) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Payload refers to copied local added/removed item; emission follows map write-lock release."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "const TempShareInfo& is borrowed until callback returns."
+      ],
+      "threading_evidence": [
+        "Emitting thread holds listenerCS; map write lock released first."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "No regular/temporary share for the requested TTH.",
+          "when": "Call addTempShare for a new item.",
+          "then": "Listener receives original item values during callback; deferred consumer delivery uses owned copy."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "temp-share.event.TempFileRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::TempShareManagerListener::TempFileRemoved"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/temp_share/TempShareManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 111,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/share/temp_share/TempShareManager.cpp",
+          "start_line": 131,
+          "end_line": 146
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/temp_share/TempShareManagerListener.h:32:TypedefDecl:TempFileRemoved"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(TempFileRemoved, const TempShareInfo&) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Payload refers to copied local added/removed item; emission follows map write-lock release."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "const TempShareInfo& is borrowed until callback returns."
+      ],
+      "threading_evidence": [
+        "Emitting thread holds listenerCS; map write lock released first."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "A stored temp item/token and registered listener.",
+          "when": "Call removeTempShare for its token.",
+          "then": "Listener receives original item values during callback; deferred consumer delivery uses owned copy."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    }
+  ]
+}

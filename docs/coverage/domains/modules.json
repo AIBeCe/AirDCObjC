@@ -1,0 +1,1666 @@
+{
+  "schema_version": 1,
+  "domain_id": "modules",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "modules.auto-search",
+      "kind": "capability",
+      "upstream_symbols": [
+        "AutoSearchManager",
+        "AutoSearch",
+        "AutoSearchManagerListener",
+        "AutoSearchQueue"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/AutoSearchManager.h",
+          "start_line": 35,
+          "end_line": 155
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 66,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 182,
+          "end_line": 202
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 549,
+          "end_line": 640
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 941,
+          "end_line": 1125
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManagerListener.h",
+          "start_line": 30,
+          "end_line": 47
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Search text, target, file/directory type, item type, remove/search flags, expiry days."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "AutoSearch defaults: enabled=true, matchFullPath=true, remove=false, lastSearch=0, checkAlreadyQueued=true, checkAlreadyShared=true, userMatcherExclude=false, manualSearch=false, current number=1, maximum=0, number length=2, useParams=false, expireTime=0, group empty, status SEARCHING, ItemType NORMAL, priority LOW, search window 00:00–23:59 and all seven weekdays enabled. Zero expiry passed to addAutoSearch uses AUTOSEARCH_EXPIRE_DAYS; nonpositive expiry yields no expiry. (AutoSearch.h:84-132; AutoSearchManager.cpp:66-82)"
+        ],
+        "effects": [
+          "Rejects search strings of length 5 or less and duplicate search text; zero expiry uses AUTOSEARCH_EXPIRE_DAYS. Accepted item is normalized, inserted under write lock, marked dirty, emits ItemAdded, optionally searches immediately, and schedules search-time recalculation. Removing a present item emits ItemRemoved and recalculates timing."
+        ],
+        "events": [
+          "ItemAdded",
+          "ItemUpdated",
+          "ItemRemoved",
+          "SearchStarted",
+          "SearchFailed"
+        ],
+        "errors": [
+          "Invalid or duplicate text returns null; search may fail when no hub is available."
+        ],
+        "completion": "Add/update/remove are synchronous; search requests and delayed time recalculation are asynchronous.",
+        "cancellation": "No cancellation API in add/remove; internal delayed search queue is managed by the singleton.",
+        "persistence": [
+          "AutoSearch.xml load/save; mutations mark persisted state dirty."
+        ],
+        "resources": [
+          "TimerManager, SearchManager, DirectoryListingManager, QueueManager listeners; shared mutex and delayed-event queue."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a search string of at most five characters, when addAutoSearch is called, then it returns null and logs a validation error; given valid unique text, then it inserts and emits ItemAdded."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/AutoSearch.h:37:TypedefDecl:AutoSearchPtr",
+        "decl:airdcpp/modules/AutoSearch.h:38:TypedefDecl:AutoSearchList",
+        "decl:airdcpp/modules/AutoSearch.h:39:TypedefDecl:AutoSearchMap",
+        "decl:airdcpp/modules/AutoSearch.h:41:StructDecl:SearchTime",
+        "decl:airdcpp/modules/AutoSearch.h:42:FieldDecl:hour",
+        "decl:airdcpp/modules/AutoSearch.h:43:FieldDecl:minute",
+        "decl:airdcpp/modules/AutoSearch.h:65:CXXMethod:toString()",
+        "decl:airdcpp/modules/AutoSearch.h:66:VarDecl:hourStr",
+        "decl:airdcpp/modules/AutoSearch.h:69:VarDecl:minuteStr",
+        "decl:airdcpp/modules/AutoSearch.h:76:ClassDecl:AutoSearch",
+        "decl:airdcpp/modules/AutoSearch.h:79:EnumDecl:ActionType",
+        "decl:airdcpp/modules/AutoSearch.h:80:EnumConstantDecl:ACTION_DOWNLOAD",
+        "decl:airdcpp/modules/AutoSearch.h:81:EnumConstantDecl:ACTION_QUEUE",
+        "decl:airdcpp/modules/AutoSearch.h:82:EnumConstantDecl:ACTION_REPORT",
+        "decl:airdcpp/modules/AutoSearch.h:85:EnumDecl:Status",
+        "decl:airdcpp/modules/AutoSearch.h:86:EnumConstantDecl:STATUS_DISABLED",
+        "decl:airdcpp/modules/AutoSearch.h:87:EnumConstantDecl:STATUS_EXPIRED",
+        "decl:airdcpp/modules/AutoSearch.h:88:EnumConstantDecl:STATUS_MANUAL",
+        "decl:airdcpp/modules/AutoSearch.h:89:EnumConstantDecl:STATUS_SEARCHING",
+        "decl:airdcpp/modules/AutoSearch.h:90:EnumConstantDecl:STATUS_COLLECTING",
+        "decl:airdcpp/modules/AutoSearch.h:91:EnumConstantDecl:STATUS_WAITING",
+        "decl:airdcpp/modules/AutoSearch.h:92:EnumConstantDecl:STATUS_POSTSEARCH",
+        "decl:airdcpp/modules/AutoSearch.h:93:EnumConstantDecl:STATUS_QUEUED_OK",
+        "decl:airdcpp/modules/AutoSearch.h:94:EnumConstantDecl:STATUS_FAILED_MISSING",
+        "decl:airdcpp/modules/AutoSearch.h:95:EnumConstantDecl:STATUS_FAILED_EXTRAS",
+        "decl:airdcpp/modules/AutoSearch.h:98:EnumDecl:ItemType",
+        "decl:airdcpp/modules/AutoSearch.h:99:EnumConstantDecl:NORMAL",
+        "decl:airdcpp/modules/AutoSearch.h:100:EnumConstantDecl:FAILED_BUNDLE",
+        "decl:airdcpp/modules/AutoSearch.h:101:EnumConstantDecl:CHAT_DOWNLOAD",
+        "decl:airdcpp/modules/AutoSearch.h:102:EnumConstantDecl:RSS_DOWNLOAD",
+        "decl:airdcpp/modules/AutoSearch.h:111:TypedefDecl:FinishedPathMap",
+        "decl:airdcpp/modules/AutoSearch.h:113:FieldDecl:searchString",
+        "decl:airdcpp/modules/AutoSearch.h:114:FieldDecl:excludedString",
+        "decl:airdcpp/modules/AutoSearch.h:115:FieldDecl:matcherString",
+        "decl:airdcpp/modules/AutoSearch.h:116:FieldDecl:action",
+        "decl:airdcpp/modules/AutoSearch.h:117:FieldDecl:fileType",
+        "decl:airdcpp/modules/AutoSearch.h:118:FieldDecl:expireTime",
+        "decl:airdcpp/modules/AutoSearch.h:120:FieldDecl:token",
+        "decl:airdcpp/modules/AutoSearch.h:121:FieldDecl:bundles",
+        "decl:airdcpp/modules/AutoSearch.h:122:FieldDecl:finishedPaths",
+        "decl:airdcpp/modules/AutoSearch.h:124:FieldDecl:matchFullPath",
+        "decl:airdcpp/modules/AutoSearch.h:125:FieldDecl:enabled",
+        "decl:airdcpp/modules/AutoSearch.h:126:FieldDecl:remove",
+        "decl:airdcpp/modules/AutoSearch.h:127:FieldDecl:lastSearch",
+        "decl:airdcpp/modules/AutoSearch.h:128:FieldDecl:checkAlreadyQueued",
+        "decl:airdcpp/modules/AutoSearch.h:129:FieldDecl:checkAlreadyShared",
+        "decl:airdcpp/modules/AutoSearch.h:130:FieldDecl:userMatcherExclude",
+        "decl:airdcpp/modules/AutoSearch.h:132:FieldDecl:manualSearch",
+        "decl:airdcpp/modules/AutoSearch.h:133:FieldDecl:status",
+        "decl:airdcpp/modules/AutoSearch.h:135:FieldDecl:curNumber",
+        "decl:airdcpp/modules/AutoSearch.h:136:FieldDecl:maxNumber",
+        "decl:airdcpp/modules/AutoSearch.h:137:FieldDecl:numberLen",
+        "decl:airdcpp/modules/AutoSearch.h:138:FieldDecl:useParams",
+        "decl:airdcpp/modules/AutoSearch.h:139:FieldDecl:lastIncFinish",
+        "decl:airdcpp/modules/AutoSearch.h:140:FieldDecl:group",
+        "decl:airdcpp/modules/AutoSearch.h:142:FieldDecl:lastError",
+        "decl:airdcpp/modules/AutoSearch.h:144:FieldDecl:asType",
+        "decl:airdcpp/modules/AutoSearch.h:145:FieldDecl:timeAdded",
+        "decl:airdcpp/modules/AutoSearch.h:147:FieldDecl:priority",
+        "decl:airdcpp/modules/AutoSearch.h:149:FieldDecl:startTime",
+        "decl:airdcpp/modules/AutoSearch.h:150:FieldDecl:endTime",
+        "decl:airdcpp/modules/AutoSearch.h:151:FieldDecl:searchDays",
+        "decl:airdcpp/modules/AutoSearch.h:153:CXXMethod:matchNick(const string &)",
+        "decl:airdcpp/modules/AutoSearch.h:154:CXXMethod:getNickPattern()",
+        "decl:airdcpp/modules/AutoSearch.h:155:CXXMethod:getDisplayName()",
+        "decl:airdcpp/modules/AutoSearch.h:157:CXXMethod:getDisplayType()",
+        "decl:airdcpp/modules/AutoSearch.h:158:CXXMethod:getSearchingStatus()",
+        "decl:airdcpp/modules/AutoSearch.h:169:CXXMethod:updatePattern()",
+        "decl:airdcpp/modules/AutoSearch.h:172:CXXMethod:saveToXml(SimpleXML &)",
+        "decl:airdcpp/modules/AutoSearch.h:175:CXXMethod:removeBundle(const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearch.h:176:CXXMethod:addBundle(const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearch.h:177:CXXMethod:hasBundle(const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearch.h:179:CXXMethod:addPath(const string &, time_t)",
+        "decl:airdcpp/modules/AutoSearch.h:181:CXXMethod:usingIncrementation()",
+        "decl:airdcpp/modules/AutoSearch.h:182:CXXMethod:formatParams(bool)",
+        "decl:airdcpp/modules/AutoSearch.h:183:CXXMethod:setUserMatcher(const string &)",
+        "decl:airdcpp/modules/AutoSearch.h:184:CXXMethod:prepareUserMatcher()",
+        "decl:airdcpp/modules/AutoSearch.h:185:CXXMethod:getTarget()",
+        "decl:airdcpp/modules/AutoSearch.h:186:CXXMethod:setTarget(const string &)",
+        "decl:airdcpp/modules/AutoSearch.h:188:CXXMethod:isExcluded(const string &)",
+        "decl:airdcpp/modules/AutoSearch.h:189:CXXMethod:updateExcluded()",
+        "decl:airdcpp/modules/AutoSearch.h:190:CXXMethod:getFormatedSearchString()",
+        "decl:airdcpp/modules/AutoSearch.h:193:CXXMethod:onBundleRemoved(const BundlePtr &, bool)",
+        "decl:airdcpp/modules/AutoSearch.h:198:CXXMethod:hasHookFilesMissing(const ActionHookRejectionPtr &)",
+        "decl:airdcpp/modules/AutoSearch.h:199:CXXMethod:hasHookInvalidContent(const ActionHookRejectionPtr &)",
+        "decl:airdcpp/modules/AutoSearch.h:201:FieldDecl:userMatcher",
+        "decl:airdcpp/modules/AutoSearch.h:202:FieldDecl:nextSearchChange",
+        "decl:airdcpp/modules/AutoSearch.h:203:FieldDecl:nextIsDisable",
+        "decl:airdcpp/modules/AutoSearch.h:204:FieldDecl:target",
+        "decl:airdcpp/modules/AutoSearch.h:205:FieldDecl:excluded",
+        "decl:airdcpp/modules/AutoSearch.h:207:FieldDecl:recent",
+        "decl:airdcpp/modules/AutoSearchManager.h:41:ClassDecl:AutoSearchManager",
+        "decl:airdcpp/modules/AutoSearchManager.h:44:EnumDecl:SearchType",
+        "decl:airdcpp/modules/AutoSearchManager.h:45:EnumConstantDecl:TYPE_MANUAL_FG",
+        "decl:airdcpp/modules/AutoSearchManager.h:46:EnumConstantDecl:TYPE_MANUAL_BG",
+        "decl:airdcpp/modules/AutoSearchManager.h:47:EnumConstantDecl:TYPE_NEW",
+        "decl:airdcpp/modules/AutoSearchManager.h:48:EnumConstantDecl:TYPE_NORMAL",
+        "decl:airdcpp/modules/AutoSearchManager.h:54:TypeAliasDecl:AutoSearchGroups",
+        "decl:airdcpp/modules/AutoSearchManager.h:57:CXXMethod:addAutoSearch(AutoSearchPtr, bool, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:58:CXXMethod:addAutoSearch(const string &, const string &, bool, AutoSearch::ItemType, bool, bool, int)",
+        "decl:airdcpp/modules/AutoSearchManager.h:59:CXXMethod:validateAutoSearchStr(const string &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:60:CXXMethod:getSearchesByBundle(const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:61:CXXMethod:getSearchesByString(const string &, const AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:63:CXXMethod:getBundleStatuses(const AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:66:CXXMethod:getMenuInfo(const AutoSearchPtr &, BundleList &, AutoSearch::FinishedPathMap &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:68:CXXMethod:removeAutoSearch(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:73:CXXMethod:getSearchItems()",
+        "decl:airdcpp/modules/AutoSearchManager.h:79:CXXMethod:getNextSearch()",
+        "decl:airdcpp/modules/AutoSearchManager.h:84:CXXMethod:logMessage(const string &, LogMessage::Severity)",
+        "decl:airdcpp/modules/AutoSearchManager.h:86:CXXMethod:onBundleCreated(const BundlePtr &, const void *)",
+        "decl:airdcpp/modules/AutoSearchManager.h:87:CXXMethod:onBundleError(const void *, const string &, const string &, const HintedUser &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:89:VarDecl:l",
+        "decl:airdcpp/modules/AutoSearchManager.h:90:VarDecl:l",
+        "decl:airdcpp/modules/AutoSearchManager.h:92:VarDecl:l",
+        "decl:airdcpp/modules/AutoSearchManager.h:97:CXXMethod:getCS()",
+        "decl:airdcpp/modules/AutoSearchManager.h:99:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/AutoSearchManager.h:99:2)",
+        "decl:airdcpp/modules/AutoSearchManager.h:100:EnumConstantDecl:RECALCULATE_SEARCH",
+        "decl:airdcpp/modules/AutoSearchManager.h:101:EnumConstantDecl:SEARCH_ITEM",
+        "decl:airdcpp/modules/AutoSearchManager.h:104:FieldDecl:cs",
+        "decl:airdcpp/modules/AutoSearchManager.h:107:FieldDecl:delayEvents",
+        "decl:airdcpp/modules/AutoSearchManager.h:109:FieldDecl:groups",
+        "decl:airdcpp/modules/AutoSearchManager.h:112:CXXMethod:performSearch(AutoSearchPtr &, StringList &, SearchType, uint64_t)",
+        "decl:airdcpp/modules/AutoSearchManager.h:115:FieldDecl:searchItems",
+        "decl:airdcpp/modules/AutoSearchManager.h:120:FieldDecl:lastSave",
+        "decl:airdcpp/modules/AutoSearchManager.h:121:FieldDecl:dirty",
+        "decl:airdcpp/modules/AutoSearchManager.h:122:FieldDecl:nextSearch",
+        "decl:airdcpp/modules/AutoSearchManager.h:124:FieldDecl:endOfListReached",
+        "decl:airdcpp/modules/AutoSearchManager.h:126:FieldDecl:searchResults",
+        "decl:airdcpp/modules/AutoSearchManager.h:127:CXXMethod:pickNameMatch(AutoSearchPtr)",
+        "decl:airdcpp/modules/AutoSearchManager.h:128:CXXMethod:downloadList(SearchResultList &, AutoSearchPtr &, int64_t)",
+        "decl:airdcpp/modules/AutoSearchManager.h:129:CXXMethod:handleAction(const SearchResultPtr &, AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:132:CXXMethod:clearError(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:136:CXXMethod:on(SearchManagerListener::SR, const SearchResultPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:138:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/modules/AutoSearchManager.h:139:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/modules/AutoSearchManager.h:141:CXXMethod:on(QueueManagerListener::BundleRemoved, const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:142:CXXMethod:on(QueueManagerListener::BundleStatusChanged, const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:144:CXXMethod:on(DirectoryListingManagerListener::DirectoryDownloadProcessed, const DirectoryDownloadPtr &, const DirectoryBundleAddResult &, const string &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:145:CXXMethod:on(DirectoryDownloadFailed, const DirectoryDownloadPtr &, const string &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:147:CXXMethod:onRemoveBundle(const BundlePtr &, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:150:CXXMethod:toTimeT(uint64_t, uint64_t)",
+        "decl:airdcpp/modules/AutoSearchManager.h:152:CXXMethod:matchResult(const SearchResultPtr &)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:27:ClassDecl:AutoSearchManagerListener",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/AutoSearchManagerListener.h:30:29)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:32:TypedefDecl:ItemRemoved",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:33:TypedefDecl:ItemAdded",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:34:TypedefDecl:ItemUpdated",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:35:TypedefDecl:SearchForeground",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:36:TypedefDecl:ItemSearched",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:38:CXXMethod:on(ItemRemoved, const AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:39:CXXMethod:on(ItemAdded, const AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:40:CXXMethod:on(ItemUpdated, const AutoSearchPtr &, bool)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:41:CXXMethod:on(SearchForeground, const AutoSearchPtr &, const string &)",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:42:CXXMethod:on(ItemSearched, const AutoSearchPtr &, const string &)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:30:ClassDecl:Searches",
+        "decl:airdcpp/modules/AutoSearchQueue.h:35:CXXMethod:addItem(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:40:CXXMethod:removeItem(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:45:CXXMethod:hasItem(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:49:CXXMethod:getItem(const ProfileToken &)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:50:VarDecl:ret",
+        "decl:airdcpp/modules/AutoSearchQueue.h:54:CXXMethod:getItem(const void *)",
+        "decl:airdcpp/modules/AutoSearchQueue.h:55:VarDecl:i",
+        "decl:airdcpp/modules/AutoSearchQueue.h:61:CXXMethod:getItems()",
+        "decl:airdcpp/modules/AutoSearchQueue.h:62:CXXMethod:getItems()",
+        "decl:airdcpp/modules/AutoSearchQueue.h:65:FieldDecl:searches",
+        "decl:airdcpp/modules/AutoSearch.h:113:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:114:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:115:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:116:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:117:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:118:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:120:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:121:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:122:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:124:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:125:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:126:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:127:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:128:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:129:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:130:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:132:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:133:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:135:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:136:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:137:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:138:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:139:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:140:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:142:macro:GETSET",
+        "decl:airdcpp/modules/AutoSearch.h:144:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:145:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:147:macro:IGETSET",
+        "decl:airdcpp/modules/AutoSearch.h:45:CXCursor_Constructor:331000ca1996",
+        "decl:airdcpp/modules/AutoSearch.h:49:CXCursor_Constructor:6d7eeedb6377",
+        "decl:airdcpp/modules/AutoSearch.h:50:CXCursor_Constructor:cca79e05fc72",
+        "decl:airdcpp/modules/AutoSearch.h:105:CXCursor_Constructor:9659dd852455",
+        "decl:airdcpp/modules/AutoSearch.h:109:CXCursor_Constructor:16eb04e904e6",
+        "decl:airdcpp/modules/AutoSearch.h:110:CXCursor_Destructor:801a61ee7d2d",
+        "decl:airdcpp/modules/AutoSearchManagerListener.h:29:CXCursor_Destructor:05024114c479",
+        "decl:airdcpp/modules/AutoSearchQueue.h:32:CXCursor_Constructor:9b62c6955437",
+        "decl:airdcpp/modules/AutoSearchQueue.h:33:CXCursor_Destructor:1dc10c3917ac",
+        "decl:airdcpp/modules/AutoSearchManager.h:51:CXCursor_Constructor:341cef4e83d7",
+        "decl:airdcpp/modules/AutoSearchManager.h:52:CXCursor_Destructor:8f2a57f7e6ac"
+      ],
+      "structural_declaration_ids": []
+    },
+    {
+      "id": "modules.adl-search",
+      "kind": "capability",
+      "upstream_symbols": [
+        "ADLSearchManager",
+        "ADLSearch",
+        "ColorSettings"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/ADLSearch.h",
+          "start_line": 40,
+          "end_line": 165
+        },
+        {
+          "path": "airdcpp/modules/ADLSearch.cpp",
+          "start_line": 336,
+          "end_line": 430
+        },
+        {
+          "path": "airdcpp/modules/ADLSearch.cpp",
+          "start_line": 432,
+          "end_line": 510
+        },
+        {
+          "path": "airdcpp/modules/ADLSearch.cpp",
+          "start_line": 586,
+          "end_line": 625
+        },
+        {
+          "path": "airdcpp/modules/ColorSettings.h",
+          "start_line": 48,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/modules/ColorSettings.cpp",
+          "start_line": 25,
+          "end_line": 63
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ADL search collection entries with file/directory matching criteria, destination, enable flag and auto-queue setting; a DirectoryListing to transform."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "ADLSearch starts active with empty comment (“none”), isAutoQueue=false, sourceType=OnlyFile, min/max file size=-1 (unchecked), size type=SizeBytes, destination index 0, name “ADLSearch”, pattern “<Enter string>”, and regex=false. Manager running count starts 0 and dirty=false; breakOnFirst is loaded from ADLS_BREAK_ON_FIRST at matchListing time. (ADLSearch.h:48-78,130-182; ADLSearch.cpp:40-46,603-608)"
+        ],
+        "effects": [
+          "Recursively matches files and directories from the remote listing into virtual destination folders; file matching converts ADC path to NMDC for compatibility. A matched file may be queued when isAutoQueue is set. breakOnFirst stops after first matching collection entry. If listing closes during recursion, AbortException is thrown."
+        ],
+        "events": [],
+        "errors": [
+          "Queue exceptions while auto-queueing are swallowed per matched file; closing listing aborts recursion with AbortException.",
+          "Collection mutation methods return false while an ADL listing match is running; addCollection also returns false for an empty pattern. Recursive matching throws AbortException if listing closes."
+        ],
+        "completion": "matchListing is synchronous over the listing tree; config load/save uses XML.",
+        "cancellation": "No explicit task cancellation API; listing closing is checked and aborts traversal.",
+        "persistence": [
+          "add/update/remove/state changes mark collection dirty; save writes ADLSearch.xml when dirty or forced; load/save stores pattern, regex, source type, destination, comment, active/size/queue flags."
+        ],
+        "resources": [
+          "DirectoryListing tree; QueueManager when auto-queue is enabled."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a listing closes during ADL traversal, when recursive matching reaches the next directory, then AbortException stops the traversal; given a matched auto-queue file, then a queue file-bundle request is attempted.",
+        "Given a default-constructed ADLSearch, when inspected before XML loading, then it is active, matches filenames, has unchecked size limits, and uses “<Enter string>” with regex off. Given collection editing occurs during matchListing, then add/remove/update/state change returns false."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/ADLSearch.h:37:ClassDecl:ADLSearch",
+        "decl:airdcpp/modules/ADLSearch.h:44:FieldDecl:isActive",
+        "decl:airdcpp/modules/ADLSearch.h:47:FieldDecl:adlsComment",
+        "decl:airdcpp/modules/ADLSearch.h:50:FieldDecl:isAutoQueue",
+        "decl:airdcpp/modules/ADLSearch.h:53:EnumDecl:SourceType",
+        "decl:airdcpp/modules/ADLSearch.h:54:EnumConstantDecl:TypeFirst",
+        "decl:airdcpp/modules/ADLSearch.h:55:EnumConstantDecl:OnlyFile",
+        "decl:airdcpp/modules/ADLSearch.h:56:EnumConstantDecl:OnlyDirectory",
+        "decl:airdcpp/modules/ADLSearch.h:57:EnumConstantDecl:FullPath",
+        "decl:airdcpp/modules/ADLSearch.h:58:EnumConstantDecl:TypeLast",
+        "decl:airdcpp/modules/ADLSearch.h:61:FieldDecl:sourceType",
+        "decl:airdcpp/modules/ADLSearch.h:63:CXXMethod:StringToSourceType(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:65:CXXMethod:SourceTypeToString(SourceType)",
+        "decl:airdcpp/modules/ADLSearch.h:67:CXXMethod:SourceTypeToDisplayString(SourceType)",
+        "decl:airdcpp/modules/ADLSearch.h:71:FieldDecl:minFileSize",
+        "decl:airdcpp/modules/ADLSearch.h:72:FieldDecl:maxFileSize",
+        "decl:airdcpp/modules/ADLSearch.h:74:EnumDecl:SizeType",
+        "decl:airdcpp/modules/ADLSearch.h:75:EnumConstantDecl:SizeBytes",
+        "decl:airdcpp/modules/ADLSearch.h:76:EnumConstantDecl:SizeKiloBytes",
+        "decl:airdcpp/modules/ADLSearch.h:77:EnumConstantDecl:SizeMegaBytes",
+        "decl:airdcpp/modules/ADLSearch.h:78:EnumConstantDecl:SizeGigaBytes",
+        "decl:airdcpp/modules/ADLSearch.h:81:FieldDecl:typeFileSize",
+        "decl:airdcpp/modules/ADLSearch.h:83:CXXMethod:StringToSizeType(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:84:CXXMethod:SizeTypeToString(SizeType)",
+        "decl:airdcpp/modules/ADLSearch.h:85:CXXMethod:SizeTypeToDisplayString(SizeType)",
+        "decl:airdcpp/modules/ADLSearch.h:86:CXXMethod:GetSizeBase()",
+        "decl:airdcpp/modules/ADLSearch.h:90:FieldDecl:ddIndex",
+        "decl:airdcpp/modules/ADLSearch.h:92:CXXMethod:isRegEx()",
+        "decl:airdcpp/modules/ADLSearch.h:93:CXXMethod:setRegEx(bool)",
+        "decl:airdcpp/modules/ADLSearch.h:94:CXXMethod:getPattern()",
+        "decl:airdcpp/modules/ADLSearch.h:95:CXXMethod:setPattern(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:97:CXXMethod:setDestDir(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:98:CXXMethod:getDestDir()",
+        "decl:airdcpp/modules/ADLSearch.h:100:FieldDecl:name",
+        "decl:airdcpp/modules/ADLSearch.h:104:FieldDecl:match",
+        "decl:airdcpp/modules/ADLSearch.h:107:CXXMethod:prepare()",
+        "decl:airdcpp/modules/ADLSearch.h:110:CXXMethod:matchesFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/modules/ADLSearch.h:112:CXXMethod:matchesDirectory(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:114:CXXMethod:searchAll(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:118:ClassDecl:ADLSearchManager",
+        "decl:airdcpp/modules/ADLSearch.h:122:StructDecl:DestDir",
+        "decl:airdcpp/modules/ADLSearch.h:126:FieldDecl:name",
+        "decl:airdcpp/modules/ADLSearch.h:127:FieldDecl:dir",
+        "decl:airdcpp/modules/ADLSearch.h:128:FieldDecl:subdir",
+        "decl:airdcpp/modules/ADLSearch.h:129:FieldDecl:fileAdded",
+        "decl:airdcpp/modules/ADLSearch.h:131:TypeAliasDecl:DestDirList",
+        "decl:airdcpp/modules/ADLSearch.h:137:TypeAliasDecl:SearchCollection",
+        "decl:airdcpp/modules/ADLSearch.h:138:FieldDecl:collection",
+        "decl:airdcpp/modules/ADLSearch.h:142:CXXMethod:load()",
+        "decl:airdcpp/modules/ADLSearch.h:143:CXXMethod:save(bool)",
+        "decl:airdcpp/modules/ADLSearch.h:146:FieldDecl:breakOnFirst",
+        "decl:airdcpp/modules/ADLSearch.h:147:FieldDecl:user",
+        "decl:airdcpp/modules/ADLSearch.h:151:CXXMethod:matchListing(DirectoryListing &)",
+        "decl:airdcpp/modules/ADLSearch.h:152:CXXMethod:addCollection(ADLSearch &, int)",
+        "decl:airdcpp/modules/ADLSearch.h:153:CXXMethod:removeCollection(int)",
+        "decl:airdcpp/modules/ADLSearch.h:154:CXXMethod:changeState(int, bool)",
+        "decl:airdcpp/modules/ADLSearch.h:155:CXXMethod:updateCollection(ADLSearch &, int)",
+        "decl:airdcpp/modules/ADLSearch.h:156:CXXMethod:getRunning()",
+        "decl:airdcpp/modules/ADLSearch.h:158:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/modules/ADLSearch.h:160:CXXMethod:loadSearch(SimpleXML &)",
+        "decl:airdcpp/modules/ADLSearch.h:162:CXXMethod:StringToSourceType(const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:163:FieldDecl:dirty",
+        "decl:airdcpp/modules/ADLSearch.h:167:CXXMethod:matchRecurse(DestDirList &, const DirectoryListing::Directory::Ptr &, const string &, DirectoryListing &)",
+        "decl:airdcpp/modules/ADLSearch.h:169:CXXMethod:MatchesFile(DestDirList &, const DirectoryListing::File::Ptr &, const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:171:CXXMethod:MatchesDirectory(DestDirList &, const DirectoryListing::Directory::Ptr &, const string &)",
+        "decl:airdcpp/modules/ADLSearch.h:173:CXXMethod:stepUpDirectory(DestDirList &)",
+        "decl:airdcpp/modules/ADLSearch.h:176:CXXMethod:PrepareDestinationDirectories(DestDirList &, DirectoryListing::Directory::Ptr &)",
+        "decl:airdcpp/modules/ADLSearch.h:177:CXXMethod:addRootDirectory(const string &, DestDirList &, DirectoryListing::Directory::Ptr &)",
+        "decl:airdcpp/modules/ADLSearch.h:179:CXXMethod:FinalizeDestinationDirectories(DestDirList &, DirectoryListing::Directory::Ptr &)",
+        "decl:airdcpp/modules/ADLSearch.h:181:FieldDecl:running",
+        "decl:airdcpp/modules/ColorSettings.h:26:ClassDecl:ColorSettings",
+        "decl:airdcpp/modules/ColorSettings.h:32:FieldDecl:bWholeWord",
+        "decl:airdcpp/modules/ColorSettings.h:33:FieldDecl:bWholeLine",
+        "decl:airdcpp/modules/ColorSettings.h:34:FieldDecl:bIncludeNickList",
+        "decl:airdcpp/modules/ColorSettings.h:35:FieldDecl:bCaseSensitive",
+        "decl:airdcpp/modules/ColorSettings.h:36:FieldDecl:bPopup",
+        "decl:airdcpp/modules/ColorSettings.h:37:FieldDecl:bTab",
+        "decl:airdcpp/modules/ColorSettings.h:38:FieldDecl:bPlaySound",
+        "decl:airdcpp/modules/ColorSettings.h:39:FieldDecl:bBold",
+        "decl:airdcpp/modules/ColorSettings.h:40:FieldDecl:bUnderline",
+        "decl:airdcpp/modules/ColorSettings.h:41:FieldDecl:bItalic",
+        "decl:airdcpp/modules/ColorSettings.h:42:FieldDecl:bStrikeout",
+        "decl:airdcpp/modules/ColorSettings.h:44:FieldDecl:bFlashWindow",
+        "decl:airdcpp/modules/ColorSettings.h:45:FieldDecl:iMatchType",
+        "decl:airdcpp/modules/ColorSettings.h:46:FieldDecl:iBgColor",
+        "decl:airdcpp/modules/ColorSettings.h:47:FieldDecl:iFgColor",
+        "decl:airdcpp/modules/ColorSettings.h:48:FieldDecl:bHasBgColor",
+        "decl:airdcpp/modules/ColorSettings.h:49:FieldDecl:bHasFgColor",
+        "decl:airdcpp/modules/ColorSettings.h:50:FieldDecl:strSoundFile",
+        "decl:airdcpp/modules/ColorSettings.h:51:FieldDecl:bContext",
+        "decl:airdcpp/modules/ColorSettings.h:52:FieldDecl:bMatchColumn",
+        "decl:airdcpp/modules/ColorSettings.h:54:CXXMethod:setMatch(const tstring &)",
+        "decl:airdcpp/modules/ColorSettings.h:55:CXXMethod:setRegexp()",
+        "decl:airdcpp/modules/ColorSettings.h:60:CXXMethod:getUsers()",
+        "decl:airdcpp/modules/ColorSettings.h:61:CXXMethod:getTimestamps()",
+        "decl:airdcpp/modules/ColorSettings.h:62:CXXMethod:getMyNick()",
+        "decl:airdcpp/modules/ColorSettings.h:63:CXXMethod:usingRegexp()",
+        "decl:airdcpp/modules/ColorSettings.h:65:CXXMethod:getMatch()",
+        "decl:airdcpp/modules/ColorSettings.h:69:FieldDecl:strMatch",
+        "decl:airdcpp/modules/ColorSettings.h:71:FieldDecl:bTimestamps",
+        "decl:airdcpp/modules/ColorSettings.h:72:FieldDecl:bUsers",
+        "decl:airdcpp/modules/ColorSettings.h:73:FieldDecl:bMyNick",
+        "decl:airdcpp/modules/ColorSettings.h:74:FieldDecl:bUsingRegexp",
+        "decl:airdcpp/modules/ADLSearch.h:146:macro:GETSET",
+        "decl:airdcpp/modules/ADLSearch.h:147:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:32:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:33:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:34:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:35:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:36:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:37:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:38:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:39:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:40:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:41:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:42:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:44:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:45:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:46:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:47:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:48:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:49:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:50:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:51:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:52:macro:GETSET",
+        "decl:airdcpp/modules/ColorSettings.h:58:conditional-source",
+        "decl:airdcpp/modules/ADLSearch.h:41:CXCursor_Constructor:c2a6a6ddabe4",
+        "decl:airdcpp/modules/ADLSearch.h:123:CXCursor_Constructor:c9e169fb71e1",
+        "decl:airdcpp/modules/ADLSearch.h:133:CXCursor_Constructor:2e78d22eca19",
+        "decl:airdcpp/modules/ADLSearch.h:134:CXCursor_Destructor:e4a5c93ef85e",
+        "decl:airdcpp/modules/ColorSettings.h:29:CXCursor_Constructor:81aa939a1196",
+        "decl:airdcpp/modules/ColorSettings.h:30:CXCursor_Destructor:e91a0ac3526e"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/modules/ColorSettings.h:58-58:conditional-region"
+      ]
+    },
+    {
+      "id": "modules.direct-search",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DirectSearch"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/DirectSearch.h",
+          "start_line": 32,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/modules/DirectSearch.cpp",
+          "start_line": 30,
+          "end_line": 100
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Hinted user, search request/token, no-result timeout."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "DirectSearch constructor defaults no-result timeout to 5000 ms; current result count is 0, max result count starts from Search::maxResults, lastResult=0, started=GET_TICK(), and timedOut=false. (DirectSearch.h:35-77; DirectSearch.cpp:30-42)"
+        ],
+        "effects": [
+          "Registers ClientManager and SearchManager listeners; collects results matching search token; updates expected result count on DirectSearchEnd; produces ordered ADC paths and optionally parent paths for peers without ASCH."
+        ],
+        "events": [
+          "Search result listener and direct-search-end listener are consumed internally."
+        ],
+        "errors": [
+          "A no-result timeout marks the operation timed out; no error payload is returned by finished().",
+          "The constructor invokes directSearchHooked and does not return its local error string; callers observe timeout/no-results through finished() and hasTimedOut()."
+        ],
+        "completion": "Result collection is event-driven; finished() reports true after expected count, 1-second quiet period after results, or no-result timeout.",
+        "cancellation": "finished() unregisters listeners; destructor also unregisters them.",
+        "persistence": [
+          "None; results live for DirectSearch object lifetime."
+        ],
+        "resources": [
+          "ClientManager, SearchManager callbacks and owned result pointers."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a matching search token receives results and then stays quiet for over one second, when finished() is polled, then it unregisters listeners and returns true.",
+        "Given no explicit timeout, when DirectSearch is constructed, then it uses a 5000 ms no-result timeout and starts its timer at GET_TICK()."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/DirectSearch.h:33:ClassDecl:DirectSearch",
+        "decl:airdcpp/modules/DirectSearch.h:41:CXXMethod:getResultCount()",
+        "decl:airdcpp/modules/DirectSearch.h:43:CXXMethod:finished()",
+        "decl:airdcpp/modules/DirectSearch.h:45:CXXMethod:getResults()",
+        "decl:airdcpp/modules/DirectSearch.h:49:CXXMethod:getAdcPaths(OrderedStringSet &, bool)",
+        "decl:airdcpp/modules/DirectSearch.h:51:CXXMethod:hasTimedOut()",
+        "decl:airdcpp/modules/DirectSearch.h:55:CXXMethod:on(SearchManagerListener::SR, const SearchResultPtr &)",
+        "decl:airdcpp/modules/DirectSearch.h:58:CXXMethod:on(ClientManagerListener::DirectSearchEnd, const string &, int)",
+        "decl:airdcpp/modules/DirectSearch.h:60:CXXMethod:removeListeners()",
+        "decl:airdcpp/modules/DirectSearch.h:62:FieldDecl:results",
+        "decl:airdcpp/modules/DirectSearch.h:64:FieldDecl:curResultCount",
+        "decl:airdcpp/modules/DirectSearch.h:65:FieldDecl:maxResultCount",
+        "decl:airdcpp/modules/DirectSearch.h:66:FieldDecl:noResultTimeout",
+        "decl:airdcpp/modules/DirectSearch.h:67:FieldDecl:lastResult",
+        "decl:airdcpp/modules/DirectSearch.h:68:FieldDecl:started",
+        "decl:airdcpp/modules/DirectSearch.h:69:FieldDecl:searchToken",
+        "decl:airdcpp/modules/DirectSearch.h:71:FieldDecl:hintedUser",
+        "decl:airdcpp/modules/DirectSearch.h:72:FieldDecl:timedOut",
+        "decl:airdcpp/modules/DirectSearch.h:38:CXCursor_Constructor:6b7f33ffd751",
+        "decl:airdcpp/modules/DirectSearch.h:39:CXCursor_Destructor:221c5d8ea1d3"
+      ]
+    },
+    {
+      "id": "modules.directory-listing-search",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DirectoryListingSearch"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/DirectoryListingSearch.h",
+          "start_line": 30,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/modules/DirectoryListingSearch.cpp",
+          "start_line": 34,
+          "end_line": 162
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "DirectoryListing and failure callback; query/path/result navigation."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "DirectoryListingSearch starts with an empty ordered result set and null current query/direct search; constructor stores the listing and moves the required failure callback. It has no default query or timeout. (DirectoryListingSearch.h:36-73; DirectoryListingSearch.cpp:34-39)"
+        ],
+        "effects": [
+          "Runs a search as an async task on the listing. Full listings are searched recursively; own partial lists use ShareManager; remote ADC partial lists issue DirectSearch. Result paths are ordered; first result schedules a listing directory-change task."
+        ],
+        "events": [
+          "Failure callback receives timedOut boolean when no result exists."
+        ],
+        "errors": [
+          "No-result completion invokes failure callback; direct-search timeout is propagated."
+        ],
+        "completion": "Local/full-list searches complete in task execution; remote partial-list completion waits for DirectSearch and timer polling.",
+        "cancellation": "Destructor unregisters timer listener; remote operation is ended when finished()/timeout occurs.",
+        "persistence": [
+          "No persistent state."
+        ],
+        "resources": [
+          "DirectoryListing async-task queue; TimerManager; DirectSearch; ShareManager for own partial list."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a full listing has matching entries, when search completes, then the first matching path is selected and nextResult advances only while another result exists."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/DirectoryListingSearch.h:33:ClassDecl:DirectoryListingSearch",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:36:TypeAliasDecl:FailedCallback",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:41:CXXMethod:addSearchTask(const SearchPtr &)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:43:CXXMethod:nextResult(bool)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:45:FieldDecl:curSearch",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:47:CXXMethod:isCurrentSearchPath(const string &)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:48:CXXMethod:getResultCount()",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:50:CXXMethod:supportsASCH()",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:51:CXXMethod:getCurrentSearchPath()",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:53:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:55:CXXMethod:endSearch(bool)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:57:FieldDecl:searchResults",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:58:FieldDecl:curResult",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:60:CXXMethod:searchImpl(const SearchPtr &)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:62:FieldDecl:directSearch",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:64:FieldDecl:list",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:66:CXXMethod:searchRecursive(const DirectoryListing::DirectoryPtr &, OrderedStringSet &, SearchQuery &)",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:68:FieldDecl:failedHandler",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:38:CXCursor_Constructor:c0fe451cfb81",
+        "decl:airdcpp/modules/DirectoryListingSearch.h:39:CXCursor_Destructor:b128c9c4bcbb"
+      ]
+    },
+    {
+      "id": "modules.finished-transfers",
+      "kind": "capability",
+      "upstream_symbols": [
+        "FinishedManager",
+        "FinishedItem",
+        "FinishedManagerListener"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/FinishedManager.h",
+          "start_line": 30,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/modules/FinishedManager.cpp",
+          "start_line": 53,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/modules/FinishedManagerListener.h",
+          "start_line": 28,
+          "end_line": 36
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Completed upload callbacks; remove one finished item or clear history."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Finished history is an in-memory list; TYPE_FILE completions are recorded regardless of LOG_FILELIST_TRANSFERS, while TYPE_FULL_LIST is recorded only when that setting is true."
+        ],
+        "effects": [
+          "Records a TYPE_FILE upload unconditionally; additionally records TYPE_FULL_LIST only when LOG_FILELIST_TRANSFERS is enabled. Each item captures path, hinted user, size, average speed and completion time. remove/removeAll mutate the upload history under lock. SYSTEM_SHOW_UPLOADS controls whether a completion log message is emitted after AddedUl."
+        ],
+        "events": [
+          "AddedUl carries the new FinishedItem."
+        ],
+        "errors": [],
+        "completion": "Completion event handling and removals are synchronous.",
+        "cancellation": "No cancellation.",
+        "persistence": [
+          "Finished history is in-memory in inspected implementation."
+        ],
+        "resources": [
+          "QueueManager and UploadManager listeners; mutex protects upload vector."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a completed TYPE_FILE upload while LOG_FILELIST_TRANSFERS is false, when FinishedManager handles Complete, then it still stores the FinishedItem and emits AddedUl. Given TYPE_FULL_LIST with that setting false, then no history item is added; when SYSTEM_SHOW_UPLOADS is false, no completion log is emitted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/FinishedManager.h:37:ClassDecl:FinishedManager",
+        "decl:airdcpp/modules/FinishedManager.h:41:CXXMethod:lockList()",
+        "decl:airdcpp/modules/FinishedManager.h:42:CXXMethod:unlockList()",
+        "decl:airdcpp/modules/FinishedManager.h:44:CXXMethod:remove(const FinishedItemPtr &)",
+        "decl:airdcpp/modules/FinishedManager.h:45:CXXMethod:removeAll()",
+        "decl:airdcpp/modules/FinishedManager.h:53:CXXMethod:on(UploadManagerListener::Complete, const Upload *)",
+        "decl:airdcpp/modules/FinishedManager.h:55:FieldDecl:cs",
+        "decl:airdcpp/modules/FinishedManager.h:56:FieldDecl:uploads",
+        "decl:airdcpp/modules/FinishedManagerListener.h:26:ClassDecl:FinishedManagerListener",
+        "decl:airdcpp/modules/FinishedManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/modules/FinishedManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/modules/FinishedManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/FinishedManagerListener.h:29:29)",
+        "decl:airdcpp/modules/FinishedManagerListener.h:31:TypedefDecl:AddedUl",
+        "decl:airdcpp/modules/FinishedManagerListener.h:33:CXXMethod:on(AddedUl, const FinishedItemPtr &)",
+        "decl:airdcpp/modules/FinishedManagerListener.h:28:CXCursor_Destructor:fbd7fc9475d6",
+        "decl:airdcpp/modules/FinishedManager.h:50:CXCursor_Constructor:8bb0cb15d543",
+        "decl:airdcpp/modules/FinishedManager.h:51:CXCursor_Destructor:c07f2d216ede",
+        "decl:airdcpp/modules/FinishedItem.h:29:TypeAliasDecl:FinishedItemToken",
+        "decl:airdcpp/modules/FinishedItem.h:31:ClassDecl:FinishedItem",
+        "decl:airdcpp/modules/FinishedItem.h:36:FieldDecl:target",
+        "decl:airdcpp/modules/FinishedItem.h:37:FieldDecl:user",
+        "decl:airdcpp/modules/FinishedItem.h:38:FieldDecl:size",
+        "decl:airdcpp/modules/FinishedItem.h:39:FieldDecl:avgSpeed",
+        "decl:airdcpp/modules/FinishedItem.h:40:FieldDecl:time",
+        "decl:airdcpp/modules/FinishedItem.h:42:CXXMethod:getToken()",
+        "decl:airdcpp/modules/FinishedItem.h:46:FieldDecl:token",
+        "decl:airdcpp/modules/FinishedItem.h:48:VarDecl:idCounter",
+        "decl:airdcpp/modules/FinishedItem.h:51:TypedefDecl:FinishedItemPtr",
+        "decl:airdcpp/modules/FinishedItem.h:52:TypedefDecl:FinishedItemList",
+        "decl:airdcpp/modules/FinishedItem.h:36:macro:GETSET",
+        "decl:airdcpp/modules/FinishedItem.h:37:macro:GETSET",
+        "decl:airdcpp/modules/FinishedItem.h:38:macro:GETSET",
+        "decl:airdcpp/modules/FinishedItem.h:39:macro:GETSET",
+        "decl:airdcpp/modules/FinishedItem.h:40:macro:GETSET",
+        "decl:airdcpp/modules/FinishedItem.h:34:CXCursor_Constructor:c4666bc03ea9"
+      ]
+    },
+    {
+      "id": "modules.highlight-rules",
+      "kind": "capability",
+      "upstream_symbols": [
+        "HighlightManager"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/HighlightManager.h",
+          "start_line": 45,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/modules/HighlightManager.cpp",
+          "start_line": 30,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/modules/ColorSettings.cpp",
+          "start_line": 25,
+          "end_line": 63
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Highlight replacement rules and XML settings."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "ColorSettings initializes whole-word/line, include-nick-list, case-sensitive, popup/tab/sound, bold/underline/italic/strikeout/flash-window and color-presence toggles to false; match type is 1, colors/context/match-column are 0. (ColorSettings.cpp:25-30)"
+        ],
+        "effects": [
+          "load resets XML child cursor, then appends each successfully parsed Highlight to the existing rule vector; it does not clear the vector first. Per-entry exceptions are caught and ignored, so later valid entries continue to load. Legacy IncludeNickList=true overrides serialized Context with CONTEXT_NICKLIST. save emits the current entries, including both FgColor and BgColor."
+        ],
+        "events": [],
+        "errors": [
+          "Any exception while parsing or preparing one Highlight is swallowed for that entry; parsing continues with subsequent Highlight children."
+        ],
+        "completion": "Synchronous in-memory mutation and XML serialization.",
+        "cancellation": "No cancellation.",
+        "persistence": [
+          "Settings XML load/save."
+        ],
+        "resources": [
+          "SettingsManager listener."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given the existing rule vector contains a rule, when load reads one invalid Highlight followed by one valid entry, then the invalid entry is skipped and the valid entry is appended without clearing the existing vector. Given legacy IncludeNickList is true, then the loaded context is CONTEXT_NICKLIST even if the XML Context differs.",
+        "Given a rule has distinct foreground and background colors, when save serializes it, then both FgColor and BgColor are written."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/HighlightManager.h:34:TypedefDecl:ColorList",
+        "decl:airdcpp/modules/HighlightManager.h:35:TypedefDecl:ColorIter",
+        "decl:airdcpp/modules/HighlightManager.h:37:ClassDecl:HighlightManager",
+        "decl:airdcpp/modules/HighlightManager.h:43:CXXMethod:getList()",
+        "decl:airdcpp/modules/HighlightManager.h:47:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/HighlightManager.h:47:2)",
+        "decl:airdcpp/modules/HighlightManager.h:48:EnumConstantDecl:CONTEXT_CHAT",
+        "decl:airdcpp/modules/HighlightManager.h:49:EnumConstantDecl:CONTEXT_NICKLIST",
+        "decl:airdcpp/modules/HighlightManager.h:50:EnumConstantDecl:CONTEXT_FILELIST",
+        "decl:airdcpp/modules/HighlightManager.h:51:EnumConstantDecl:CONTEXT_SEARCH",
+        "decl:airdcpp/modules/HighlightManager.h:55:CXXMethod:replaceList(ColorList &)",
+        "decl:airdcpp/modules/HighlightManager.h:59:CXXMethod:clearList()",
+        "decl:airdcpp/modules/HighlightManager.h:63:CXXMethod:emptyList()",
+        "decl:airdcpp/modules/HighlightManager.h:67:CXXMethod:load(SimpleXML &)",
+        "decl:airdcpp/modules/HighlightManager.h:68:CXXMethod:save(SimpleXML &)",
+        "decl:airdcpp/modules/HighlightManager.h:72:FieldDecl:colorSettings",
+        "decl:airdcpp/modules/HighlightManager.h:74:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/modules/HighlightManager.h:75:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/modules/HighlightManager.h:40:CXCursor_Constructor:3ee65b4bc9e8",
+        "decl:airdcpp/modules/HighlightManager.h:41:CXCursor_Destructor:e2c45b2eee54"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/modules/HighlightManager.h:23-23:conditional-region"
+      ]
+    },
+    {
+      "id": "modules.hublist",
+      "kind": "capability",
+      "upstream_symbols": [
+        "HublistManager",
+        "HublistEntry",
+        "HublistManagerListener"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/HublistManager.h",
+          "start_line": 44,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/modules/HublistManager.cpp",
+          "start_line": 30,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/modules/HublistManager.cpp",
+          "start_line": 82,
+          "end_line": 190
+        },
+        {
+          "path": "airdcpp/modules/HublistManagerListener.h",
+          "start_line": 32,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Selected hublist type and optional forceDownload flag."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "forceDownload defaults false; selected index starts at 0; list type starts TYPE_NORMAL; useHttp and running start false."
+        ],
+        "effects": [
+          "If HUBLIST_SERVERS has no tokens, refresh returns without events. A selected URL lacking http:// or https:// increments lastServer and returns. With forceDownload=false, a nonempty cache file is parsed first; success fires LoadedFromCache and returns, while cache read failure or empty data falls through to HTTP; a nonempty buffer that fails parsing fires Corrupted and returns without an HTTP request. HTTP starts only when running is false; it clears the selected matrix entry, fires DownloadStarting, and downloads. A concurrent refresh while running does not start another request. HTTP failure removes listener, advances lastServer, clears running and fires DownloadFailed when useHttp. HTTP completion fires DownloadFinished only if parsing succeeds; corrupt parse fires Corrupted. Redirect emits another DownloadStarting."
+        ],
+        "events": [
+          "Download start, failure, finish, cache load and corruption listener callbacks."
+        ],
+        "errors": [
+          "File cache read exceptions clear the buffer and fall through to HTTP; malformed cache or HTTP payload fires Corrupted. HTTP failure callback carries the failure line. Invalid configured URLs advance selected index without an event."
+        ],
+        "completion": "HTTP fetch is asynchronous; DownloadFinished occurs only after successful parse. A successful cache parse fires LoadedFromCache and returns synchronously from refresh.",
+        "cancellation": "No cancellation contract observed in inspected public manager API.",
+        "persistence": [
+          "Hublist cache/settings."
+        ],
+        "resources": [
+          "HTTP downloader and listener registry."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given HUBLIST_SERVERS is empty, when refresh runs, then it returns without setting HTTP/running state or firing DownloadStarting. Given a valid URL and a parseable nonempty cache file with forceDownload false, then LoadedFromCache fires and no HTTP request starts. Given a nonempty cache buffer fails parsing with forceDownload false, then Corrupted fires and refresh returns without HTTP. Given HTTP succeeds but parsing fails, then Corrupted fires and DownloadFinished does not."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/HublistManager.h:37:ClassDecl:HublistManager",
+        "decl:airdcpp/modules/HublistManager.h:44:EnumDecl:HubTypes",
+        "decl:airdcpp/modules/HublistManager.h:45:EnumConstantDecl:TYPE_NORMAL",
+        "decl:airdcpp/modules/HublistManager.h:46:EnumConstantDecl:TYPE_BZIP2",
+        "decl:airdcpp/modules/HublistManager.h:49:CXXMethod:getHubLists()",
+        "decl:airdcpp/modules/HublistManager.h:50:CXXMethod:setHubList(int)",
+        "decl:airdcpp/modules/HublistManager.h:51:CXXMethod:getSelectedHubList()",
+        "decl:airdcpp/modules/HublistManager.h:52:CXXMethod:refresh(bool)",
+        "decl:airdcpp/modules/HublistManager.h:53:CXXMethod:getHubListType()",
+        "decl:airdcpp/modules/HublistManager.h:54:CXXMethod:getPublicHubs()",
+        "decl:airdcpp/modules/HublistManager.h:55:CXXMethod:isDownloading()",
+        "decl:airdcpp/modules/HublistManager.h:57:FieldDecl:cs",
+        "decl:airdcpp/modules/HublistManager.h:59:CXXMethod:getHublistPath()",
+        "decl:airdcpp/modules/HublistManager.h:62:TypeAliasDecl:PubListMap",
+        "decl:airdcpp/modules/HublistManager.h:63:FieldDecl:publicListMatrix",
+        "decl:airdcpp/modules/HublistManager.h:64:FieldDecl:publicListServer",
+        "decl:airdcpp/modules/HublistManager.h:65:FieldDecl:running",
+        "decl:airdcpp/modules/HublistManager.h:65:FieldDecl:useHttp",
+        "decl:airdcpp/modules/HublistManager.h:66:FieldDecl:c",
+        "decl:airdcpp/modules/HublistManager.h:67:FieldDecl:lastServer",
+        "decl:airdcpp/modules/HublistManager.h:68:FieldDecl:listType",
+        "decl:airdcpp/modules/HublistManager.h:69:FieldDecl:downloadBuf",
+        "decl:airdcpp/modules/HublistManager.h:72:CXXMethod:on(HttpConnectionListener::Data, HttpConnection *, const uint8_t *, size_t)",
+        "decl:airdcpp/modules/HublistManager.h:73:CXXMethod:on(HttpConnectionListener::Failed, HttpConnection *, const string &)",
+        "decl:airdcpp/modules/HublistManager.h:74:CXXMethod:on(HttpConnectionListener::Complete, HttpConnection *, const string &)",
+        "decl:airdcpp/modules/HublistManager.h:75:CXXMethod:on(HttpConnectionListener::Redirected, HttpConnection *, const string &)",
+        "decl:airdcpp/modules/HublistManager.h:77:CXXMethod:onHttpFinished(bool)",
+        "decl:airdcpp/modules/HublistManagerListener.h:26:ClassDecl:HublistManagerListener",
+        "decl:airdcpp/modules/HublistManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/modules/HublistManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/modules/HublistManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/HublistManagerListener.h:29:30)",
+        "decl:airdcpp/modules/HublistManagerListener.h:31:TypedefDecl:DownloadStarting",
+        "decl:airdcpp/modules/HublistManagerListener.h:32:TypedefDecl:DownloadFailed",
+        "decl:airdcpp/modules/HublistManagerListener.h:33:TypedefDecl:DownloadFinished",
+        "decl:airdcpp/modules/HublistManagerListener.h:35:TypedefDecl:LoadedFromCache",
+        "decl:airdcpp/modules/HublistManagerListener.h:36:TypedefDecl:Corrupted",
+        "decl:airdcpp/modules/HublistManagerListener.h:39:CXXMethod:on(DownloadStarting, const string &)",
+        "decl:airdcpp/modules/HublistManagerListener.h:40:CXXMethod:on(DownloadFailed, const string &)",
+        "decl:airdcpp/modules/HublistManagerListener.h:41:CXXMethod:on(DownloadFinished, const string &)",
+        "decl:airdcpp/modules/HublistManagerListener.h:43:CXXMethod:on(LoadedFromCache, const string &, const string &)",
+        "decl:airdcpp/modules/HublistManagerListener.h:44:CXXMethod:on(Corrupted, const string &)",
+        "decl:airdcpp/modules/HublistManagerListener.h:28:CXCursor_Destructor:5291d716594e",
+        "decl:airdcpp/modules/HublistManager.h:40:CXCursor_Constructor:2cf2651f1b95",
+        "decl:airdcpp/modules/HublistManager.h:41:CXCursor_Destructor:318e804be2eb",
+        "decl:airdcpp/modules/HublistEntry.h:31:ClassDecl:HublistEntry",
+        "decl:airdcpp/modules/HublistEntry.h:33:TypedefDecl:List",
+        "decl:airdcpp/modules/HublistEntry.h:53:FieldDecl:name",
+        "decl:airdcpp/modules/HublistEntry.h:54:FieldDecl:server",
+        "decl:airdcpp/modules/HublistEntry.h:55:FieldDecl:description",
+        "decl:airdcpp/modules/HublistEntry.h:56:FieldDecl:country",
+        "decl:airdcpp/modules/HublistEntry.h:57:FieldDecl:rating",
+        "decl:airdcpp/modules/HublistEntry.h:58:FieldDecl:reliability",
+        "decl:airdcpp/modules/HublistEntry.h:59:FieldDecl:shared",
+        "decl:airdcpp/modules/HublistEntry.h:60:FieldDecl:minShare",
+        "decl:airdcpp/modules/HublistEntry.h:61:FieldDecl:users",
+        "decl:airdcpp/modules/HublistEntry.h:62:FieldDecl:minSlots",
+        "decl:airdcpp/modules/HublistEntry.h:63:FieldDecl:maxHubs",
+        "decl:airdcpp/modules/HublistEntry.h:64:FieldDecl:maxUsers",
+        "decl:airdcpp/modules/HublistEntry.h:53:macro:GETSET",
+        "decl:airdcpp/modules/HublistEntry.h:54:macro:GETSET",
+        "decl:airdcpp/modules/HublistEntry.h:55:macro:GETSET",
+        "decl:airdcpp/modules/HublistEntry.h:56:macro:GETSET",
+        "decl:airdcpp/modules/HublistEntry.h:57:macro:GETSET",
+        "decl:airdcpp/modules/HublistEntry.h:58:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:59:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:60:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:61:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:62:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:63:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:64:macro:IGETSET",
+        "decl:airdcpp/modules/HublistEntry.h:35:CXCursor_Constructor:c3a8540f54b4",
+        "decl:airdcpp/modules/HublistEntry.h:38:CXCursor_Constructor:1e12590be1f8",
+        "decl:airdcpp/modules/HublistEntry.h:49:CXCursor_Constructor:b911cacd2f1f",
+        "decl:airdcpp/modules/HublistEntry.h:51:CXCursor_Destructor:901fe29f0fee"
+      ]
+    },
+    {
+      "id": "modules.preview-applications",
+      "kind": "capability",
+      "upstream_symbols": [
+        "PreviewAppManager",
+        "PreviewApplication"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/PreviewAppManager.h",
+          "start_line": 28,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/modules/PreviewAppManager.cpp",
+          "start_line": 25,
+          "end_line": 74
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Application name, executable/application path, argument template and file extension."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "PreviewApplication default construction leaves name, application, arguments and extension empty; parameterized construction stores the four supplied values. (PreviewAppManager.h:30-43)"
+        ],
+        "effects": [
+          "Maintains preview-application definitions; settings load/save restores and serializes definitions. The inspected manager is configuration storage and does not itself launch the application."
+        ],
+        "events": [],
+        "errors": [
+          "XML parse errors depend on SimpleXML and are not converted to a manager-specific error result."
+        ],
+        "completion": "Synchronous configuration mutation/load/save.",
+        "cancellation": "No cancellation.",
+        "persistence": [
+          "Settings XML persistence."
+        ],
+        "resources": [
+          "SettingsManager load/save listener."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given a preview-application definition is configured, when settings are saved, then its name, executable, arguments and extension are serialized."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/PreviewAppManager.h:30:ClassDecl:PreviewApplication",
+        "decl:airdcpp/modules/PreviewAppManager.h:32:TypedefDecl:Ptr",
+        "decl:airdcpp/modules/PreviewAppManager.h:33:TypedefDecl:List",
+        "decl:airdcpp/modules/PreviewAppManager.h:34:TypedefDecl:Iter",
+        "decl:airdcpp/modules/PreviewAppManager.h:40:FieldDecl:name",
+        "decl:airdcpp/modules/PreviewAppManager.h:41:FieldDecl:application",
+        "decl:airdcpp/modules/PreviewAppManager.h:42:FieldDecl:arguments",
+        "decl:airdcpp/modules/PreviewAppManager.h:43:FieldDecl:extension",
+        "decl:airdcpp/modules/PreviewAppManager.h:49:ClassDecl:PreviewAppManager",
+        "decl:airdcpp/modules/PreviewAppManager.h:56:CXXMethod:getPreviewApps()",
+        "decl:airdcpp/modules/PreviewAppManager.h:58:CXXMethod:addPreviewApp(string, string, string, string)",
+        "decl:airdcpp/modules/PreviewAppManager.h:59:VarDecl:pa",
+        "decl:airdcpp/modules/PreviewAppManager.h:64:CXXMethod:removePreviewApp(unsigned int)",
+        "decl:airdcpp/modules/PreviewAppManager.h:70:CXXMethod:getPreviewApp(unsigned int, PreviewApplication &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:76:CXXMethod:updatePreviewApp(int, PreviewApplication &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:81:FieldDecl:previewApplications",
+        "decl:airdcpp/modules/PreviewAppManager.h:84:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:85:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:87:CXXMethod:loadPreview(SimpleXML &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:88:CXXMethod:savePreview(SimpleXML &)",
+        "decl:airdcpp/modules/PreviewAppManager.h:40:macro:GETSET",
+        "decl:airdcpp/modules/PreviewAppManager.h:41:macro:GETSET",
+        "decl:airdcpp/modules/PreviewAppManager.h:42:macro:GETSET",
+        "decl:airdcpp/modules/PreviewAppManager.h:43:macro:GETSET",
+        "decl:airdcpp/modules/PreviewAppManager.h:36:CXCursor_Constructor:4612fadceb97",
+        "decl:airdcpp/modules/PreviewAppManager.h:37:CXCursor_Constructor:3322164e484b",
+        "decl:airdcpp/modules/PreviewAppManager.h:38:CXCursor_Destructor:2c3f4f73628f",
+        "decl:airdcpp/modules/PreviewAppManager.h:53:CXCursor_Constructor:e8f9340dfcb9",
+        "decl:airdcpp/modules/PreviewAppManager.h:54:CXCursor_Destructor:d0c0a68c9f84"
+      ]
+    },
+    {
+      "id": "modules.rss",
+      "kind": "capability",
+      "upstream_symbols": [
+        "RSSManager",
+        "RSSManagerListener"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/RSSManager.h",
+          "start_line": 39,
+          "end_line": 243
+        },
+        {
+          "path": "airdcpp/modules/RSSManager.cpp",
+          "start_line": 75,
+          "end_line": 190
+        },
+        {
+          "path": "airdcpp/modules/RSSManager.cpp",
+          "start_line": 194,
+          "end_line": 365
+        },
+        {
+          "path": "airdcpp/modules/RSSManager.cpp",
+          "start_line": 540,
+          "end_line": 573
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": false,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Feed URL/name/enabled/update interval; RSS/Atom feed items; ordered feed filters with pattern, match method, action, skipDupes, expiry days, target/group and time-format flag."
+        ],
+        "preconditions": [
+          "A feed update task only starts for a non-null feed; timer-driven selection requires allowUpdate(). Filter matching is by item title after trimming spaces and CR/LF; empty and duplicate titles are discarded."
+        ],
+        "defaults": [
+          "RSS constructor defaults update interval to 60 minutes, enable=true, lastUpdate=0, dirty=false, token to a generated nonzero value when none supplied; intervals below 10 are clamped to 10. RSSFilter defaults action DOWNLOAD, expiry 3 days, formatTimeParams=false, group empty, and skipDupes=true. Filter action values are DOWNLOAD=0, REMOVE=1, ADD_AUTOSEARCH=2. RSSData dateAdded defaults to current time. (RSSManager.h:39-150)"
+        ],
+        "effects": [
+          "RSS/Atom parser accepts only new nonempty titles; RSS parser then reads link/pubDate, Atom parser reads href/updated. addData inserts data by title under lock, marks feed dirty, fires RSSDataAdded, then applies filters. REMOVE filters are tested first and matching data is queued for deletion. Remaining filters are considered in order; on a matched skipDupes filter, an existing share or queue duplicate breaks filter evaluation (later filters are not tried). First non-duplicate matching DOWNLOAD or ADD_AUTOSEARCH rule creates an AutoSearch item; DOWNLOAD uses auto-search enabled=true and may search immediately only while max search queue size is below five, ADD_AUTOSEARCH does not. Format-time-params formats target using current time, and the filter expiry is converted from days to an absolute expiration time. downloadFeed updates lastUpdate, queues HttpDownload creation, and feed scheduling allows one update per minute. XML database persistence skips items older than 3 days."
+        ],
+        "events": [
+          "RSSDataAdded fires after insertion before filter actions; RSSDataRemoved fires before erasure; RSSDataCleared and feed add/change/remove/update events are emitted by their corresponding operations. A successful or parse-failed nonempty HTTP response still fires RSSFeedUpdated after parsing/catch. An empty response logs status and returns before RSSFeedUpdated."
+        ],
+        "errors": [
+          "An empty response logs its HTTP status and produces no RSSFeedUpdated event. XML parse Exception is logged, then RSSFeedUpdated is still fired. Feed retrieval failures are governed by HttpDownload and are not represented by a manager failure listener in this source."
+        ],
+        "completion": "downloadFeed schedules retrieval on DispatcherQueue; downloadComplete parses on completion callback. Timer-driven feed selection schedules at most one selected feed per minute.",
+        "cancellation": "No explicit RSS cancellation operation is exposed; HttpDownload is owned by RSS and replaced/reset by the completion callback.",
+        "persistence": [
+          "Feed metadata/filter data is saved through manager save; RSSData entries are written to RSSDataBase<token>.xml via a temporary file, keeping only entries whose dateAdded is within 3 days."
+        ],
+        "resources": [
+          "DispatcherQueue and HttpDownload; RSSManager critical section protects rssList/feed maps/filter mutation; AutoSearchManager, ShareManager and QueueManager are consulted by filter actions."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent this source-present optional capability as a separately gated, explicitly unavailable feature until its module build and linked runtime behavior are proven; preserve event, persistence, and cancellation contracts before exposing it.",
+      "acceptance_scenarios": [
+        "Given an empty-title or duplicate-title item, when an RSS/Atom response is parsed, then it is not inserted. Given a REMOVE filter matches an item title, then deletion is queued before later filters are considered. Given a skipDupes rule matches an item already present in share or queue, when evaluation reaches it, then evaluation breaks and later rules are skipped. Given a nonempty malformed XML response, then parse failure is logged and RSSFeedUpdated still fires; given an empty response, then status is logged and RSSFeedUpdated does not fire. Given an RSS database save, then items older than three days are omitted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/RSSManager.h:45:TypedefDecl:RSSPtr",
+        "decl:airdcpp/modules/RSSManager.h:47:TypedefDecl:RSSDataPtr",
+        "decl:airdcpp/modules/RSSManager.h:50:ClassDecl:RSSFilter",
+        "decl:airdcpp/modules/RSSManager.h:63:FieldDecl:filterPattern",
+        "decl:airdcpp/modules/RSSManager.h:64:FieldDecl:downloadTarget",
+        "decl:airdcpp/modules/RSSManager.h:65:FieldDecl:autosearchGroup",
+        "decl:airdcpp/modules/RSSManager.h:66:FieldDecl:filterAction",
+        "decl:airdcpp/modules/RSSManager.h:67:FieldDecl:expireDays",
+        "decl:airdcpp/modules/RSSManager.h:68:FieldDecl:formatTimeParams",
+        "decl:airdcpp/modules/RSSManager.h:70:FieldDecl:skipDupes",
+        "decl:airdcpp/modules/RSSManager.h:72:EnumDecl:filterActions",
+        "decl:airdcpp/modules/RSSManager.h:73:EnumConstantDecl:DOWNLOAD",
+        "decl:airdcpp/modules/RSSManager.h:74:EnumConstantDecl:REMOVE",
+        "decl:airdcpp/modules/RSSManager.h:75:EnumConstantDecl:ADD_AUTOSEARCH",
+        "decl:airdcpp/modules/RSSManager.h:80:ClassDecl:RSS",
+        "decl:airdcpp/modules/RSSManager.h:107:FieldDecl:url",
+        "decl:airdcpp/modules/RSSManager.h:108:FieldDecl:feedName",
+        "decl:airdcpp/modules/RSSManager.h:109:FieldDecl:lastUpdate",
+        "decl:airdcpp/modules/RSSManager.h:110:FieldDecl:updateInterval",
+        "decl:airdcpp/modules/RSSManager.h:111:FieldDecl:token",
+        "decl:airdcpp/modules/RSSManager.h:112:FieldDecl:dirty",
+        "decl:airdcpp/modules/RSSManager.h:113:FieldDecl:enable",
+        "decl:airdcpp/modules/RSSManager.h:117:CXXMethod:getFeedData()",
+        "decl:airdcpp/modules/RSSManager.h:118:CXXMethod:getRssFilterList()",
+        "decl:airdcpp/modules/RSSManager.h:120:FieldDecl:rssDownload",
+        "decl:airdcpp/modules/RSSManager.h:121:FieldDecl:rssFilterList",
+        "decl:airdcpp/modules/RSSManager.h:123:CXXMethod:allowUpdate()",
+        "decl:airdcpp/modules/RSSManager.h:129:FieldDecl:rssData",
+        "decl:airdcpp/modules/RSSManager.h:133:ClassDecl:RSSData",
+        "decl:airdcpp/modules/RSSManager.h:140:FieldDecl:title",
+        "decl:airdcpp/modules/RSSManager.h:141:FieldDecl:link",
+        "decl:airdcpp/modules/RSSManager.h:142:FieldDecl:pubDate",
+        "decl:airdcpp/modules/RSSManager.h:143:FieldDecl:feed",
+        "decl:airdcpp/modules/RSSManager.h:144:FieldDecl:dateAdded",
+        "decl:airdcpp/modules/RSSManager.h:148:ClassDecl:RSSManagerListener",
+        "decl:airdcpp/modules/RSSManager.h:151:ClassTemplate:X<I>",
+        "decl:airdcpp/modules/RSSManager.h:151:EnumConstantDecl:TYPE",
+        "decl:airdcpp/modules/RSSManager.h:151:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/modules/RSSManager.h:151:29)",
+        "decl:airdcpp/modules/RSSManager.h:153:TypedefDecl:RSSDataAdded",
+        "decl:airdcpp/modules/RSSManager.h:154:TypedefDecl:RSSDataRemoved",
+        "decl:airdcpp/modules/RSSManager.h:155:TypedefDecl:RSSDataCleared",
+        "decl:airdcpp/modules/RSSManager.h:156:TypedefDecl:RSSFeedUpdated",
+        "decl:airdcpp/modules/RSSManager.h:157:TypedefDecl:RSSFeedChanged",
+        "decl:airdcpp/modules/RSSManager.h:158:TypedefDecl:RSSFeedRemoved",
+        "decl:airdcpp/modules/RSSManager.h:159:TypedefDecl:RSSFeedAdded",
+        "decl:airdcpp/modules/RSSManager.h:161:CXXMethod:on(RSSDataAdded, const RSSDataPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:162:CXXMethod:on(RSSDataRemoved, const RSSDataPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:163:CXXMethod:on(RSSDataCleared, const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:164:CXXMethod:on(RSSFeedUpdated, const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:165:CXXMethod:on(RSSFeedChanged, const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:166:CXXMethod:on(RSSFeedRemoved, const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:167:CXXMethod:on(RSSFeedAdded, const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:172:ClassDecl:RSSManager",
+        "decl:airdcpp/modules/RSSManager.h:179:CXXMethod:load()",
+        "decl:airdcpp/modules/RSSManager.h:180:CXXMethod:save(bool)",
+        "decl:airdcpp/modules/RSSManager.h:182:CXXMethod:clearRSSData(const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:183:CXXMethod:matchFilters(const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:185:CXXMethod:getFeedByName(const string &)",
+        "decl:airdcpp/modules/RSSManager.h:186:CXXMethod:getFeedByUrl(const string &)",
+        "decl:airdcpp/modules/RSSManager.h:187:CXXMethod:getFeedByToken(int)",
+        "decl:airdcpp/modules/RSSManager.h:189:CXXMethod:getCS()",
+        "decl:airdcpp/modules/RSSManager.h:191:CXXMethod:getRss()",
+        "decl:airdcpp/modules/RSSManager.h:195:CXXMethod:downloadFeed(const RSSPtr &, bool)",
+        "decl:airdcpp/modules/RSSManager.h:197:CXXMethod:updateFeedItem(RSSPtr &, const string &, const string &, int, bool)",
+        "decl:airdcpp/modules/RSSManager.h:199:CXXMethod:updateFilterList(const RSSPtr &, vector<RSSFilter> &)",
+        "decl:airdcpp/modules/RSSManager.h:201:CXXMethod:removeFeedItem(const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:203:CXXMethod:enableFeedUpdate(const RSSPtr &, bool)",
+        "decl:airdcpp/modules/RSSManager.h:205:CXXMethod:removeFeedData(const RSSPtr &, const RSSDataPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:207:CXXMethod:loadFilters(SimpleXML &, vector<RSSFilter> &)",
+        "decl:airdcpp/modules/RSSManager.h:208:CXXMethod:saveFilters(SimpleXML &, const vector<RSSFilter> &)",
+        "decl:airdcpp/modules/RSSManager.h:211:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/modules/RSSManager.h:213:CXXMethod:savedatabase(const RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:215:FieldDecl:nextUpdate",
+        "decl:airdcpp/modules/RSSManager.h:216:FieldDecl:lastXmlSave",
+        "decl:airdcpp/modules/RSSManager.h:218:CXXMethod:getUpdateItem()",
+        "decl:airdcpp/modules/RSSManager.h:220:CXXMethod:matchFilters(const RSSPtr &, const RSSDataPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:221:CXXMethod:addAutoSearchItem(const RSSFilter &, const RSSDataPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:223:FieldDecl:rssList",
+        "decl:airdcpp/modules/RSSManager.h:225:CXXMethod:parseRSSFeed(SimpleXML &, RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:226:CXXMethod:parseAtomFeed(SimpleXML &, RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:227:CXXMethod:addData(const string &, const string &, const string &, RSSPtr &)",
+        "decl:airdcpp/modules/RSSManager.h:230:CXXMethod:checkTitle(const RSSPtr &, string &)",
+        "decl:airdcpp/modules/RSSManager.h:232:FieldDecl:cs",
+        "decl:airdcpp/modules/RSSManager.h:234:FieldDecl:tasks",
+        "decl:airdcpp/modules/RSSManager.h:236:CXXMethod:downloadComplete(const string &)",
+        "decl:airdcpp/modules/RSSManager.h:238:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/modules/RSSManager.h:63:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:64:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:65:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:66:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:67:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:68:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:107:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:108:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:109:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:110:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:111:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:112:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:113:macro:IGETSET",
+        "decl:airdcpp/modules/RSSManager.h:140:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:141:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:142:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:143:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:144:macro:GETSET",
+        "decl:airdcpp/modules/RSSManager.h:53:CXCursor_Constructor:c33fb7f0536e",
+        "decl:airdcpp/modules/RSSManager.h:61:CXCursor_Destructor:2f2cf3b83ddd",
+        "decl:airdcpp/modules/RSSManager.h:83:CXCursor_Constructor:fa9ac9efa142",
+        "decl:airdcpp/modules/RSSManager.h:95:CXCursor_Constructor:5eedd653be8c",
+        "decl:airdcpp/modules/RSSManager.h:105:CXCursor_Destructor:2c15c7b321b1",
+        "decl:airdcpp/modules/RSSManager.h:135:CXCursor_Constructor:e720cc760ec6",
+        "decl:airdcpp/modules/RSSManager.h:138:CXCursor_Destructor:e867fdbe4aa1",
+        "decl:airdcpp/modules/RSSManager.h:150:CXCursor_Destructor:369e1e8c5d21",
+        "decl:airdcpp/modules/RSSManager.h:176:CXCursor_Constructor:d3ede552a582",
+        "decl:airdcpp/modules/RSSManager.h:177:CXCursor_Destructor:15a38901a20a"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/modules/RSSManager.h:23-23:conditional-region"
+      ]
+    },
+    {
+      "id": "modules.auto-search-edit-schedule-groups",
+      "kind": "capability",
+      "upstream_symbols": [
+        "AutoSearchManager::setItemActive(AutoSearchPtr&, bool)",
+        "AutoSearchManager::updateAutoSearch(AutoSearchPtr&)",
+        "AutoSearchManager::searchItem(AutoSearchPtr&, SearchType)",
+        "AutoSearchManager::changeNumber(AutoSearchPtr, bool)",
+        "AutoSearchManager::clearPaths(AutoSearchPtr)",
+        "AutoSearchManager::getGroups()/setGroups(const AutoSearchGroups&)/moveItemToGroup(AutoSearchPtr&, const string&)",
+        "AutoSearch::changeNumber(bool)/clearPaths()",
+        "changeNumber void (bool) noexcept @ airdcpp/modules/AutoSearch.h:170",
+        "clearPaths void () noexcept @ airdcpp/modules/AutoSearch.h:180",
+        "clearPaths void (AutoSearchPtr) noexcept @ airdcpp/modules/AutoSearchManager.h:64",
+        "updateAutoSearch bool (AutoSearchPtr &) noexcept @ airdcpp/modules/AutoSearchManager.h:67",
+        "searchItem bool (AutoSearchPtr &, SearchType) noexcept @ airdcpp/modules/AutoSearchManager.h:69",
+        "changeNumber void (AutoSearchPtr, bool) noexcept @ airdcpp/modules/AutoSearchManager.h:71",
+        "setItemActive bool (AutoSearchPtr &, bool) noexcept @ airdcpp/modules/AutoSearchManager.h:77",
+        "getGroups AutoSearchGroups () @ airdcpp/modules/AutoSearchManager.h:89",
+        "setGroups void (const AutoSearchGroups &) @ airdcpp/modules/AutoSearchManager.h:90",
+        "moveItemToGroup void (AutoSearchPtr &, const string &) @ airdcpp/modules/AutoSearchManager.h:91",
+        "hasGroup bool (const string &) @ airdcpp/modules/AutoSearchManager.h:92",
+        "getGroupIndex int (const AutoSearchPtr &) @ airdcpp/modules/AutoSearchManager.h:93"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/AutoSearchManager.h",
+          "start_line": 54,
+          "end_line": 94
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 124,
+          "end_line": 184
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 220,
+          "end_line": 230
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 549,
+          "end_line": 560
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 918,
+          "end_line": 938
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.h",
+          "start_line": 170,
+          "end_line": 181
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.cpp",
+          "start_line": 161,
+          "end_line": 168
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Existing AutoSearchPtr and updated item fields; active flag; manual search mode (TYPE_MANUAL_FG/TYPE_MANUAL_BG/TYPE_NORMAL); increment/decrement; finished paths; ordered group list and requested group."
+        ],
+        "preconditions": [
+          "Manager methods act on a caller-supplied item; searchItem needs at least one online client hub. A destination group must already exist, except empty string clears a current group."
+        ],
+        "defaults": [
+          "AutoSearch default values and constructor time-window defaults are recorded in modules.auto-search."
+        ],
+        "effects": [
+          "setItemActive returns false without mutation when state is unchanged. On enabling an expired item it sets expiration to current time plus AUTOSEARCH_EXPIRE_DAYS; if the maximum incremented number was reached it increments maxNumber instead. It changes enabled/status, may schedule an immediate search if due, queues schedule recalculation, and marks the manager dirty. Source uses RLock(cs) around the model mutation.",
+          "updateAutoSearch prepares the user matcher and rebuilds pattern, search time/status and excluded patterns under WLock; it queues search-time recalculation, fires ItemUpdated(tab-dirty=true), sets dirty=true, and returns true. clearPaths clears finished path entries under WLock, fires ItemUpdated(tab-dirty=true), and marks dirty.",
+          "changeNumber always clears lastError and emits status update; AutoSearch::changeNumber changes curNumber only if useParams and %[inc] are active, resets lastIncFinish and rebuilds pattern. The manager wrapper does not set dirty. searchItem returns false when there are no online hubs; otherwise it delegates to performSearch. TYPE_MANUAL_FG emits SearchForeground directly and sets lastSearch; other types dispatch through SearchManager unless queue overflow prevents it. Manual foreground/background on a disabled item marks it manual.",
+          "Group getter returns a copy under read lock; setGroups replaces the list under write lock without event or dirty flag. moveItemToGroup accepts an existing group or empty to clear, emits ItemUpdated(tab-dirty=false), and does not set dirty; invalid names leave the model unchanged."
+        ],
+        "events": [
+          "ItemUpdated for update, clear-path, group move, and active/status changes; search events depend on searchItem mode and results."
+        ],
+        "errors": [
+          "No hubs causes searchItem=false; invalid group move is ignored. setItemActive=false when requested state equals current."
+        ],
+        "completion": "Mutations and status/event emission are synchronous. Search dispatch and schedule recalculation use delayed event queue; the actual search/result processing is asynchronous.",
+        "cancellation": "No caller cancellation token. Delayed scheduling is manager-owned and search eligibility is rechecked when events run.",
+        "persistence": [
+          "updateAutoSearch, clearPaths and setItemActive mark manager state dirty and the second timer saves after the manager’s 20-second dirty delay. changeNumber and group set/move methods do not mark dirty in their direct implementations; search or other later mutation may persist the shared item."
+        ],
+        "resources": [
+          "AutoSearchManager shared mutex, AutoSearch search/group state, online hubs from ClientManager, delayed-event queue and listener speaker."
+        ]
+      },
+      "ownership_evidence": [
+        "AutoSearchManager receives shared AutoSearchPtr values; it mutates the pointed-to model and serializes manager state in save()."
+      ],
+      "threading_evidence": [
+        "updateAutoSearch/clearPaths/changeNumber use WLock(cs); setGroups uses WLock and getGroups/hasGroup/getGroupIndex use RLock. setItemActive mutates the AutoSearch under RLock(cs) in the inspected implementation, which is source behavior and a concurrency concern for characterization; moveItemToGroup calls hasGroup under a read lock but its subsequent item mutation/event has no enclosing lock."
+      ],
+      "proposed_bridge_requirement": "Expose explicit mutation results and listener snapshots. Preserve no-op/ignored results, group-only dirty-state behavior, and manual foreground/background distinction.",
+      "acceptance_scenarios": [
+        "Given an expired disabled item, when enabling it, then expiration is moved forward by AUTOSEARCH_EXPIRE_DAYS and a recalculation is queued.",
+        "Given useParams is false or no %[inc] marker exists, when changeNumber is called, then curNumber is unchanged though the manager wrapper clears the error and emits ItemUpdated.",
+        "Given no online hubs, when searchItem is requested, then it returns false without dispatching a search.",
+        "Given a group name not in getGroups(), when moveItemToGroup is requested, then the item group remains unchanged and no update is emitted.",
+        "Given finished paths, when clearPaths is called, then paths are cleared, ItemUpdated is emitted and the manager is marked dirty."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/AutoSearch.h:170:CXXMethod:changeNumber(bool)",
+        "decl:airdcpp/modules/AutoSearch.h:180:CXXMethod:clearPaths()",
+        "decl:airdcpp/modules/AutoSearchManager.h:64:CXXMethod:clearPaths(AutoSearchPtr)",
+        "decl:airdcpp/modules/AutoSearchManager.h:67:CXXMethod:updateAutoSearch(AutoSearchPtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:69:CXXMethod:searchItem(AutoSearchPtr &, SearchType)",
+        "decl:airdcpp/modules/AutoSearchManager.h:71:CXXMethod:changeNumber(AutoSearchPtr, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:77:CXXMethod:setItemActive(AutoSearchPtr &, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:89:CXXMethod:getGroups()",
+        "decl:airdcpp/modules/AutoSearchManager.h:90:CXXMethod:setGroups(const AutoSearchGroups &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:91:CXXMethod:moveItemToGroup(AutoSearchPtr &, const string &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:92:CXXMethod:hasGroup(const string &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:93:CXXMethod:getGroupIndex(const AutoSearchPtr &)"
+      ]
+    },
+    {
+      "id": "modules.auto-search-scheduling-recovery",
+      "kind": "capability",
+      "upstream_symbols": [
+        "getExpiration string () const noexcept @ airdcpp/modules/AutoSearch.h:159",
+        "calculatePriority Priority () const noexcept @ airdcpp/modules/AutoSearch.h:161",
+        "isRecent bool () const noexcept @ airdcpp/modules/AutoSearch.h:163",
+        "checkRecent bool () @ airdcpp/modules/AutoSearch.h:164",
+        "nextAllowedSearch time_t () const noexcept @ airdcpp/modules/AutoSearch.h:166",
+        "allowNewItems bool () const noexcept @ airdcpp/modules/AutoSearch.h:167",
+        "allowAutoSearch bool () const noexcept @ airdcpp/modules/AutoSearch.h:168",
+        "updateSearchTime bool () noexcept @ airdcpp/modules/AutoSearch.h:171",
+        "updateStatus void () noexcept @ airdcpp/modules/AutoSearch.h:173",
+        "removePostSearch bool () noexcept @ airdcpp/modules/AutoSearch.h:187",
+        "removeOnCompleted bool () const noexcept @ airdcpp/modules/AutoSearch.h:194",
+        "maxNumberReached bool () const noexcept @ airdcpp/modules/AutoSearch.h:195",
+        "expirationTimeReached bool () const noexcept @ airdcpp/modules/AutoSearch.h:196",
+        "addFailedBundle bool (const BundlePtr &) noexcept @ airdcpp/modules/AutoSearchManager.h:56",
+        "load void () noexcept @ airdcpp/modules/AutoSearchManager.h:81",
+        "save void () noexcept @ airdcpp/modules/AutoSearchManager.h:82",
+        "maybePopSearchItem void (uint64_t, bool) @ airdcpp/modules/AutoSearchManager.h:95",
+        "checkItems void () noexcept @ airdcpp/modules/AutoSearchManager.h:114",
+        "loadAutoSearch void (SimpleXML &) @ airdcpp/modules/AutoSearchManager.h:117",
+        "loadItemFromXml AutoSearchPtr (SimpleXML &) @ airdcpp/modules/AutoSearchManager.h:119",
+        "updateStatus void (AutoSearchPtr &, bool) noexcept @ airdcpp/modules/AutoSearchManager.h:131",
+        "resetSearchTimes void (uint64_t, bool) noexcept @ airdcpp/modules/AutoSearchManager.h:133",
+        "handleExpiredItems void (AutoSearchList &) noexcept @ airdcpp/modules/AutoSearchManager.h:148"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/modules/AutoSearchManager.h",
+          "start_line": 78,
+          "end_line": 152
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 66,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 350,
+          "end_line": 412
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 490,
+          "end_line": 565
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 585,
+          "end_line": 649
+        },
+        {
+          "path": "airdcpp/modules/AutoSearchManager.cpp",
+          "start_line": 941,
+          "end_line": 1111
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.h",
+          "start_line": 153,
+          "end_line": 198
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.cpp",
+          "start_line": 150,
+          "end_line": 168
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.cpp",
+          "start_line": 285,
+          "end_line": 380
+        },
+        {
+          "path": "airdcpp/modules/AutoSearch.cpp",
+          "start_line": 356,
+          "end_line": 414
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:modules.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Persisted AutoSearch.xml groups, rule fields, finish-path timestamps, associated bundle tokens, dynamic schedule windows, result/search timestamps and bundle completion/error notifications."
+        ],
+        "preconditions": [
+          "load runs after settings are available; AutoSearchManager adds its QueueManager listener only after loading to avoid treating restored failed bundles as new duplicate candidates."
+        ],
+        "defaults": [
+          "Zero/negative expireTime means no expiry; expiration is reached only when expireTime>0 and <=current time. A maximum number is reached only when parameter incrementation is enabled, maxNumber>0, curNumber>=maxNumber and lastIncFinish=0. Missing SearchDays in saved XML defaults to all seven days; missing start/end time defaults to 00:00 and 23:59; missing target falls back to DOWNLOAD_DIRECTORY. A saved file without Groups restores the default group name “Failed Bundles”. Failed-bundle auto-search candidates expire after 7 days."
+        ],
+        "effects": [
+          "Each second the manager checks whether a scheduled search is due and saves dirty XML after at least 20 seconds; each minute checkItems recalculates non-recent priorities, handles post-search increment completion, evaluates expiry/max-number state and search-window boundaries, emits ItemUpdated for schedule/status changes, starts newly enabled work when no next search is pending and recalculates scheduling. Expired searches are removed when REMOVE_EXPIRED_AS is true, disabled when currently enabled otherwise, or have status/event refreshed when already disabled.",
+          "Expiration is suppressed while bundles remain associated; once no bundles remain, elapsed expireTime or exceeded max increment marks the item for expiry handling. removePostSearch clears lastIncFinish when AS_DELAY_HOURS is zero or when `lastIncFinish + AS_DELAY_HOURS + 3600 <= current time` (the source uses that exact expression), allowing increment progression; max number prevents further increment and expires the search.",
+          "Load restores rule values, group, expiry/timeAdded, search days/window, last search, optional increment params, finished paths and only bundle references that still resolve in QueueManager. Expired rules with no restored bundles are disabled. It recalculates recent and priority status, loads all rules without immediate search, then registers QueueManager listener and resets scheduled times.",
+          "addFailedBundle refuses duplicate names and non-release names; accepted rules search the failed bundle directory with exact matching, remove-after-one-hit, FAILED_BUNDLE type, 7-day expiry and AS_FAILED_DEFAULT_GROUP, associate the original bundle and optionally start immediately when it is recent.",
+          "resetSearchTimes selects the earlier of normal/recent next ticks and converts it to wall time; maybePopSearchItem returns when not due unless explicitly ignored, when queue overflow exists, or when no hubs are online; otherwise it pops one eligible item under lock and performs one normal search."
+        ],
+        "events": [
+          "ItemUpdated when scheduling/status state changes; ItemAdded/ItemRemoved for addFailedBundle expiry handling; ItemSearched when a scheduled search is issued/completes."
+        ],
+        "errors": [
+          "load/save are noexcept wrappers around settings XML; individual malformed XML behavior beyond the parsed fields is not claimed. No online hubs or search queue overflow leave the scheduled item queued rather than throwing."
+        ],
+        "completion": "Timer checks and XML serialization are synchronous on callback thread; searches are dispatched through SearchManager and results are collected asynchronously.",
+        "cancellation": "Expiry/removal is manager-owned; no caller cancellation token. Removing/disabling an expired item updates status and may remove it from the search collection.",
+        "persistence": [
+          "Mutations set dirty and save after the second timer observes a 20-second interval. AutoSearch.xml persists groups, rule fields, params, finished paths and bundle tokens. Loading drops unresolved bundle tokens and disables expired rules with no associated bundle."
+        ],
+        "resources": [
+          "TimerManager, SettingsManager XML, QueueManager listener/bundle lookup, ClientManager availability/queue overflow, shared AutoSearch lock and delayed-event queue."
+        ]
+      },
+      "ownership_evidence": [
+        "AutoSearchManager owns the Search collection and listener lifecycle; loaded bundle references resolve to QueueManager-owned BundlePtr objects."
+      ],
+      "threading_evidence": [
+        "Scheduler collection walks/mutations use AutoSearchManager SharedMutex; timer callbacks trigger search processing and save; addFailedBundle calls public add operation after duplicate/release checks."
+      ],
+      "proposed_bridge_requirement": "Expose explicit expiry, time-window and persistence state; do not collapse due, disabled, expired, post-search and bundle-validation status. Preserve missing-field recovery and unresolved-bundle behavior.",
+      "acceptance_scenarios": [
+        "Given an expired rule with no associated bundles, when REMOVE_EXPIRED_AS is enabled, then checkItems removes it; with the setting disabled and the item enabled, it disables it.",
+        "Given a saved rule without SearchDays/StartTime/EndTime/Target fields, when loading, then defaults are all weekdays, 00:00–23:59, and DOWNLOAD_DIRECTORY.",
+        "Given saved bundle tokens include one that no longer exists, when loading, then only extant QueueManager bundles are restored; an expired rule with no restored bundles is disabled.",
+        "Given a failed bundle name is a release and not already represented, when addFailedBundle is called, then a FAILED_BUNDLE rule is created with seven-day expiry and the configured failed-bundle group; non-release or duplicate names are rejected.",
+        "Given no online hubs or search queue overflow when a scheduled item becomes due, then maybePopSearchItem leaves it queued for a later callback."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "modules.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/modules/AutoSearch.h:159:CXXMethod:getExpiration()",
+        "decl:airdcpp/modules/AutoSearch.h:161:CXXMethod:calculatePriority()",
+        "decl:airdcpp/modules/AutoSearch.h:163:CXXMethod:isRecent()",
+        "decl:airdcpp/modules/AutoSearch.h:164:CXXMethod:checkRecent()",
+        "decl:airdcpp/modules/AutoSearch.h:166:CXXMethod:nextAllowedSearch()",
+        "decl:airdcpp/modules/AutoSearch.h:167:CXXMethod:allowNewItems()",
+        "decl:airdcpp/modules/AutoSearch.h:168:CXXMethod:allowAutoSearch()",
+        "decl:airdcpp/modules/AutoSearch.h:171:CXXMethod:updateSearchTime()",
+        "decl:airdcpp/modules/AutoSearch.h:173:CXXMethod:updateStatus()",
+        "decl:airdcpp/modules/AutoSearch.h:187:CXXMethod:removePostSearch()",
+        "decl:airdcpp/modules/AutoSearch.h:194:CXXMethod:removeOnCompleted()",
+        "decl:airdcpp/modules/AutoSearch.h:195:CXXMethod:maxNumberReached()",
+        "decl:airdcpp/modules/AutoSearch.h:196:CXXMethod:expirationTimeReached()",
+        "decl:airdcpp/modules/AutoSearchManager.h:56:CXXMethod:addFailedBundle(const BundlePtr &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:81:CXXMethod:load()",
+        "decl:airdcpp/modules/AutoSearchManager.h:82:CXXMethod:save()",
+        "decl:airdcpp/modules/AutoSearchManager.h:95:CXXMethod:maybePopSearchItem(uint64_t, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:114:CXXMethod:checkItems()",
+        "decl:airdcpp/modules/AutoSearchManager.h:117:CXXMethod:loadAutoSearch(SimpleXML &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:119:CXXMethod:loadItemFromXml(SimpleXML &)",
+        "decl:airdcpp/modules/AutoSearchManager.h:131:CXXMethod:updateStatus(AutoSearchPtr &, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:133:CXXMethod:resetSearchTimes(uint64_t, bool)",
+        "decl:airdcpp/modules/AutoSearchManager.h:148:CXXMethod:handleExpiredItems(AutoSearchList &)"
+      ],
+      "mapping_note": "Exact public scheduling/persistence/recovery operations and private timer/XML helpers are separated from add/remove and edit/group operations; behavior is source-traced and runtime module availability remains disabled/unverified."
+    }
+  ]
+}

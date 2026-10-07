@@ -1,0 +1,2714 @@
+{
+  "schema_version": 1,
+  "domain_id": "upload",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "upload.slot-and-capacity",
+      "kind": "capability",
+      "upstream_symbols": [
+        "UploadManager::slotTypeHook",
+        "getSlots()",
+        "getFreeSlots()",
+        "getFreeExtraSlots()",
+        "parseSlotHookedThrow",
+        "parseAutoGrantHookedThrow",
+        "updateSlotCounts"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 46,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 65,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 211,
+          "end_line": 300
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 335,
+          "end_line": 420
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 425,
+          "end_line": 495
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Parsed ADC/legacy upload request, requesting UserConnection, slot-hook results, dynamic slot-limit settings."
+        ],
+        "preconditions": [
+          "A resolved share profile and valid requested file are needed before slot selection."
+        ],
+        "defaults": [
+          "Extra slot and last grant initialize to 0 via IGETSET."
+        ],
+        "effects": [
+          "Selects existing permanent slot first; applies ActionHook slot grants (highest normalized grant); enforces MCN per-user/free-slot constraints; small-file MCN connections may use fileslot up to the source-coded threshold; standard slots depend on free capacity and upload-queue eligibility; minislot requires peer support plus existing minislot, operator status, or free extra slot. Slot type transition updates running/MCN/extra counts and lastGrant; excess MCN connections may be disconnected when low-speed allowance is unavailable."
+        ],
+        "events": [
+          "upload.event.created with selected TransferSlot."
+        ],
+        "errors": [
+          "HookRejectException sends rejection message and disconnects; no slot sends maxed-out and may add failed request to user queue."
+        ],
+        "completion": "Slot selection is synchronous within prepareFile under slotCS; it does not promise a slot until Created is fired.",
+        "cancellation": "Connection rejection disconnects the request; slot allocation is reverted on connection removal.",
+        "persistence": [],
+        "resources": [
+          "AutoLimitUtil dynamic slot limits, UploadQueueManager waitlist, UserConnection slot state, per-user MCN accounting."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager owns running user/MCN/small-file counters and tracks per-user MCN connections; source-count update is on slot transition (UploadManager.cpp:335-420)."
+      ],
+      "threading_evidence": [
+        "prepareFile serializes slot assignment with slotCS; updateSlotCounts can take cs through MCN bookkeeping."
+      ],
+      "proposed_bridge_requirement": "Represent slot decisions as state outcomes and retain exact source-specific slot categories, counts, and rejection behavior.",
+      "acceptance_scenarios": [
+        "Given all ordinary slots are occupied but a peer qualifies for an allowed minislot, when its request is prepared, then the parser grants a FILESLOT sourced as minislot and the extra-slot count increments.",
+        "Given a slot hook rejects a request, when prepareFile evaluates it, then the peer receives the hook rejection and is disconnected without creating an Upload."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManager.h:43:ClassDecl:UploadManager",
+        "decl:airdcpp/transfer/upload/UploadManager.h:46:FieldDecl:slotTypeHook",
+        "decl:airdcpp/transfer/upload/UploadManager.h:48:CXXMethod:setFreeSlotMatcher()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:51:CXXMethod:getUploadCount()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:59:CXXMethod:getRunningAverageUnsafe()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:60:CXXMethod:getRunningAverage()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:61:VarDecl:l",
+        "decl:airdcpp/transfer/upload/UploadManager.h:65:CXXMethod:getSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:68:CXXMethod:getFreeSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:71:CXXMethod:getFreeExtraSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:74:CXXMethod:addConnection(UserConnectionPtr)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:75:CXXMethod:abortUpload(const string &, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:77:FieldDecl:extra",
+        "decl:airdcpp/transfer/upload/UploadManager.h:78:FieldDecl:lastGrant",
+        "decl:airdcpp/transfer/upload/UploadManager.h:80:CXXMethod:getCS()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:81:CXXMethod:getUploads()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:85:TypeAliasDecl:UploadCallback",
+        "decl:airdcpp/transfer/upload/UploadManager.h:86:CXXMethod:getAsyncWrapper(TransferToken, std::function<void (Upload *)> &&)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:88:CXXMethod:findUploadUnsafe(TransferToken)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:90:CXXMethod:getQueue()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:94:CXXMethod:findUpload(TransferToken, const UploadList &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:96:FieldDecl:queue",
+        "decl:airdcpp/transfer/upload/UploadManager.h:98:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:99:FieldDecl:freeSlotMatcher",
+        "decl:airdcpp/transfer/upload/UploadManager.h:101:FieldDecl:runningUsers",
+        "decl:airdcpp/transfer/upload/UploadManager.h:102:FieldDecl:mcnConnections",
+        "decl:airdcpp/transfer/upload/UploadManager.h:103:FieldDecl:smallFileConnections",
+        "decl:airdcpp/transfer/upload/UploadManager.h:105:CXXMethod:getFreeMultiConnUnsafe()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:107:FieldDecl:uploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:108:FieldDecl:delayUploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:109:FieldDecl:cs",
+        "decl:airdcpp/transfer/upload/UploadManager.h:110:FieldDecl:slotCS",
+        "decl:airdcpp/transfer/upload/UploadManager.h:112:TypeAliasDecl:MultiConnMap",
+        "decl:airdcpp/transfer/upload/UploadManager.h:113:FieldDecl:multiUploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:115:CXXMethod:isUploadingMCN(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:116:CXXMethod:allowNewMultiConn(const UserConnection &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:117:CXXMethod:changeMultiConnSlot(const UserPtr &, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:118:CXXMethod:disconnectExtraMultiConn()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:120:CXXMethod:removeSlot(UserConnection &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:121:CXXMethod:updateSlotCounts(UserConnection &, const TransferSlot &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:127:CXXMethod:standardSlotsRemaining(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:128:CXXMethod:lowSpeedSlotsRemaining()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:130:CXXMethod:removeConnection(UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:131:CXXMethod:removeUpload(Upload *, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:132:CXXMethod:logUpload(const Upload *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:134:CXXMethod:startTransfer(Upload *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:137:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:138:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:141:CXXMethod:on(BytesSent, UserConnection *, size_t, size_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:142:CXXMethod:on(Failed, UserConnection *, const string &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:143:CXXMethod:on(Get, UserConnection *, const string &, int64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:144:CXXMethod:on(Send, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:145:CXXMethod:on(GetListLength, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:146:CXXMethod:on(TransmitDone, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:148:CXXMethod:on(AdcCommand::GET, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:149:CXXMethod:on(AdcCommand::GFI, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:151:CXXMethod:prepareFile(UserConnection &, const UploadRequest &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:153:CXXMethod:resumeStream(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:157:CXXMethod:parseSlotHookedThrow(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:159:CXXMethod:parseAutoGrantHookedThrow(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:161:CXXMethod:deleteDelayUpload(Upload *, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:162:CXXMethod:disconnectOfflineUsers()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:164:CXXMethod:checkExpiredDelayUploads()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:166:CXXMethod:findProfile(UserConnection &, const string &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:46:FieldDecl:slotTypeHook"
+      ]
+    },
+    {
+      "id": "upload.prepare-and-create",
+      "kind": "operation",
+      "upstream_symbols": [
+        "UploadManager::prepareFile",
+        "UploadParser::parseFileInfo",
+        "UploadParser::toUpload",
+        "UploadRequest::validate"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 104,
+          "end_line": 195
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadFileParser.h",
+          "start_line": 34,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadRequest.h",
+          "start_line": 25,
+          "end_line": 53
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "UploadRequest type/path/segment; optional ADC user SID/list-recursive fields; hinted user/profile."
+        ],
+        "preconditions": [
+          "Request path nonempty, start >=0, size not zero and >=-1; user identity must resolve to an online hub/profile."
+        ],
+        "defaults": [
+          "Legacy requests use file type and resume position with unknown end; ADC optional ID/SID and RE/TL/ZL flags shape request parsing."
+        ],
+        "effects": [
+          "Resolves profile by current hub hint or online-user SID; validates visibility and requested share object with UploadParser; assigns slot; opens/resumes stream; creates Upload and adds to active list; emits Created before slot counters update; removes wait-queue entry; ADC GET replies with SND carrying resolved range, optional ZL1/TL1; legacy GET replies with file length."
+        ],
+        "events": [
+          "upload.event.created",
+          "upload.event.starting"
+        ],
+        "errors": [
+          "Invalid request sends protocol error; unknown user sends ERROR_UNKNOWN_USER; parser maps no-access to ERROR_FILE_ACCESS_DENIED and missing file to ERROR_FILE_NOT_AVAILABLE; hook rejection sends its message; stream/share/queue/Core exceptions are converted to peer errors; zero/null upload failure sends generic error."
+        ],
+        "completion": "Synchronous request admission through Upload creation; byte transfer starts immediately for ADC GET or after legacy Send callback.",
+        "cancellation": "Failed admission disconnects on slot exhaustion/hook rejection; other failures leave connection handling to peer error/state path.",
+        "persistence": [],
+        "resources": [
+          "Share profile visibility, ShareManager/parser, local InputStream/file handle, upload slots, UploadQueueManager, UserConnection."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager stores the created Upload in its owned uploads list; Upload takes ownership of InputStream (Upload.cpp and UploadManager.cpp:162-191)."
+      ],
+      "threading_evidence": [
+        "Request parsing and slot selection run synchronously on the UserConnection listener path; Created callback fires synchronously under slotCS."
+      ],
+      "proposed_bridge_requirement": "Preserve protocol request validation, profile-specific share visibility, error distinctions, selected range and upload creation event; keep streams and C++ errors private.",
+      "acceptance_scenarios": [
+        "Given a request with zero-length segment, when validation runs, then it is rejected before share lookup or slot assignment.",
+        "Given a valid file request from a known profile with a free standard slot, when it is parsed and prepared, then Created fires with its slot and ADC requests receive SND with the resolved segment.",
+        "Given an unknown hub SID, when preparing an ADC request, then the peer gets ERROR_UNKNOWN_USER and no Upload is created."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:33:StructDecl:ParsedUpload",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:34:FieldDecl:sourceFile",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:35:FieldDecl:fileSize",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:36:FieldDecl:type",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:38:FieldDecl:provider",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:39:FieldDecl:miniSlot",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:42:ClassDecl:UploadParser",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:44:ClassDecl:UploadParserException",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:50:FieldDecl:noAccess",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:55:CXXMethod:parseFileInfo(const UploadRequest &, ProfileToken, const HintedUser &)",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:56:CXXMethod:toUpload(UserConnection &, const UploadRequest &, unique_ptr<InputStream> &, ProfileToken)",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:58:CXXMethod:usesSmallSlot()",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:60:CXXMethod:getShareProfiles(const HintedUser &)",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:62:CXXMethod:toRealWithSize(const UploadRequest &, ProfileToken, const HintedUser &)",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:63:FieldDecl:freeSlotMatcher",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:29:StructDecl:UploadRequest",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:37:CXXMethod:validate()",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:38:VarDecl:failed",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:42:CXXMethod:isFullFilelist()",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:46:FieldDecl:type",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:47:FieldDecl:file",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:48:FieldDecl:segment",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:49:FieldDecl:userSID",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:50:FieldDecl:listRecursive"
+      ]
+    },
+    {
+      "id": "upload.abort",
+      "kind": "operation",
+      "upstream_symbols": [
+        "UploadManager::abortUpload(const string&, bool)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 887,
+          "end_line": 932
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact file path and whether to wait for disconnect cleanup."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "aWaitDisconnected defaults true."
+        ],
+        "effects": [
+          "Requests graceless disconnect for matching active and delayed uploads, including delayed uploads that retain file handles. With waiting enabled, polls both lists up to 20\u00d7250 ms for removal; logs error if still present after up to five seconds."
+        ],
+        "events": [],
+        "errors": [
+          "No match is a no-op; timeout is reported only through error log, with no return/error value."
+        ],
+        "completion": "Synchronous disconnect request; optional bounded wait for asynchronous cleanup, not guaranteed completion.",
+        "cancellation": "This operation aborts matching transfers; actual removal occurs on connection/expiry callbacks.",
+        "persistence": [],
+        "resources": [
+          "Active and delayed Upload lists, UserConnection disconnect, thread sleeps up to 5 seconds."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager owns active and delayed Upload lists; delayed entries retain their streams until cleanup."
+      ],
+      "threading_evidence": [
+        "The method releases cs before polling; it sleeps 250 ms between up to 20 checks."
+      ],
+      "proposed_bridge_requirement": "Expose abort as a request with bounded optional wait and explicit timeout outcome; do not promise that list removal always completes.",
+      "acceptance_scenarios": [
+        "Given active and delayed uploads for the same path, when abortUpload is called, then both connections receive graceless disconnect requests.",
+        "Given a matching upload that remains after the wait window, when abortUpload returns, then it logs an abort timeout rather than claiming completion."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManager.h:75:CXXMethod:abortUpload(const string &, bool)"
+      ]
+    },
+    {
+      "id": "upload.observation-and-lookup",
+      "kind": "capability",
+      "upstream_symbols": [
+        "getUploadCount",
+        "getRunningAverage",
+        "getRunningAverageUnsafe",
+        "getAsyncWrapper",
+        "findUploadUnsafe",
+        "getCS",
+        "getUploads"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 51,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 80,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 497,
+          "end_line": 541
+        },
+        {
+          "path": "airdcpp/transfer/upload/Upload.h",
+          "start_line": 37,
+          "end_line": 54
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "TransferToken for lookups and callback wrapper."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Count and safe average use shared lock; unsafe average iterates active list without locking. Token lookup searches both active and delayed uploads. getAsyncWrapper captures token and callback, reacquires cs at invocation, resolves current pointer and invokes only if still present. Raw list and raw mutex are directly exposed; callers are synchronization/lifetime coupled."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous reads; async wrapper executes later on caller-supplied dispatcher.",
+        "cancellation": "No wrapper cancellation; callback is skipped if token no longer resolves.",
+        "persistence": [],
+        "resources": [
+          "Manager-owned Upload pointer vectors and callback closure."
+        ]
+      },
+      "ownership_evidence": [
+        "Active and delayed lists are exclusively owned by UploadManager; wrapper captures token, not pointer (UploadManager.cpp:505-531)."
+      ],
+      "threading_evidence": [
+        "Safe average/count lock cs; unsafe accessors do not; wrapper locks only for resolution then releases before callback, so callback cannot assume pointer remains valid unless execution is serialized to connection thread."
+      ],
+      "proposed_bridge_requirement": "Expose copied snapshots and token-based guarded callbacks; do not expose raw Upload pointers, reference lists, or mutex.",
+      "acceptance_scenarios": [
+        "Given a token for a delayed upload, when findUploadUnsafe searches, then it returns that upload; after deletion the async wrapper skips its callback.",
+        "Given concurrent upload mutation, when a bridge reads active uploads, then it copies a value snapshot under lock rather than retaining getUploads reference."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManager.h:43:ClassDecl:UploadManager",
+        "decl:airdcpp/transfer/upload/UploadManager.h:46:FieldDecl:slotTypeHook",
+        "decl:airdcpp/transfer/upload/UploadManager.h:48:CXXMethod:setFreeSlotMatcher()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:51:CXXMethod:getUploadCount()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:59:CXXMethod:getRunningAverageUnsafe()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:60:CXXMethod:getRunningAverage()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:61:VarDecl:l",
+        "decl:airdcpp/transfer/upload/UploadManager.h:65:CXXMethod:getSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:68:CXXMethod:getFreeSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:71:CXXMethod:getFreeExtraSlots()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:74:CXXMethod:addConnection(UserConnectionPtr)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:75:CXXMethod:abortUpload(const string &, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:77:FieldDecl:extra",
+        "decl:airdcpp/transfer/upload/UploadManager.h:78:FieldDecl:lastGrant",
+        "decl:airdcpp/transfer/upload/UploadManager.h:80:CXXMethod:getCS()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:81:CXXMethod:getUploads()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:85:TypeAliasDecl:UploadCallback",
+        "decl:airdcpp/transfer/upload/UploadManager.h:86:CXXMethod:getAsyncWrapper(TransferToken, std::function<void (Upload *)> &&)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:88:CXXMethod:findUploadUnsafe(TransferToken)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:90:CXXMethod:getQueue()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:94:CXXMethod:findUpload(TransferToken, const UploadList &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:96:FieldDecl:queue",
+        "decl:airdcpp/transfer/upload/UploadManager.h:98:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:99:FieldDecl:freeSlotMatcher",
+        "decl:airdcpp/transfer/upload/UploadManager.h:101:FieldDecl:runningUsers",
+        "decl:airdcpp/transfer/upload/UploadManager.h:102:FieldDecl:mcnConnections",
+        "decl:airdcpp/transfer/upload/UploadManager.h:103:FieldDecl:smallFileConnections",
+        "decl:airdcpp/transfer/upload/UploadManager.h:105:CXXMethod:getFreeMultiConnUnsafe()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:107:FieldDecl:uploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:108:FieldDecl:delayUploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:109:FieldDecl:cs",
+        "decl:airdcpp/transfer/upload/UploadManager.h:110:FieldDecl:slotCS",
+        "decl:airdcpp/transfer/upload/UploadManager.h:112:TypeAliasDecl:MultiConnMap",
+        "decl:airdcpp/transfer/upload/UploadManager.h:113:FieldDecl:multiUploads",
+        "decl:airdcpp/transfer/upload/UploadManager.h:115:CXXMethod:isUploadingMCN(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:116:CXXMethod:allowNewMultiConn(const UserConnection &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:117:CXXMethod:changeMultiConnSlot(const UserPtr &, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:118:CXXMethod:disconnectExtraMultiConn()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:120:CXXMethod:removeSlot(UserConnection &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:121:CXXMethod:updateSlotCounts(UserConnection &, const TransferSlot &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:127:CXXMethod:standardSlotsRemaining(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:128:CXXMethod:lowSpeedSlotsRemaining()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:130:CXXMethod:removeConnection(UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:131:CXXMethod:removeUpload(Upload *, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:132:CXXMethod:logUpload(const Upload *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:134:CXXMethod:startTransfer(Upload *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:137:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:138:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:141:CXXMethod:on(BytesSent, UserConnection *, size_t, size_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:142:CXXMethod:on(Failed, UserConnection *, const string &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:143:CXXMethod:on(Get, UserConnection *, const string &, int64_t)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:144:CXXMethod:on(Send, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:145:CXXMethod:on(GetListLength, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:146:CXXMethod:on(TransmitDone, UserConnection *)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:148:CXXMethod:on(AdcCommand::GET, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:149:CXXMethod:on(AdcCommand::GFI, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:151:CXXMethod:prepareFile(UserConnection &, const UploadRequest &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:153:CXXMethod:resumeStream(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:157:CXXMethod:parseSlotHookedThrow(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:159:CXXMethod:parseAutoGrantHookedThrow(const UserConnection &, const UploadParser &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:161:CXXMethod:deleteDelayUpload(Upload *, bool)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:162:CXXMethod:disconnectOfflineUsers()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:164:CXXMethod:checkExpiredDelayUploads()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:166:CXXMethod:findProfile(UserConnection &, const string &)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:81:CXXMethod:getUploads()",
+        "decl:airdcpp/transfer/upload/UploadManager.h:86:CXXMethod:getAsyncWrapper(TransferToken, std::function<void (Upload *)> &&)",
+        "decl:airdcpp/transfer/upload/UploadManager.h:88:CXXMethod:findUploadUnsafe(TransferToken)"
+      ]
+    },
+    {
+      "id": "upload.queue-and-notification",
+      "kind": "operation",
+      "upstream_symbols": [
+        "UploadQueueManager::addFailedUpload",
+        "removeQueue",
+        "clearUserFiles",
+        "allowUser",
+        "getUploadQueue",
+        "connectUser"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.h",
+          "start_line": 46,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 53,
+          "end_line": 197
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 154,
+          "end_line": 199
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User identity; failed file path, start position and size; optional requested reconnect user."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "A full-slot failure inserts or updates a per-user wait entry and file item, updates connection token and resume position on repeated file request, then emits QueueAdd for a new file. Removing a queue removes all user file entries and notifications. A user is eligible when no queue/notifications exist or user has been notified. Each second available slots are assigned to queued online users and reconnect uses stored token; each minute expires notifications after 90 seconds and clears that user files. Queue snapshot copies users/files."
+        ],
+        "events": [
+          "upload-queue.event.add",
+          "upload-queue.event.item-remove",
+          "upload-queue.event.user-remove",
+          "upload-queue.event.update"
+        ],
+        "errors": [
+          "Offline user connect returns nullopt; absent/unnotified user is not eligible. Queue update listener fires every second."
+        ],
+        "completion": "Synchronous queue mutation; notification reconnect is issued after releasing queue lock.",
+        "cancellation": "User queue removal clears the user wait state; offline-disconnect callback also clears queue.",
+        "persistence": [
+          "Queue state is in-memory only; no persistence code in UploadQueueManager."
+        ],
+        "resources": [
+          "ClientManager connection/reconnect; timer; queue and notified-user maps."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadQueueManager owns wait entries and UploadQueueItem shared pointers; clear emits item removal events then user removal under cs."
+      ],
+      "threading_evidence": [
+        "Queue operations lock cs; Speaker callbacks are synchronous while queue lock is held; reconnect calls occur after lock release."
+      ],
+      "proposed_bridge_requirement": "Expose queued-user/file snapshots and distinct item/user/update events; preserve in-memory queue and 90-second notification expiry.",
+      "acceptance_scenarios": [
+        "Given an existing queued user retries the same file at a new resume position, when the request is denied for slots, then the existing item position/token are updated without adding a duplicate file.",
+        "Given one free slot and a queued online user, when the one-second notifier runs, then the user is marked notified, queue items are removed and the stored-token connection is requested.",
+        "Given a notified user does not claim the slot for 90 seconds, when the minute expiration runs, then that user\u2019s queue files and notification are cleared."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:34:StructDecl:WaitingUser",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:38:FieldDecl:files",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:39:FieldDecl:user",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:40:FieldDecl:token",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:43:ClassDecl:UploadQueueManager",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:46:CXXMethod:clearUserFiles(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:47:VarDecl:l",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:50:CXXMethod:removeQueue(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:51:CXXMethod:isNotifiedUserUnsafe(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:52:TypeAliasDecl:SlotQueue",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:53:CXXMethod:getUploadQueue()",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:55:FieldDecl:extraPartial",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:56:FieldDecl:extra",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:57:FieldDecl:lastGrant",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:59:CXXMethod:allowUser(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:60:CXXMethod:connectUser(const HintedUser &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:62:TypeAliasDecl:FreeSlotF",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:68:CXXMethod:clearUserFilesUnsafe(const UserPtr &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:70:FieldDecl:cs",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:72:TypeAliasDecl:SlotMap",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:73:FieldDecl:notifiedUsers",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:74:FieldDecl:uploadQueue",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:76:CXXMethod:addFailedUpload(const UserConnection &, const string &, int64_t, int64_t)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:77:CXXMethod:notifyQueuedUsers(uint8_t)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:78:CXXMethod:connectUser(const HintedUser &, const string &)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:81:CXXMethod:on(ClientManagerListener::UserDisconnected, const UserPtr &, bool)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:84:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:85:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:87:FieldDecl:freeSlotF",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:33:TypeAliasDecl:UploadQueueItemToken",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:35:ClassDecl:UploadQueueItem",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:39:CXXMethod:getSize()",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:40:CXXMethod:getTime()",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:41:CXXMethod:getFile()",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:43:CXXMethod:getHintedUser()",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:44:CXXMethod:getToken()",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:46:FieldDecl:pos",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:49:FieldDecl:token",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:50:FieldDecl:user",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:51:FieldDecl:file",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:52:FieldDecl:size",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:53:FieldDecl:time",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:55:VarDecl:idCounter",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:58:TypeAliasDecl:UploadQueueItemPtr"
+      ]
+    },
+    {
+      "id": "upload.event.created",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Created"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 188,
+          "end_line": 188
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Upload object has been inserted into active list; payload is mutable Upload* plus assigned TransferSlot."
+        ],
+        "events": [
+          "Created"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given the request is successfully prepared, when the Upload is inserted, then Created fires before slot counters are updated."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:40:TypedefDecl:Created",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:48:CXXMethod:on(Created, Upload *, const TransferSlot &)"
+      ]
+    },
+    {
+      "id": "upload.event.starting",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Starting"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 676,
+          "end_line": 676
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Upload state is RUNNING and stream transmission is scheduled before Starting fires."
+        ],
+        "events": [
+          "Starting"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given an Upload is ready to send, when transfer starts, then Starting fires after state becomes RUNNING and transmitFile is called."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:37:TypedefDecl:Starting",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:43:CXXMethod:on(Starting, const Upload *)"
+      ]
+    },
+    {
+      "id": "upload.event.tick",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Tick"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 870,
+          "end_line": 870
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Second timer event includes only uploads whose position is positive; each included upload is ticked."
+        ],
+        "events": [
+          "Tick"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given at least one active Upload has transferred bytes, when the second timer runs, then Tick contains those uploads; otherwise it does not fire."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:38:TypedefDecl:Tick",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:44:CXXMethod:on(Tick, const UploadList &)"
+      ]
+    },
+    {
+      "id": "upload.event.complete",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Complete"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 721,
+          "end_line": 721
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Complete is fired by logUpload only when a full transfer completes or a delayed partial segment expires without resume; it occurs before Removed."
+        ],
+        "events": [
+          "Complete"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given a full upload finishes, when transmit-done is handled, then Complete fires before the Upload is deleted and Removed is delivered."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:35:TypedefDecl:Complete",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:45:CXXMethod:on(Complete, const Upload *)"
+      ]
+    },
+    {
+      "id": "upload.event.failed",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Failed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 690,
+          "end_line": 690
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Connection failure with an assigned Upload fires Failed(reason) before the upload is removed; if no upload, no Failed event."
+        ],
+        "events": [
+          "Failed"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given an active upload receives a connection failure, when the failure callback runs, then Failed fires with the original error before Removed."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:36:TypedefDecl:Failed",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:46:CXXMethod:on(Failed, const Upload *, const string &)"
+      ]
+    },
+    {
+      "id": "upload.event.removed",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadManagerListener::Removed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 588,
+          "end_line": 588
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Removed fires immediately before Upload deletion for active, delayed, and expired-delayed removal paths; it can follow Complete or Failed."
+        ],
+        "events": [
+          "Removed"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener callback.",
+        "cancellation": "No per-event cancellation; unsubscribe to stop notifications.",
+        "persistence": [],
+        "resources": [
+          "Callback payload is borrowed Upload pointer; Created payload is mutable; copy stable transfer fields during callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload object destruction is ordered after Removed in removeUpload/deleteDelayUpload."
+      ],
+      "threading_evidence": [
+        "Speaker callback is synchronous in transfer/connection/timer path; transfer Tick occurs while cs shared lock is held."
+      ],
+      "proposed_bridge_requirement": "Preserve callback sequence and copy transfer data; never retain a Core pointer from event callback.",
+      "acceptance_scenarios": [
+        "Given an upload is removed from active/delayed tracking, when deletion occurs, then Removed fires once before the Upload is destroyed."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:41:TypedefDecl:Removed",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:49:CXXMethod:on(Removed, const Upload *)"
+      ]
+    },
+    {
+      "id": "upload-queue.event.add",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadQueueManagerListener::QueueAdd(const UploadQueueItemPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 110,
+          "end_line": 110
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "A new waitlisted file item is inserted; event emitted only for new item, not position update."
+        ],
+        "events": [
+          "QueueAdd(const UploadQueueItemPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadQueueItemPtr or UserPtr is callback payload; event invoked under queue mutex for add/remove, after notification lock section for update."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadQueueManager owns queue entries and fires removal before erase."
+      ],
+      "threading_evidence": [
+        "Queue-add/removal events run synchronously while cs is exclusively held; QueueUpdate is emitted after notifyQueuedUsers returns."
+      ],
+      "proposed_bridge_requirement": "Deliver queue events as immutable copied values and preserve clear-order semantics.",
+      "acceptance_scenarios": [
+        "Given a full-slot new file request, when addFailedUpload inserts it, then QueueAdd contains the new item."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:34:TypedefDecl:QueueAdd",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:39:CXXMethod:on(QueueAdd, const UploadQueueItemPtr &)"
+      ]
+    },
+    {
+      "id": "upload-queue.event.user-remove",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadQueueManagerListener::QueueUserRemove(const UserPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 121,
+          "end_line": 121
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Follows item-removal callbacks when all queued files for the user are cleared."
+        ],
+        "events": [
+          "QueueUserRemove(const UserPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadQueueItemPtr or UserPtr is callback payload; event invoked under queue mutex for add/remove, after notification lock section for update."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadQueueManager owns queue entries and fires removal before erase."
+      ],
+      "threading_evidence": [
+        "Queue-add/removal events run synchronously while cs is exclusively held; QueueUpdate is emitted after notifyQueuedUsers returns."
+      ],
+      "proposed_bridge_requirement": "Deliver queue events as immutable copied values and preserve clear-order semantics.",
+      "acceptance_scenarios": [
+        "Given a queued user with files, when that user\u2019s queue is cleared, then each QueueItemRemove fires before QueueUserRemove."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:35:TypedefDecl:QueueUserRemove",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:40:CXXMethod:on(QueueUserRemove, const UserPtr &)"
+      ]
+    },
+    {
+      "id": "upload-queue.event.item-remove",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadQueueManagerListener::QueueItemRemove(const UploadQueueItemPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 118,
+          "end_line": 118
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Emitted for each queue file before its owning user entry is erased."
+        ],
+        "events": [
+          "QueueItemRemove(const UploadQueueItemPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadQueueItemPtr or UserPtr is callback payload; event invoked under queue mutex for add/remove, after notification lock section for update."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadQueueManager owns queue entries and fires removal before erase."
+      ],
+      "threading_evidence": [
+        "Queue-add/removal events run synchronously while cs is exclusively held; QueueUpdate is emitted after notifyQueuedUsers returns."
+      ],
+      "proposed_bridge_requirement": "Deliver queue events as immutable copied values and preserve clear-order semantics.",
+      "acceptance_scenarios": [
+        "Given a user with two waitlisted files, when clearing that user, then two item removals precede user removal."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:36:TypedefDecl:QueueItemRemove",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:41:CXXMethod:on(QueueItemRemove, const UploadQueueItemPtr &)"
+      ]
+    },
+    {
+      "id": "upload-queue.event.update",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadQueueManagerListener::QueueUpdate()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 191,
+          "end_line": 191
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Emitted each second after queue notification scheduling."
+        ],
+        "events": [
+          "QueueUpdate()"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadQueueItemPtr or UserPtr is callback payload; event invoked under queue mutex for add/remove, after notification lock section for update."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadQueueManager owns queue entries and fires removal before erase."
+      ],
+      "threading_evidence": [
+        "Queue-add/removal events run synchronously while cs is exclusively held; QueueUpdate is emitted after notifyQueuedUsers returns."
+      ],
+      "proposed_bridge_requirement": "Deliver queue events as immutable copied values and preserve clear-order semantics.",
+      "acceptance_scenarios": [
+        "Given any queue state, when the one-second timer processes notifications, then QueueUpdate fires once."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:37:TypedefDecl:QueueUpdate",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:42:CXXMethod:on(QueueUpdate)"
+      ]
+    },
+    {
+      "id": "upload.file-info-query",
+      "kind": "operation",
+      "upstream_symbols": [
+        "UploadManager::on(AdcCommand::GFI)",
+        "UploadRequest::isFullFilelist"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 148,
+          "end_line": 149
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 783,
+          "end_line": 808
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadRequest.h",
+          "start_line": 42,
+          "end_line": 44
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ADC GFI type and identifier."
+        ],
+        "preconditions": [
+          "Connection must be in GET state and command must contain at least two params."
+        ],
+        "defaults": [],
+        "effects": [
+          "For a FILE query with a resolvable share profile, asks ShareManager for file info and replies with hooked GFI command; all unsupported/hidden/missing requests get generic error."
+        ],
+        "events": [],
+        "errors": [
+          "Missing parameters returns recoverable generic protocol error; file info miss or unknown profile sends generic error."
+        ],
+        "completion": "Synchronous command response.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Share profile visibility and ShareManager file index."
+        ]
+      },
+      "ownership_evidence": [
+        "No Upload object is created for GFI; ShareManager response is sent directly."
+      ],
+      "threading_evidence": [
+        "Callback is synchronous on UserConnection command path."
+      ],
+      "proposed_bridge_requirement": "Preserve profile-sensitive info visibility and protocol errors without surfacing connection internals.",
+      "acceptance_scenarios": [
+        "Given a GET-state peer requests file info for a visible file under its profile, when GFI is processed, then a file-info response is sent.",
+        "Given missing GFI parameters, when processed, then recoverable protocol error is sent."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadRequest.h:29:StructDecl:UploadRequest",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:37:CXXMethod:validate()",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:38:VarDecl:failed",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:42:CXXMethod:isFullFilelist()",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:46:FieldDecl:type",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:47:FieldDecl:file",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:48:FieldDecl:segment",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:49:FieldDecl:userSID",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:50:FieldDecl:listRecursive",
+        "decl:airdcpp/transfer/upload/UploadManager.h:149:CXXMethod:on(AdcCommand::GFI, UserConnection *, const AdcCommand &)"
+      ]
+    },
+    {
+      "id": "upload.bundle-info-protocol",
+      "kind": "capability",
+      "upstream_symbols": [
+        "UploadBundleInfoSender/Receiver UBN1 extension",
+        "ADC UBN/UBD handlers"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h",
+          "start_line": 35,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h",
+          "start_line": 35,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.cpp",
+          "start_line": 38,
+          "end_line": 200
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 55,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 90,
+          "end_line": 312
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 374,
+          "end_line": 515
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Optional peer bundle-status extension is advertised as UBN1. Sender tracks remote downloads and transmits bundle add/remove/user-mode/finished/size/tick commands. Receiver parses UBN/UBD and maintains per-connection/per-bundle associations, updating progress and removing idle bundles. This is protocol/status support and not part of upload byte transfer itself."
+        ],
+        "events": [
+          "ADC UBN1 bundle update commands to peers."
+        ],
+        "errors": [
+          "Malformed/unsupported command parsing behavior requires exact protocol-level characterization before reproducing; do not claim validated parity from method declarations alone."
+        ],
+        "completion": "Asynchronous peer protocol updates and timer-driven stale bundle cleanup.",
+        "cancellation": "Per-connection remove/finished commands tear down remote association; idle removal runs on timer.",
+        "persistence": [],
+        "resources": [
+          "Hub ADC feature negotiation, active download/upload connections, bundle tokens, timer and maps."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadBundleInfoSender/Receiver are composed by UploadBundleManager and retain association maps rather than ownership of core transfers."
+      ],
+      "threading_evidence": [
+        "They subscribe to manager/listener/command events; updates originate across download/connection/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Treat UBN1 bundle status as a distinct optional protocol capability; exact malformed-command and negotiation parity remains unresolved pending end-to-end fixtures.",
+      "acceptance_scenarios": [
+        "Given a peer negotiated UBN1 and a bundle download starts, when sender observes DownloadManager events, then it sends a bundle association/update command.",
+        "Given a peer sends a bundle remove command for a tracked connection, when receiver parses it, then that connection is removed from the bundle association."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfo.h:26:ClassDecl:UploadBundleInfo",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfo.h:28:TypeAliasDecl:UBD",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfo.h:29:TypeAliasDecl:UBN",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:37:ClassDecl:UploadBundleInfoReceiver",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:40:CXXMethod:onUBD(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:41:CXXMethod:onUBN(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:43:CXXMethod:findByBundleToken(const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:44:CXXMethod:findByConnectionToken(const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:46:CXXMethod:getRunningBundleCount()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:51:FieldDecl:cs",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:52:CXXMethod:dbgMsg(const string &, LogMessage::Severity)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:53:CXXMethod:formatDebugBundle(const UploadBundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:55:CXXMethod:parseSpeed(const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:57:CXXMethod:createBundle(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:58:CXXMethod:changeBundle(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:59:CXXMethod:updateBundleInfo(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:60:CXXMethod:finishBundle(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:61:CXXMethod:removeBundleConnection(const AdcCommand &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:65:CXXMethod:handleAddBundleConnection(const string &, const UploadBundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:66:CXXMethod:handleRemoveBundleConnection(const string &, const UploadBundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:68:CXXMethod:addBundleConnectionUnsafe(const Upload *, const UploadBundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:69:CXXMethod:removeBundleConnectionUnsafe(const Upload *, const UploadBundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:71:CXXMethod:removeIdleBundles()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:73:TypeAliasDecl:UploadCallback",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:74:CXXMethod:callAsync(const string &, std::function<void (Upload *)> &&)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:77:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:79:CXXMethod:on(UploadManagerListener::Created, Upload *, const TransferSlot &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:80:CXXMethod:on(UploadManagerListener::Removed, const Upload *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:82:CXXMethod:on(ProtocolCommandManagerListener::IncomingUDPCommand, const AdcCommand &, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:84:FieldDecl:connections",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:86:TypeAliasDecl:RemoteBundleTokenMap",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:87:FieldDecl:bundles",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:33:ClassDecl:UploadBundleInfoSender",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:35:VarDecl:FEATURE_ADC_UBN1",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:37:CXXMethod:dbgMsg(const string &, LogMessage::Severity)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:39:ClassDecl:UBNBundle",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:41:TypeAliasDecl:SendUpdateF",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:42:TypeAliasDecl:DebugMsgF",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:44:CXXMethod:formatSpeed(int64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:46:CXXMethod:onDownloadTick()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:48:CXXMethod:addRunningUser(const UserConnection *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:49:CXXMethod:removeRunningUser(const UserConnection *, bool)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:50:CXXMethod:setUserMode(bool)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:52:CXXMethod:sendSizeUpdate()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:54:TypeAliasDecl:Ptr",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:59:CXXMethod:getAddCommand(const string &, bool)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:60:CXXMethod:getRemoveCommand(const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:61:CXXMethod:getBundleFinishedCommand()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:62:CXXMethod:getUserModeCommand()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:63:CXXMethod:getBundleSizeUpdateCommand()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:64:CXXMethod:getTickCommand(const string &, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:66:CXXMethod:getBundle()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:70:FieldDecl:sendUpdate",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:71:FieldDecl:debugMsg",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:73:FieldDecl:singleUser",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:74:FieldDecl:lastSpeed",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:75:FieldDecl:lastDownloaded",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:77:CXXMethod:getTickParams(string &, string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:79:FieldDecl:bundle",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:81:FieldDecl:uploadReports",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:87:FieldDecl:cs",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:89:CXXMethod:on(QueueManagerListener::BundleSize, const BundlePtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:91:CXXMethod:on(DownloadManagerListener::Starting, const Download *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:92:CXXMethod:on(DownloadManagerListener::Failed, const Download *, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:93:CXXMethod:on(DownloadManagerListener::BundleTick, const BundleList &, uint64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:94:CXXMethod:on(DownloadManagerListener::Remove, const UserConnection *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:95:CXXMethod:on(DownloadManagerListener::Idle, const UserConnection *, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:98:FieldDecl:bundleTokenMap",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:99:FieldDecl:connectionTokenMap",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:101:CXXMethod:findInfoByBundleToken(QueueToken)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:102:CXXMethod:findInfoByConnectionToken(const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:104:CXXMethod:removeRunningUser(const UserConnection *, bool)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:106:CXXMethod:addRunningUserUnsafe(const UBNBundle::Ptr &, const UserConnection *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:107:CXXMethod:removeRunningUserUnsafe(const UBNBundle::Ptr &, const UserConnection *, bool)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:109:CXXMethod:sendUpdate(AdcCommand &, const UserPtr &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleManager.h:30:ClassDecl:UploadBundleManager",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleManager.h:33:FieldDecl:receiver",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleManager.h:34:FieldDecl:sender"
+      ]
+    },
+    {
+      "id": "upload.setting-use.free-slots-extensions",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(FREE_SLOTS_EXTENSIONS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 66,
+          "end_line": 66
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Builds wildcard matcher used by UploadParser to select files eligible for free/minislot transfer."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.setting-use.extra-slots",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(EXTRA_SLOTS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 80,
+          "end_line": 80
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Caps available extra/minislot grants; free extra count is max(setting-extra, 0)."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.setting-use.log-uploads",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(LOG_UPLOADS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 715,
+          "end_line": 715
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Enables completed-upload logging subject to exclusions below."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.setting-use.log-filelist-transfers",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(LOG_FILELIST_TRANSFERS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 715,
+          "end_line": 715
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Allows completed filelist transfers to be logged when LOG_UPLOADS is on."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.setting-use.auto-kick",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(AUTO_KICK)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 740,
+          "end_line": 740
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Enables minute-timer disconnection of users who are offline during upload."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.setting-use.auto-kick-no-favs",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(AUTO_KICK_NO_FAVS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 763,
+          "end_line": 763
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "When enabled, prevents the offline-upload auto-kick path from marking favorite users for disconnection."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Consulted at matcher initialization/change or specific transfer/timer path.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadManager reads the setting at the referenced consumer path."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep setting unit/default/persistence source in settings ledger; retain this consumer-specific effect.",
+      "acceptance_scenarios": [
+        "Given this setting changes or its guarded code path runs, when UploadManager evaluates it, then the documented matcher, logging, capacity, or kick behavior follows."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "upload.internal.upload_bundles-UploadBundle",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core-internal upload model/parser/protocol declarations from airdcpp/transfer/upload/upload_bundles/UploadBundle.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundle.h",
+          "start_line": 34,
+          "end_line": 91
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Publicly spelled Core types, accessors, parser helpers, upload-bundle DTOs and protocol machinery not represented as a standalone bridge capability are accounted here; they support the upload request, slot, transfer, queue, event, or UBN1 contracts described in this domain. Their individual bridge exposure is not established."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation beyond the linked upload contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Upload stream/file handles, queue state, transfer values, or ADC protocol structures as applicable to this header."
+        ]
+      },
+      "ownership_evidence": [
+        "Class-level source definitions are linked; declaration surface alone does not establish implementation/runtime parity."
+      ],
+      "threading_evidence": [
+        "Synchronization and callback context follow the owning operation/event records; no independent thread contract claimed."
+      ],
+      "proposed_bridge_requirement": "Keep implementation types and pointer/stream ownership inside Objective-C++ unless a later contract explicitly exposes a value representation.",
+      "acceptance_scenarios": [
+        "Given a client-facing upload operation is adapted, when internal Core model/parser fields are encountered, then the bridge exposes value semantics only and retains stream/protocol ownership in Core."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:34:ClassDecl:UploadBundle",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:36:TypeAliasDecl:BundleUploadList",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:41:FieldDecl:size",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:43:FieldDecl:speed",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:44:FieldDecl:totalSpeed",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:45:FieldDecl:actual",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:46:FieldDecl:uploadedSegments",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:47:FieldDecl:target",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:49:CXXMethod:getUploads()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:51:CXXMethod:getConnectionCount()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:53:CXXMethod:getStart()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:55:CXXMethod:getSingleUser()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:56:CXXMethod:setSingleUser(bool, int64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:58:CXXMethod:getName()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:59:CXXMethod:getToken()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:61:CXXMethod:getSecondsLeft()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:62:CXXMethod:getUploaded()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:64:CXXMethod:setBundlePath(const string &, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:67:CXXMethod:addUploadedSegment(int64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:69:CXXMethod:addUpload(const Upload *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:70:CXXMethod:removeUpload(const Upload *)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:72:CXXMethod:countSpeed(const UploadList &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:76:CXXMethod:checkDelaySecond()",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:78:FieldDecl:delayTime",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:79:FieldDecl:currentUploaded",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:80:FieldDecl:singleUser",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:81:FieldDecl:startTick",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:83:FieldDecl:uploads",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:85:FieldDecl:token",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:88:TypeAliasDecl:UploadBundlePtr",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:89:TypeAliasDecl:UploadBundleList",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:91:TypeAliasDecl:TickUploadBundleList"
+      ]
+    },
+    {
+      "id": "upload.internal.UploadQueueManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core-internal upload model/parser/protocol declarations from airdcpp/transfer/upload/UploadQueueManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 29,
+          "end_line": 43
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Publicly spelled Core types, accessors, parser helpers, upload-bundle DTOs and protocol machinery not represented as a standalone bridge capability are accounted here; they support the upload request, slot, transfer, queue, event, or UBN1 contracts described in this domain. Their individual bridge exposure is not established."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation beyond the linked upload contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Upload stream/file handles, queue state, transfer values, or ADC protocol structures as applicable to this header."
+        ]
+      },
+      "ownership_evidence": [
+        "Class-level source definitions are linked; declaration surface alone does not establish implementation/runtime parity."
+      ],
+      "threading_evidence": [
+        "Synchronization and callback context follow the owning operation/event records; no independent thread contract claimed."
+      ],
+      "proposed_bridge_requirement": "Keep implementation types and pointer/stream ownership inside Objective-C++ unless a later contract explicitly exposes a value representation.",
+      "acceptance_scenarios": [
+        "Given a client-facing upload operation is adapted, when internal Core model/parser fields are encountered, then the bridge exposes value semantics only and retains stream/protocol ownership in Core."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:29:ClassDecl:UploadQueueManagerListener",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:32:ClassTemplate:X<I>",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:32:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:32:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/upload/UploadQueueManagerListener.h:32:29)"
+      ]
+    },
+    {
+      "id": "upload.internal.Upload",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core-internal upload model/parser/protocol declarations from airdcpp/transfer/upload/Upload.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/Upload.h",
+          "start_line": 29,
+          "end_line": 55
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Publicly spelled Core types, accessors, parser helpers, upload-bundle DTOs and protocol machinery not represented as a standalone bridge capability are accounted here; they support the upload request, slot, transfer, queue, event, or UBN1 contracts described in this domain. Their individual bridge exposure is not established."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation beyond the linked upload contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Upload stream/file handles, queue state, transfer values, or ADC protocol structures as applicable to this header."
+        ]
+      },
+      "ownership_evidence": [
+        "Class-level source definitions are linked; declaration surface alone does not establish implementation/runtime parity."
+      ],
+      "threading_evidence": [
+        "Synchronization and callback context follow the owning operation/event records; no independent thread contract claimed."
+      ],
+      "proposed_bridge_requirement": "Keep implementation types and pointer/stream ownership inside Objective-C++ unless a later contract explicitly exposes a value representation.",
+      "acceptance_scenarios": [
+        "Given a client-facing upload operation is adapted, when internal Core model/parser fields are encountered, then the bridge exposes value semantics only and retains stream/protocol ownership in Core."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/Upload.h:29:ClassDecl:Upload",
+        "decl:airdcpp/transfer/upload/Upload.h:31:EnumDecl:Flags",
+        "decl:airdcpp/transfer/upload/Upload.h:32:EnumConstantDecl:FLAG_ZUPLOAD",
+        "decl:airdcpp/transfer/upload/Upload.h:33:EnumConstantDecl:FLAG_PENDING_KICK",
+        "decl:airdcpp/transfer/upload/Upload.h:34:EnumConstantDecl:FLAG_RESUMED",
+        "decl:airdcpp/transfer/upload/Upload.h:35:EnumConstantDecl:FLAG_CHUNKED",
+        "decl:airdcpp/transfer/upload/Upload.h:36:EnumConstantDecl:FLAG_PARTIAL",
+        "decl:airdcpp/transfer/upload/Upload.h:42:CXXMethod:getParams(const UserConnection &, ParamMap &)",
+        "decl:airdcpp/transfer/upload/Upload.h:44:FieldDecl:fileSize",
+        "decl:airdcpp/transfer/upload/Upload.h:46:CXXMethod:getStream()",
+        "decl:airdcpp/transfer/upload/Upload.h:47:CXXMethod:setFiltered()",
+        "decl:airdcpp/transfer/upload/Upload.h:49:CXXMethod:appendFlags(OrderedStringSet &)",
+        "decl:airdcpp/transfer/upload/Upload.h:50:CXXMethod:checkDelaySecond()",
+        "decl:airdcpp/transfer/upload/Upload.h:51:CXXMethod:disableDelayCheck()",
+        "decl:airdcpp/transfer/upload/Upload.h:53:FieldDecl:stream",
+        "decl:airdcpp/transfer/upload/Upload.h:54:FieldDecl:delayTime"
+      ]
+    },
+    {
+      "id": "upload.internal.upload_bundles-UploadBundleInfoReceiverListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core-internal upload model/parser/protocol declarations from airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 29,
+          "end_line": 41
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Publicly spelled Core types, accessors, parser helpers, upload-bundle DTOs and protocol machinery not represented as a standalone bridge capability are accounted here; they support the upload request, slot, transfer, queue, event, or UBN1 contracts described in this domain. Their individual bridge exposure is not established."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation beyond the linked upload contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Upload stream/file handles, queue state, transfer values, or ADC protocol structures as applicable to this header."
+        ]
+      },
+      "ownership_evidence": [
+        "Class-level source definitions are linked; declaration surface alone does not establish implementation/runtime parity."
+      ],
+      "threading_evidence": [
+        "Synchronization and callback context follow the owning operation/event records; no independent thread contract claimed."
+      ],
+      "proposed_bridge_requirement": "Keep implementation types and pointer/stream ownership inside Objective-C++ unless a later contract explicitly exposes a value representation.",
+      "acceptance_scenarios": [
+        "Given a client-facing upload operation is adapted, when internal Core model/parser fields are encountered, then the bridge exposes value semantics only and retains stream/protocol ownership in Core."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:29:ClassDecl:UploadBundleInfoReceiverListener",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:32:ClassTemplate:X<I>",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:32:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:32:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:32:29)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:34:TypedefDecl:BundleComplete",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:35:TypedefDecl:BundleSizeName",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:36:TypedefDecl:BundleTick",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:38:CXXMethod:on(BundleComplete, const string &, const string &)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:39:CXXMethod:on(BundleSizeName, const string &, const string &, int64_t)",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:40:CXXMethod:on(BundleTick, const TickUploadBundleList &)"
+      ]
+    },
+    {
+      "id": "upload.internal.UploadManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core-internal upload model/parser/protocol declarations from airdcpp/transfer/upload/UploadManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 29,
+          "end_line": 50
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Publicly spelled Core types, accessors, parser helpers, upload-bundle DTOs and protocol machinery not represented as a standalone bridge capability are accounted here; they support the upload request, slot, transfer, queue, event, or UBN1 contracts described in this domain. Their individual bridge exposure is not established."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation beyond the linked upload contracts.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Upload stream/file handles, queue state, transfer values, or ADC protocol structures as applicable to this header."
+        ]
+      },
+      "ownership_evidence": [
+        "Class-level source definitions are linked; declaration surface alone does not establish implementation/runtime parity."
+      ],
+      "threading_evidence": [
+        "Synchronization and callback context follow the owning operation/event records; no independent thread contract claimed."
+      ],
+      "proposed_bridge_requirement": "Keep implementation types and pointer/stream ownership inside Objective-C++ unless a later contract explicitly exposes a value representation.",
+      "acceptance_scenarios": [
+        "Given a client-facing upload operation is adapted, when internal Core model/parser fields are encountered, then the bridge exposes value semantics only and retains stream/protocol ownership in Core."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:29:ClassDecl:UploadManagerListener",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:33:ClassTemplate:X<I>",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:33:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:33:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/upload/UploadManagerListener.h:33:29)"
+      ]
+    },
+    {
+      "id": "upload.remote.bundle-complete",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadBundleInfoReceiverListener::BundleComplete(const string& token, const string& name)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 288,
+          "end_line": 310
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 310,
+          "end_line": 310
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Peer bundle token must be known except the command\u2019s own validation behavior."
+        ],
+        "defaults": [],
+        "effects": [
+          "Fires when a remote peer marks its tracked bundle finished; does not itself remove the bundle association."
+        ],
+        "events": [
+          "BundleComplete(const string& token, const string& name)"
+        ],
+        "errors": [
+          "Malformed or unknown-token commands are silently ignored or logged according to branch; they do not produce these events."
+        ],
+        "completion": "Synchronous receiver callback except BundleTick, emitted on timer callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadBundle value snapshots; no C++ object pointer is included in callback signature."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadBundleInfoReceiver owns remote bundle map and emits value data through Speaker."
+      ],
+      "threading_evidence": [
+        "Command callbacks run during ADC processing; timer BundleTick runs from timer manager; listener delivery is synchronous."
+      ],
+      "proposed_bridge_requirement": "Expose remote peer bundle observations as copied values with explicit untrusted/protocol-derived origin.",
+      "acceptance_scenarios": [
+        "Given a tracked remote bundle receives UBD FI, when parsed, then BundleComplete carries its token and name."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:34:TypedefDecl:BundleComplete",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:38:CXXMethod:on(BundleComplete, const string &, const string &)"
+      ]
+    },
+    {
+      "id": "upload.remote.bundle-size-name",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadBundleInfoReceiverListener::BundleSizeName(const string& token, const string& target, int64_t size)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 184,
+          "end_line": 231
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 229,
+          "end_line": 229
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Peer bundle token must be known except the command\u2019s own validation behavior."
+        ],
+        "defaults": [],
+        "effects": [
+          "Fires after an existing bundle receives an ordinary size/name update; source currently passes existing target and updated size."
+        ],
+        "events": [
+          "BundleSizeName(const string& token, const string& target, int64_t size)"
+        ],
+        "errors": [
+          "Malformed or unknown-token commands are silently ignored or logged according to branch; they do not produce these events."
+        ],
+        "completion": "Synchronous receiver callback except BundleTick, emitted on timer callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadBundle value snapshots; no C++ object pointer is included in callback signature."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadBundleInfoReceiver owns remote bundle map and emits value data through Speaker."
+      ],
+      "threading_evidence": [
+        "Command callbacks run during ADC processing; timer BundleTick runs from timer manager; listener delivery is synchronous."
+      ],
+      "proposed_bridge_requirement": "Expose remote peer bundle observations as copied values with explicit untrusted/protocol-derived origin.",
+      "acceptance_scenarios": [
+        "Given a tracked remote bundle receives UBD UD with a positive size and no user-mode flag, when parsed, then BundleSizeName carries token, current target and updated size."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:35:TypedefDecl:BundleSizeName",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:39:CXXMethod:on(BundleSizeName, const string &, const string &, int64_t)"
+      ]
+    },
+    {
+      "id": "upload.remote.bundle-tick",
+      "kind": "event",
+      "upstream_symbols": [
+        "UploadBundleInfoReceiverListener::BundleTick(const TickUploadBundleList&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 410,
+          "end_line": 449
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 449,
+          "end_line": 449
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Peer bundle token must be known except the command\u2019s own validation behavior."
+        ],
+        "defaults": [],
+        "effects": [
+          "Timer aggregates tracked remote bundles with active connections and emits tick snapshots."
+        ],
+        "events": [
+          "BundleTick(const TickUploadBundleList&)"
+        ],
+        "errors": [
+          "Malformed or unknown-token commands are silently ignored or logged according to branch; they do not produce these events."
+        ],
+        "completion": "Synchronous receiver callback except BundleTick, emitted on timer callback.",
+        "cancellation": "No per-event cancellation.",
+        "persistence": [],
+        "resources": [
+          "UploadBundle value snapshots; no C++ object pointer is included in callback signature."
+        ]
+      },
+      "ownership_evidence": [
+        "UploadBundleInfoReceiver owns remote bundle map and emits value data through Speaker."
+      ],
+      "threading_evidence": [
+        "Command callbacks run during ADC processing; timer BundleTick runs from timer manager; listener delivery is synchronous."
+      ],
+      "proposed_bridge_requirement": "Expose remote peer bundle observations as copied values with explicit untrusted/protocol-derived origin.",
+      "acceptance_scenarios": [
+        "Given a tracked remote bundle has active uploads, when receiver\u2019s second timer runs, then BundleTick includes its snapshot."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:36:TypedefDecl:BundleTick",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:40:CXXMethod:on(BundleTick, const TickUploadBundleList &)"
+      ]
+    },
+    {
+      "id": "upload.object-defaults-and-lifecycle",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Upload/UploadManager/UploadQueueManager/UploadBundle and upload-bundle info object construction/destruction; GETSET/IGETSET accessors; UploadRequest and UploadParser value constructors",
+        "Upload Upload(UserConnection &, const string &, const TTHValue &, unique_ptr<InputStream>) [void (UserConnection &, const string &, const TTHValue &, unique_ptr<InputStream>)] @ airdcpp/transfer/upload/Upload.h:39",
+        "~Upload ~Upload() [void () noexcept] @ airdcpp/transfer/upload/Upload.h:40",
+        "UploadParserException UploadParserException(const string &, bool) [void (const string &, bool)] @ airdcpp/transfer/upload/UploadFileParser.h:46",
+        "UploadParser UploadParser(const StringMatch &) [void (const StringMatch &)] @ airdcpp/transfer/upload/UploadFileParser.h:53",
+        "~UploadManagerListener ~UploadManagerListener() [void () noexcept] @ airdcpp/transfer/upload/UploadManagerListener.h:32",
+        "UploadQueueItem UploadQueueItem(const HintedUser &, const string &, int64_t, int64_t) [void (const HintedUser &, const string &, int64_t, int64_t)] @ airdcpp/transfer/upload/UploadQueueItem.h:37",
+        "WaitingUser WaitingUser(const HintedUser &, const std::string &) [void (const HintedUser &, const std::string &)] @ airdcpp/transfer/upload/UploadQueueManager.h:35",
+        "operator const std::shared_ptr<dcpp::User> & operator const std::shared_ptr<dcpp::User> &() [const UserPtr &() const] @ airdcpp/transfer/upload/UploadQueueManager.h:36",
+        "UploadQueueManager UploadQueueManager(FreeSlotF &&) [void (FreeSlotF &&) noexcept] @ airdcpp/transfer/upload/UploadQueueManager.h:63",
+        "~UploadQueueManager ~UploadQueueManager() [void () noexcept] @ airdcpp/transfer/upload/UploadQueueManager.h:64",
+        "~UploadQueueManagerListener ~UploadQueueManagerListener() [void () noexcept] @ airdcpp/transfer/upload/UploadQueueManagerListener.h:31",
+        "UploadRequest UploadRequest(const string &, const string &, const Segment &) [void (const string &, const string &, const Segment &)] @ airdcpp/transfer/upload/UploadRequest.h:30",
+        "UploadRequest UploadRequest(const string &, const string &, const Segment &, const string &, bool) [void (const string &, const string &, const Segment &, const string &, bool)] @ airdcpp/transfer/upload/UploadRequest.h:31",
+        "UploadBundle UploadBundle(const string &, const string &, int64_t, bool, int64_t) [void (const string &, const string &, int64_t, bool, int64_t)] @ airdcpp/transfer/upload/upload_bundles/UploadBundle.h:38",
+        "~UploadBundle ~UploadBundle() [void ()] @ airdcpp/transfer/upload/upload_bundles/UploadBundle.h:39",
+        "UploadBundleInfoReceiver UploadBundleInfoReceiver() [void () noexcept] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:48",
+        "~UploadBundleInfoReceiver ~UploadBundleInfoReceiver() [void () noexcept] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:49",
+        "~UploadBundleInfoReceiverListener ~UploadBundleInfoReceiverListener() [void () noexcept] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:31",
+        "UBNBundle UBNBundle(const BundlePtr &, SendUpdateF &&, DebugMsgF &&) [void (const BundlePtr &, SendUpdateF &&, DebugMsgF &&)] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:56",
+        "UploadBundleInfoSender UploadBundleInfoSender() [void () noexcept] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:84",
+        "~UploadBundleInfoSender ~UploadBundleInfoSender() [void () noexcept] @ airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:85",
+        "UploadManager UploadManager() [void () noexcept] @ airdcpp/transfer/upload/UploadManager.h:124",
+        "~UploadManager ~UploadManager() [void () noexcept] @ airdcpp/transfer/upload/UploadManager.h:125"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/Upload.h",
+          "start_line": 39,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 77,
+          "end_line": 125
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueItem.h",
+          "start_line": 37,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.h",
+          "start_line": 35,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundle.h",
+          "start_line": 38,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadRequest.h",
+          "start_line": 30,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadFileParser.h",
+          "start_line": 46,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h",
+          "start_line": 48,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h",
+          "start_line": 56,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/transfer/upload/Upload.cpp",
+          "start_line": 30,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 41,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.cpp",
+          "start_line": 33,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundle.cpp",
+          "start_line": 28,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.cpp",
+          "start_line": 55,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.cpp",
+          "start_line": 40,
+          "end_line": 64
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Upload construction binds a UserConnection, path/TTH and owned InputStream; queue item construction accepts hinted user, file, segment position and size; parser/request value constructors retain their supplied matching/request fields; upload bundle state accepts target/token/size/single-user/uploaded-byte count."
+        ],
+        "preconditions": [
+          "UploadManager and UploadQueueManager constructors require initialized timer/client/settings/connection managers. Upload constructor requires a connection not already holding an upload and an owned input stream."
+        ],
+        "defaults": [
+          "Upload::fileSize initializes -1. UploadManager/UploadQueueManager extra slot counters and grant timestamps initialize zero; UploadQueueManager extraPartial initializes zero. UploadBundle speed, totalSpeed, actual and uploadedSegments initialize zero; UploadQueueItem position is constructor supplied. UploadBundle clamps initial uploadedSegments to size when it exceeds size."
+        ],
+        "effects": [
+          "Upload constructor initializes Transfer base, moves the InputStream into Upload, and associates itself with UserConnection; destructor clears the connection backpointer. UploadManager constructs its queue using a callback to getFreeSlots, registers as TimerManager listener and installs FREE_SLOTS_EXTENSIONS setting callback; destructor unregisters timer listener and waits until active uploads empty. UploadQueueManager stores the free-slot callback and registers with ClientManager/TimerManager; destructor unregisters and clears queued upload entries under lock. UploadBundle initializes aggregate upload values and removes its connection token on destruction. Bundle-info receiver registers/unregisters Timer, UploadManager and Protocol listeners. Sender registers DownloadManager/QueueManager listeners and conditionally advertises UBN1 based on USE_UPLOAD_BUNDLES; destructor removes these listeners. Inline UploadRequest/UploadParser constructors retain their request/parser inputs; WaitingUser conversion returns its contained UserPtr."
+        ],
+        "events": [
+          "Upload lifecycle events are emitted by UploadManager operations inventoried in upload event records; constructor/destructor only establish and tear down listener/connection ownership."
+        ],
+        "errors": [
+          "No constructor result status; UploadStream/manager dependency failures follow Core constructor behavior. UploadBundle initial uploaded byte count above size is clamped."
+        ],
+        "completion": "Object construction and destruction are synchronous; UploadManager destruction can block until uploads drain.",
+        "cancellation": "No object-level cancellation token; UploadManager abort operations remain in their operation records.",
+        "persistence": [
+          "Upload queue and bundle persistence belong to their owning manager operations, not these value constructors."
+        ],
+        "resources": [
+          "Upload uniquely owns its InputStream; UserConnection is a non-owning back-reference; UploadManager owns UploadQueueManager; bundle-info objects register as listeners and unregister during destruction."
+        ]
+      },
+      "ownership_evidence": [
+        "Upload.cpp:30-40 moves stream into Upload and sets/clears UserConnection upload pointer. UploadManager.cpp:41-65 owns its queue and timer listener. UploadQueueManager.cpp:40-51 registers/removes ClientManager and TimerManager listeners. UploadBundle.cpp:28-36 removes its token on destruction."
+      ],
+      "threading_evidence": [
+        "UploadManager destructor polls active uploads and checks collection under RLock; UploadQueueManager clears queue while holding WLock; remaining constructor-side listener registration is synchronous."
+      ],
+      "proposed_bridge_requirement": "Bridge transfer objects through copied metadata and explicit lifecycle results; do not expose InputStream, Core listeners, or raw UserConnection pointers.",
+      "acceptance_scenarios": [
+        "Given an Upload is constructed around a connection and input stream, when destroyed, then its connection backpointer is cleared and stream ownership ends with the object.",
+        "Given UploadBundle initial uploaded bytes exceed size, when constructed, then uploadedSegments is clamped to size.",
+        "Given UploadManager is destroyed with active uploads, when destruction starts, then the TimerManager listener is removed and destruction waits until the active upload list empties."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/upload/Upload.h:39:CXCursor_Constructor:4f47c3ed9050",
+        "decl:airdcpp/transfer/upload/Upload.h:40:CXCursor_Destructor:5876dcfda6ae",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:46:CXCursor_Constructor:145beee884b5",
+        "decl:airdcpp/transfer/upload/UploadFileParser.h:53:CXCursor_Constructor:6d3dddb1a54c",
+        "decl:airdcpp/transfer/upload/UploadManagerListener.h:32:CXCursor_Destructor:dfc80055a9f0",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:37:CXCursor_Constructor:f50bca375f58",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:35:CXCursor_Constructor:cef1e0830789",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:36:CXCursor_ConversionFunction:3b4d7941c260",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:63:CXCursor_Constructor:51a94d283a89",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:64:CXCursor_Destructor:76dbd74b75c9",
+        "decl:airdcpp/transfer/upload/UploadQueueManagerListener.h:31:CXCursor_Destructor:bf752d220a72",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:30:CXCursor_Constructor:f59ff7447e23",
+        "decl:airdcpp/transfer/upload/UploadRequest.h:31:CXCursor_Constructor:8788fd5275bc",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:38:CXCursor_Constructor:d629b5096766",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:39:CXCursor_Destructor:58a4771f076d",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:48:CXCursor_Constructor:6d5b4b04d4bf",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h:49:CXCursor_Destructor:a16fed1d9d63",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h:31:CXCursor_Destructor:fbe6821a6e2f",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:56:CXCursor_Constructor:c5016d2764fd",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:84:CXCursor_Constructor:9609184f7969",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h:85:CXCursor_Destructor:68871ed89fc0"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/transfer/upload/Upload.h:44:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/UploadManager.h:124:CXCursor_Constructor:eba9685adde9",
+        "decl:airdcpp/transfer/upload/UploadManager.h:125:CXCursor_Destructor:8d354179acec",
+        "decl:airdcpp/transfer/upload/UploadManager.h:77:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/UploadManager.h:78:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/UploadQueueItem.h:46:macro:GETSET",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:55:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:56:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/UploadQueueManager.h:57:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:41:macro:GETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:43:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:44:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:45:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:46:macro:IGETSET",
+        "decl:airdcpp/transfer/upload/upload_bundles/UploadBundle.h:47:macro:GETSET"
+      ],
+      "mapping_note": "The attached exact declarations include residual accessors, constructors, destructors, request/parser value types and listener scaffolding; these records capture layout/lifecycle and defaults rather than claiming additional upload operations."
+    }
+  ]
+}

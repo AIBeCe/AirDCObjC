@@ -1,0 +1,2706 @@
+{
+  "schema_version": 1,
+  "domain_id": "updater",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "updater.manager-lifetime",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 50,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 38,
+          "end_line": 39
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:35:ClassDecl:UpdateManager",
+        "decl:airdcpp/core/update/UpdateManager.h:39:CXCursor_Constructor:86c0559e6709"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "TimerManager and SettingsManager exist."
+        ],
+        "defaults": [],
+        "effects": [
+          "Constructor registers Minute listener and change handlers for country/channel/language; initializes GeoIP, IP and language service URLs. Destructor removes Minute listener."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "TimerManager, SettingsManager, network service URLs."
+        ]
+      },
+      "ownership_evidence": [
+        "Settings change lambdas capture this; handler teardown must be coordinated with singleton teardown."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Existing isolated SettingsManager/TimerManager and a new UpdateManager.",
+          "when": "Change UPDATE_CHANNEL, then destroy UpdateManager.",
+          "then": "Version check is requested by the registered handler and the Minute listener is removed during destruction."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "updater.verify-version-data",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::verifyVersionData"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 49,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 92,
+          "end_line": 102
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:50:CXXMethod:verifyVersionData(const string &, const ByteVector &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Version bytes and signature bytes."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Calculates SHA1 and verifies the digest using embedded publicKey."
+        ],
+        "events": [],
+        "errors": [
+          "Digest failure is reported as false; CryptoUtil exception behavior remains governed by its contract."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Known version bytes, the matching embedded public key signature, and a separately corrupted signature.",
+          "when": "Call UpdateManager::verifyVersionData for each signature.",
+          "then": "The valid signature verifies; the corrupted signature returns false without inventing a new trust key."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "updater.version-check",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::checkVersion",
+        "dcpp::UpdateManager::getVersionUrl",
+        "dcpp::UpdateManager::init"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 66,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 359,
+          "end_line": 383
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 104,
+          "end_line": 118
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 235,
+          "end_line": 316
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:66:CXXMethod:checkVersion(bool)",
+        "decl:airdcpp/core/update/UpdateManager.h:73:CXXMethod:init()",
+        "decl:airdcpp/core/update/UpdateManager.h:76:CXXMethod:getVersionUrl()",
+        "decl:airdcpp/core/update/UpdateManager.h:84:CXXMethod:failVersionDownload(const string &, bool)",
+        "decl:airdcpp/core/update/UpdateManager.h:95:CXXMethod:completeSignatureDownload(bool)",
+        "decl:airdcpp/core/update/UpdateManager.h:98:CXXMethod:completeVersionDownload(bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Manual flag; channel setting; prerelease version type."
+        ],
+        "preconditions": [
+          "init must create updater before checkVersion dereferences it; UPDATE_CHANNEL must select a valid versionUrl index."
+        ],
+        "defaults": [],
+        "effects": [
+          "init creates updater before checking version. Version check suppresses concurrent signature/version/update requests; manual overlap emits UpdateFailed. Downloads channel URL.sign, then URL XML. Empty downloads report errors; verification result is passed to downloader. XML Links replace service URLs; VersionFileDownloaded receives mutable XML before downloader parsing; additional updates follow. getVersionUrl indexes max(setting channel, version type)."
+        ],
+        "events": [
+          "UpdateFailed for manual failures; VersionFileDownloaded(SimpleXML&)."
+        ],
+        "errors": [
+          "Empty HTTP buffers, signature verification and XML parse errors are logged; manual failures emit UpdateFailed."
+        ],
+        "completion": "HTTP requests complete via callbacks; checkVersion return is admission only.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "HTTP service, embedded signature key, runtime settings."
+        ]
+      },
+      "ownership_evidence": [
+        "conns own HTTP downloads; callbacks capture manager; mutable XML is borrowed during synchronous emission."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Initialized updater, no active version/signature download, and a valid downloaded XML version response.",
+          "when": "Call checkVersion(true), complete signature then version HTTP downloads.",
+          "then": "VersionFileDownloaded receives parsed XML before downloader interpretation and additional checks follow."
+        },
+        {
+          "given": "Initialized updater with an existing signature request.",
+          "when": "Call checkVersion(true) again.",
+          "then": "UpdateFailed reports ALREADY_UPDATING; no new request is admitted."
+        },
+        {
+          "given": "Nonempty version XML and a signature that fails verification.",
+          "when": "Complete the manual version request.",
+          "then": "Failure is reported but source still parses XML and replaces Links with verified=false; auto-update gating is separately preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.trust-policy"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:84:CXXMethod:failVersionDownload(const string &, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:95:CXXMethod:completeSignatureDownload(bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:98:CXXMethod:completeVersionDownload(bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.ip-check",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::checkIP"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 85,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 120,
+          "end_line": 169
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 300,
+          "end_line": 310
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:69:CXXMethod:checkIP(bool, bool)",
+        "decl:airdcpp/core/update/UpdateManager.h:100:CXXMethod:completeIPCheck(bool, bool)",
+        "decl:airdcpp/core/update/UpdateManager.h:102:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/core/update/UpdateManager.h:104:CXXMethod:parseIP(const string &, bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Manual flag and IPv6 flag."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Requests chosen IP-check URL, setting HttpOptions v4Only to !v6. Completion regex extracts an address, catches parse errors, updates EXTERNAL_IP/EXTERNAL_IP6 only for automatic nonempty results, and emits SettingUpdated even for empty results. Hourly IPv4 request uses tick interval 60*60*1000."
+        ],
+        "events": [
+          "SettingUpdated(size_t key,const string& value)."
+        ],
+        "errors": [
+          "Parse exceptions are swallowed; empty returned value is the callback-visible failure outcome."
+        ],
+        "completion": "Asynchronous HTTP completion; admission returns before setting/event.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Automatic path changes SettingsManager values; durable save belongs to settings persistence."
+        ],
+        "resources": [
+          "Configured IP service and HTTP connection."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "IPv4 IP-check response containing 203.0.113.7 and initialized external-IP settings.",
+          "when": "Complete checkIP(false,false), then repeat checkIP(true,false).",
+          "then": "Automatic completion stores 203.0.113.7 and emits SettingUpdated; manual completion emits the value without changing the setting."
+        },
+        {
+          "given": "An empty IPv6 IP-check response.",
+          "when": "Complete checkIP(true,true).",
+          "then": "SettingUpdated contains EXTERNAL_IP6 and an empty value."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:100:CXXMethod:completeIPCheck(bool, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:102:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:104:CXXMethod:parseIP(const string &, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.geo-update",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::checkGeoUpdate"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 171,
+          "end_line": 210
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:71:CXXMethod:checkGeoUpdate()",
+        "decl:airdcpp/core/update/UpdateManager.h:93:CXXMethod:updateGeo()",
+        "decl:airdcpp/core/update/UpdateManager.h:97:CXXMethod:completeGeoDownload()"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [
+          "Expiration 90 days."
+        ],
+        "effects": [
+          "Skips nonempty .gz database newer than 90 days; otherwise admits one GeoIP download at a time. Writes nonempty response to DB.gz and calls GeoManager::update."
+        ],
+        "events": [],
+        "errors": [
+          "Missing/stale DB triggers update; file write exceptions and empty responses log warnings."
+        ],
+        "completion": "Asynchronous HTTP completion; no dedicated completion event.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Replaces compressed GeoIP database."
+        ],
+        "resources": [
+          "GeoManager::getDbPath()+.gz, HTTP GeoIP service."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "A nonempty GeoIP.gz modified less than90days ago.",
+          "when": "Call checkGeoUpdate.",
+          "then": "No HTTP download is admitted."
+        },
+        {
+          "given": "Missing GeoIP.gz and a nonempty successful GeoIP HTTP response.",
+          "when": "Call checkGeoUpdate and complete download.",
+          "then": "DB.gz is replaced and GeoManager::update runs; write/empty failures log warning."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:93:CXXMethod:updateGeo()",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:97:CXXMethod:completeGeoDownload()",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.language-update",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::checkLanguage"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 212,
+          "end_line": 233
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 318,
+          "end_line": 357
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:67:CXXMethod:checkLanguage()",
+        "decl:airdcpp/core/update/UpdateManager.h:96:CXXMethod:completeLanguageCheck()",
+        "decl:airdcpp/core/update/UpdateManager.h:99:CXXMethod:completeLanguageDownload()"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Default/absent language or empty link emits LanguageFinished immediately. Otherwise HTTP-check locale version. Higher version emits LanguageDownloading and downloads X-File-Location when present; successful bytes replace current language file and emit LanguageFinished."
+        ],
+        "events": [
+          "LanguageDownloading, LanguageFinished, LanguageFailed(string)."
+        ],
+        "errors": [
+          "File errors log warnings then emit LanguageFailed; newer version without X-File-Location emits downloading without admitting file download, an original edge case to characterize."
+        ],
+        "completion": "Immediate event for default/absent language; otherwise asynchronous HTTP callbacks.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Current language XML file is overwritten."
+        ],
+        "resources": [
+          "Current language metadata/path, HTTP locale service, X-File-Location header."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Default current language.",
+          "when": "Call checkLanguage.",
+          "then": "LanguageFinished fires immediately."
+        },
+        {
+          "given": "Nondefault locale with newer remote version and X-File-Location header.",
+          "when": "Complete language version check then file download.",
+          "then": "LanguageDownloading precedes writing current language file and LanguageFinished."
+        },
+        {
+          "given": "Newer remote language version without X-File-Location.",
+          "when": "Complete language version check.",
+          "then": "Downloading is emitted but no file download is admitted, preserving the original edge case."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:96:CXXMethod:completeLanguageCheck()",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:99:CXXMethod:completeLanguageDownload()",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.additional-checks",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::checkAdditionalUpdates"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 300,
+          "end_line": 316
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:75:CXXMethod:checkAdditionalUpdates(bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Manual flag."
+        ],
+        "preconditions": [
+          "Updater initialized and runtime managers present."
+        ],
+        "defaults": [],
+        "effects": [
+          "Automatic IP checks require IP_UPDATE/IP_UPDATE6, disabled autodetection and enabled incoming mode. Always checks language; checks GeoIP when GET_USER_COUNTRY."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Starts conditional asynchronous checks; return does not mean completion.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "Settings, language, GeoIP and network services."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "IP_UPDATE enabled, auto detection disabled, incoming mode enabled, and GET_USER_COUNTRY true.",
+          "when": "Call checkAdditionalUpdates(false), then repeat with true.",
+          "then": "Automatic check admits eligible IP checks; both calls check language and GeoIP; manual call skips automatic IP changes."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "updater.log",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::UpdateManager::log",
+        "dcpp::UpdateDownloader::log"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 81,
+          "end_line": 83
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 43,
+          "end_line": 45
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:49:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:38:CXXMethod:log(const string &, LogMessage::Severity)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Message and LogMessage severity."
+        ],
+        "preconditions": [
+          "LogManager and localization exist."
+        ],
+        "defaults": [],
+        "effects": [
+          "Forwards to LogManager with localized UPDATER category; shared diagnostic helper, not a separate end-user capability."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:38:CXXMethod:log(const string &, LogMessage::Severity)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.downloader-stub",
+      "kind": "platform-implementation",
+      "upstream_symbols": [
+        "dcpp::UpdateDownloader::onVersionDownloaded",
+        "dcpp::UpdateDownloader::isUpdating"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.h",
+          "start_line": 75,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateDownloader.h:42:CXXMethod:isUpdating()",
+        "decl:airdcpp/core/update/UpdateDownloader.h:45:CXXMethod:onVersionDownloaded(SimpleXML &, bool, bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-present",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "UpdateManager pointer; XML/verified/manual flags."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "NO_CLIENT_UPDATER selects inline inert downloader: constructor does nothing, onVersionDownloaded and isUpdating return false. Application download/install methods are not in this branch."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Accepted macOS build with NO_CLIENT_UPDATER.",
+          "when": "Construct stub UpdateDownloader and call isUpdating/onVersionDownloaded.",
+          "then": "Both queries return false and no client application download/install capability is advertised."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ]
+    },
+    {
+      "id": "updater.download-install",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateDownloader::downloadUpdate",
+        "dcpp::UpdateDownloader::getInstalledUpdate",
+        "dcpp::UpdateDownloader::isUpdating",
+        "dcpp::UpdateDownloader::extractUpdater"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.h",
+          "start_line": 34,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 47,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 267,
+          "end_line": 283
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateDownloader.h:41:CXXMethod:getInstalledUpdate()",
+        "decl:airdcpp/core/update/UpdateDownloader.h:42:CXXMethod:isUpdating()",
+        "decl:airdcpp/core/update/UpdateDownloader.h:43:CXXMethod:downloadUpdate(const UpdateVersion &, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:56:CXXMethod:extractUpdater(const string &, int, const string &)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:66:CXXMethod:completeUpdateDownload(const string &, int, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:68:CXXMethod:failUpdateDownload(const string &, bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "UpdateVersion URL/TTH/build; manual flag; archive path, build and session token for extraction."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "One owned HTTP download at a time. Stores ZIP in session temp folder, verifies TTH, extracts files and writes UpdateInfo XML containing source/destination/config/updater/build. On success sets installedUpdate, clears download before UpdateComplete(updater path)."
+        ],
+        "events": [
+          "UpdateComplete(path), manual UpdateFailed(message)."
+        ],
+        "errors": [
+          "File writes, TTH mismatch, archive exceptions and empty HTTP responses report failure; automatic failures log warnings rather than UpdateFailed."
+        ],
+        "completion": "HTTP completion performs verification and extraction; success event follows download reset.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Temporary ZIP/extracted files and UpdateInfo XML; ZIP removed by scoped cleanup."
+        ],
+        "resources": [
+          "Windows client executable path, minizip, UPDATE_TEMP_DIR, application/config paths."
+        ]
+      },
+      "ownership_evidence": [
+        "Downloader borrows UpdateManager; owns HttpDownload and captures TTH/build by value."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Original updater-enabled build, no clientDownload, and matching ZIP TTH/build metadata.",
+          "when": "Call downloadUpdate and complete the HTTP transfer.",
+          "then": "Verified ZIP is extracted; UpdateInfo XML is written; installedUpdate becomes the build and UpdateComplete follows download reset."
+        },
+        {
+          "given": "Downloaded ZIP bytes whose TTH differs from expected metadata.",
+          "when": "Complete manual downloadUpdate.",
+          "then": "UpdateFailed reports integrity failure; no UpdateComplete or installed build change occurs."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:66:CXXMethod:completeUpdateDownload(const string &, int, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:68:CXXMethod:failUpdateDownload(const string &, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.version-interpretation",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdateDownloader::parseVersionFile",
+        "dcpp::UpdateDownloader::onVersionDownloaded"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.h",
+          "start_line": 43,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 143,
+          "end_line": 265
+        },
+        {
+          "path": "airdcpp/core/update/UpdateVersion.h",
+          "start_line": 27,
+          "end_line": 34
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateDownloader.h:45:CXXMethod:onVersionDownloaded(SimpleXML &, bool, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:58:CXXMethod:parseVersionFile(SimpleXML &, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:70:CXXMethod:announceVersion(SimpleXML &, const UpdateVersion &, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:71:CXXMethod:parseVersionInfo(SimpleXML &, bool)",
+        "decl:airdcpp/core/update/UpdateDownloader.h:72:CXXMethod:isBadVersion(SimpleXML &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Mutable XML; signature-verified flag; manual flag."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Selects first compatible MinOsVersion VersionInfo. Reads upgrade tag build/version/URL/TTH. autoUpdate requires verified signature and minimum update revision <= own build. Expands installed_commit in info URL. Verified very-old/bad versions emit BadVersion. Newer-than-own-and-installed or manual versions announce/prompt/download according to UPDATE_METHOD."
+        ],
+        "events": [
+          "BadVersion(message,UpdateVersion), UpdateAvailable(title,message,UpdateVersion)."
+        ],
+        "errors": [
+          "Missing compatible or upgrade section asserts and returns nullopt; malformed OS token indexing is not validated here."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "XML cursor is modified; version payload/reference must be copied before listener return."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Compatible VersionInfo with upgrade metadata and verified=false.",
+          "when": "Call parseVersionFile/onVersionDownloaded with manual=true.",
+          "then": "Parsed autoUpdate is false; manual announcement can occur without permitting automatic installation."
+        },
+        {
+          "given": "Verified version XML whose BadVersions includes OWN_BUILD.",
+          "when": "Call onVersionDownloaded.",
+          "then": "BadVersion emits its metadata/message and the method returns false."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:70:CXXMethod:announceVersion(SimpleXML &, const UpdateVersion &, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:71:CXXMethod:parseVersionInfo(SimpleXML &, bool)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:72:CXXMethod:isBadVersion(SimpleXML &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.apply-and-clean",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::Updater::applyUpdate",
+        "dcpp::Updater::checkAndCleanUpdaterFiles",
+        "dcpp::Updater::getFinalLogFilePath",
+        "dcpp::Updater::createInstallLogger"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/updater/Updater.h",
+          "start_line": 37,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/core/update/updater/Updater.cpp",
+          "start_line": 38,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/core/update/updater/Updater.cpp",
+          "start_line": 145,
+          "end_line": 279
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/updater/Updater.h:45:CXXMethod:createInstallLogger(const string &)",
+        "decl:airdcpp/core/update/updater/Updater.h:46:CXXMethod:applyUpdate(const string &, const string &, string &, int, FileLogger &)",
+        "decl:airdcpp/core/update/updater/Updater.h:51:CXXMethod:checkAndCleanUpdaterFiles(const string &, string &, bool)",
+        "decl:airdcpp/core/update/updater/Updater.h:53:CXXMethod:getFinalLogFilePath()",
+        "decl:airdcpp/core/update/updater/Updater.h:56:CXXMethod:applyUpdaterFiles(const string &, const string &, string &, StringSet &, FileLogger &)",
+        "decl:airdcpp/core/update/updater/Updater.h:63:CXXMethod:parseUpdaterInfo(const string &, const string &)",
+        "decl:airdcpp/core/update/updater/Updater.h:64:CXXMethod:removeUpdater(const string &, const string &, FileLogger &)",
+        "decl:airdcpp/core/update/updater/Updater.h:67:CXXMethod:cleanExtraFiles(const string &, const optional<StringSet> &)",
+        "decl:airdcpp/core/update/updater/Updater.h:71:CXXMethod:destroyDirectory(const string &)",
+        "decl:airdcpp/core/update/updater/Updater.h:73:CXXMethod:toLoggerFilePath(const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Source/install paths; error output; retry count; logger; attempted-update flag; updater-file output."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Copies files recursively, records updated paths, retries failed copies with one-second sleeps, then removes obsolete Web-resources. Scans UpdateInfo XML matching destination app path. Obsolete/already-attempted updates are removed; newer pending updater path returns true. Final log is under user-local path."
+        ],
+        "events": [],
+        "errors": [
+          "Copy FileException fills error string/returns false; per-info parse exceptions log and continue; log-move failures swallowed."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Application files replaced; obsolete Web-resources and updater directories deleted; info XML/logs written/moved."
+        ],
+        "resources": [
+          "Windows updater/client environment, isolated temp/install paths and logger."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Original updater-enabled build, isolated source/install directories and maxRetries=0.",
+          "when": "Call Updater::applyUpdate.",
+          "then": "Return is false without copying a successful install."
+        },
+        {
+          "given": "Matching UpdateInfo XML for a newer build and updateAttempted=false.",
+          "when": "Call checkAndCleanUpdaterFiles for the destination app path.",
+          "then": "Pending updater path is returned; obsolete or attempted matching updates are removed instead."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:56:CXXMethod:applyUpdaterFiles(const string &, const string &, string &, StringSet &, FileLogger &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:63:CXXMethod:parseUpdaterInfo(const string &, const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:64:CXXMethod:removeUpdater(const string &, const string &, FileLogger &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:67:CXXMethod:cleanExtraFiles(const string &, const optional<StringSet> &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:71:CXXMethod:destroyDirectory(const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:73:CXXMethod:toLoggerFilePath(const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.file-logger",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::Updater::FileLogger::log",
+        "dcpp::Updater::FileLogger::separator"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/updater/Updater.h",
+          "start_line": 39,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/core/update/updater/Updater.cpp",
+          "start_line": 111,
+          "end_line": 143
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/updater/Updater.h:36:CXXMethod:log(const string &, bool)",
+        "decl:airdcpp/core/update/updater/Updater.h:37:CXXMethod:separator()"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Log path, reset flag; line and addDate=true."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "addDate=true."
+        ],
+        "effects": [
+          "Optional reset deletes log then opens/appends. Construction failure clears file. log writes optional timestamp plus CRLF; write failures swallowed; separator logs CRLF without date. This is updater diagnostics support, not a separate bridge capability."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ]
+    },
+    {
+      "id": "updater.create-release-package",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdaterCreator::createUpdate",
+        "dcpp::UpdaterCreator::updateVersionFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/updater/UpdaterCreator.h",
+          "start_line": 31,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/core/update/updater/UpdaterCreator.cpp",
+          "start_line": 41,
+          "end_line": 108
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:39:CXXMethod:createUpdate(const FileListF &, const string &, const ErrorF &)",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:41:CXXMethod:updateVersionFile(const string &, const ErrorF &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "File-list callback; output directory; error callback."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Creates architecture/version-named ZIP from callback pairs. Rewrites first matching DCUpdate/VersionInfo/upgrade tag TTH/build/version/download URL, normalizes CRLF to LF, overwrites version.xml; signs with output-directory air_rsa. Returns ZIP path only after version/signature success."
+        ],
+        "events": [],
+        "errors": [
+          "Version XML File/XML exceptions produce false/error callback; createUpdate is noexcept but ZIP/callback exceptions are not caught in its body."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Archive/version.xml/.sign files."
+        ],
+        "resources": [
+          "Original compiled client files, private signing key, ZIP, output/version XML."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Updater-enabled build, valid callback file pairs, output version.xml and air_rsa key.",
+          "when": "Call UpdaterCreator::createUpdate.",
+          "then": "Architecture/version ZIP, rewritten LF-only version XML and signature are produced before ZIP path is returned."
+        },
+        {
+          "given": "Output version.xml lacking the expected DCUpdate/VersionInfo/upgrade tags.",
+          "when": "Call updateVersionFile.",
+          "then": "Return is false and error callback reports invalid version.xml."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ]
+    },
+    {
+      "id": "updater.sign-version-file",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::UpdaterCreator::signVersionFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/updater/UpdaterCreator.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/core/update/updater/UpdaterCreator.cpp",
+          "start_line": 110,
+          "end_line": 196
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:35:CXXMethod:signVersionFile(const string &, const string &, const ErrorF &, bool)",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:43:CXXMethod:calculateFileSha1(const string &, const ErrorF &)",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:45:CXXMethod:writePublicKey(const string &, const ByteVector &, const ErrorF &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Version path; private key path; error callback; make-header flag."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Reads version bytes, rejects CRLF, calculates SHA1, signs digest, writes .sign, verifies generated signature. Optional pubkey.h write is attempted; its boolean result is not propagated by signVersionFile."
+        ],
+        "events": [],
+        "errors": [
+          "Error callback carries original diagnostic text; file-read failure yields nullopt and parent generic digest error."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Writes .sign and optional public key header."
+        ],
+        "resources": [
+          "Private key consumed by CryptoUtil; readable version and writable signature/header locations."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Readable version XML with CRLF line endings and a private key path.",
+          "when": "Call signVersionFile.",
+          "then": "It returns false with line-ending/digest errors and does not claim a valid signature."
+        },
+        {
+          "given": "LF-only version bytes, valid private key and writable signature file but unwritable optional pubkey.h.",
+          "when": "Call signVersionFile with makeHeader=true.",
+          "then": "Signature self-verifies; optional header error is reported while original signing return can remain true."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:43:CXXMethod:calculateFileSha1(const string &, const ErrorF &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:45:CXXMethod:writePublicKey(const string &, const ByteVector &, const ErrorF &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.support-state",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::UpdateVersion",
+        "dcpp::UpdateManager::getUpdater"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManager.h",
+          "start_line": 40,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.h",
+          "start_line": 34,
+          "end_line": 89
+        },
+        {
+          "path": "airdcpp/core/update/updater/Updater.h",
+          "start_line": 31,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/core/update/updater/UpdaterCreator.h",
+          "start_line": 31,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/core/update/UpdateVersion.h",
+          "start_line": 27,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/core/update/UpdateConstants.h",
+          "start_line": 19,
+          "end_line": 28
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManager.h:78:CXXMethod:getUpdater()",
+        "decl:airdcpp/core/update/UpdateVersion.h:27:StructDecl:UpdateVersion",
+        "decl:airdcpp/core/update/UpdateDownloader.h:33:ClassDecl:UpdateDownloader",
+        "decl:airdcpp/core/update/UpdateDownloader.h:47:EnumDecl:UpdateMethod",
+        "decl:airdcpp/core/update/UpdateDownloader.h:48:EnumConstantDecl:UNDEFINED",
+        "decl:airdcpp/core/update/UpdateDownloader.h:49:EnumConstantDecl:AUTO",
+        "decl:airdcpp/core/update/UpdateDownloader.h:50:EnumConstantDecl:PROMPT",
+        "decl:airdcpp/core/update/UpdateDownloader.h:60:FieldDecl:um",
+        "decl:airdcpp/core/update/UpdateDownloader.h:61:FieldDecl:clientDownload",
+        "decl:airdcpp/core/update/UpdateDownloader.h:63:FieldDecl:sessionToken",
+        "decl:airdcpp/core/update/UpdateDownloader.h:64:FieldDecl:installedUpdate",
+        "decl:airdcpp/core/update/UpdateManager.h:42:FieldDecl:links",
+        "decl:airdcpp/core/update/UpdateManager.h:42:StructDecl:(unnamed struct at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManager.h:42:2)",
+        "decl:airdcpp/core/update/UpdateManager.h:43:FieldDecl:geoip",
+        "decl:airdcpp/core/update/UpdateManager.h:44:FieldDecl:language",
+        "decl:airdcpp/core/update/UpdateManager.h:45:FieldDecl:ipcheck4",
+        "decl:airdcpp/core/update/UpdateManager.h:46:FieldDecl:ipcheck6",
+        "decl:airdcpp/core/update/UpdateManager.h:52:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManager.h:52:2)",
+        "decl:airdcpp/core/update/UpdateManager.h:53:EnumConstantDecl:CONN_VERSION",
+        "decl:airdcpp/core/update/UpdateManager.h:54:EnumConstantDecl:CONN_GEO",
+        "decl:airdcpp/core/update/UpdateManager.h:55:EnumConstantDecl:CONN_LANGUAGE_FILE",
+        "decl:airdcpp/core/update/UpdateManager.h:56:EnumConstantDecl:CONN_LANGUAGE_CHECK",
+        "decl:airdcpp/core/update/UpdateManager.h:57:EnumConstantDecl:CONN_SIGNATURE",
+        "decl:airdcpp/core/update/UpdateManager.h:58:EnumConstantDecl:CONN_IP4",
+        "decl:airdcpp/core/update/UpdateManager.h:59:EnumConstantDecl:CONN_IP6",
+        "decl:airdcpp/core/update/UpdateManager.h:61:EnumConstantDecl:CONN_LAST",
+        "decl:airdcpp/core/update/UpdateManager.h:64:FieldDecl:conns",
+        "decl:airdcpp/core/update/UpdateManager.h:82:FieldDecl:updater",
+        "decl:airdcpp/core/update/UpdateManager.h:86:VarDecl:versionUrl",
+        "decl:airdcpp/core/update/UpdateManager.h:88:FieldDecl:lastIPUpdate",
+        "decl:airdcpp/core/update/UpdateManager.h:89:VarDecl:publicKey",
+        "decl:airdcpp/core/update/UpdateManager.h:91:FieldDecl:versionSig",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:30:ClassDecl:UpdateManagerListener",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:33:ClassTemplate:X<I>",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:33:EnumConstantDecl:TYPE",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:33:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManagerListener.h:33:29)",
+        "decl:airdcpp/core/update/UpdateVersion.h:28:FieldDecl:infoUrl",
+        "decl:airdcpp/core/update/UpdateVersion.h:29:FieldDecl:updateUrl",
+        "decl:airdcpp/core/update/UpdateVersion.h:30:FieldDecl:versionStr",
+        "decl:airdcpp/core/update/UpdateVersion.h:31:FieldDecl:tth",
+        "decl:airdcpp/core/update/UpdateVersion.h:32:FieldDecl:build",
+        "decl:airdcpp/core/update/UpdateVersion.h:33:FieldDecl:autoUpdate",
+        "decl:airdcpp/core/update/updater/Updater.h:30:ClassDecl:Updater",
+        "decl:airdcpp/core/update/updater/Updater.h:33:ClassDecl:FileLogger",
+        "decl:airdcpp/core/update/updater/Updater.h:40:CXXMethod:operator=(FileLogger &)",
+        "decl:airdcpp/core/update/updater/Updater.h:42:FieldDecl:f",
+        "decl:airdcpp/core/update/updater/Updater.h:58:StructDecl:UpdaterInfo",
+        "decl:airdcpp/core/update/updater/Updater.h:59:FieldDecl:updaterFilePath",
+        "decl:airdcpp/core/update/updater/Updater.h:60:FieldDecl:version",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:28:ClassDecl:UpdaterCreator",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:31:TypeAliasDecl:ErrorF",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:32:TypeAliasDecl:FileListF",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:47:StructDecl:Signature",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:48:FieldDecl:sig",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:49:FieldDecl:pubkey",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:52:TypeAliasDecl:SignatureData",
+        "decl:airdcpp/core/update/UpdateDownloader.h:33:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:38:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:40:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:41:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:42:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:43:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:45:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:47:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:56:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:58:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:60:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:61:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:63:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:64:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:66:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:68:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:70:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:71:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:72:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:76:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:78:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:82:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:83:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:86:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:87:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:30:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:33:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:35:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:36:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:37:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:39:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:40:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:42:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:45:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:46:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:51:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:53:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:56:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:58:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:59:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:60:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:63:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:64:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:67:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:71:conditional-source",
+        "decl:airdcpp/core/update/updater/Updater.h:73:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:28:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:31:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:32:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:35:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:39:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:41:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:43:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:45:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:47:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:48:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:49:conditional-source",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:52:conditional-source",
+        "decl:airdcpp/core/update/UpdateDownloader.h:40:CXCursor_Constructor:50eaf4bb4cb2",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:32:CXCursor_Destructor:49b43ee6014f",
+        "decl:airdcpp/core/update/UpdateManager.h:40:CXCursor_Destructor:976b9a079f49",
+        "decl:airdcpp/core/update/updater/Updater.h:35:CXCursor_Constructor:caf7984944d9",
+        "decl:airdcpp/core/update/updater/Updater.h:39:CXCursor_Constructor:3715b2130bd0",
+        "decl:airdcpp/core/update/UpdateConstants.h:23-23:conditional-region",
+        "decl:airdcpp/core/update/UpdateConstants.h:25-25:conditional-region",
+        "decl:airdcpp/core/update/UpdateDownloader.h:32-74:conditional-region",
+        "decl:airdcpp/core/update/UpdateDownloader.h:76-90:conditional-region",
+        "decl:airdcpp/core/update/updater/Updater.h:29-75:conditional-region",
+        "decl:airdcpp/core/update/updater/UpdaterCreator.h:27-54:conditional-region"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "UpdateVersion is a value with infoUrl,updateUrl,versionStr,TTH,build,autoUpdate; getUpdater has no inputs."
+        ],
+        "preconditions": [
+          "Manager init before getUpdater."
+        ],
+        "defaults": [],
+        "effects": [
+          "getUpdater returns borrowed reference to owned updater and dereferences it without checking initialization. UpdateVersion fields carry parsed version metadata. Connection enum/arrays, XML/signature/session state and private completion/parser/file/log helpers implement the already recorded operation families rather than separate public capabilities."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Manager owns updater/downloads; HTTP callbacks capture manager; FileLogger noncopyable."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "lifecycle.partial-startup"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:33:ClassDecl:UpdateDownloader",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:47:EnumDecl:UpdateMethod",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:48:EnumConstantDecl:UNDEFINED",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:49:EnumConstantDecl:AUTO",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:50:EnumConstantDecl:PROMPT",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:60:FieldDecl:um",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:61:FieldDecl:clientDownload",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:63:FieldDecl:sessionToken",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:64:FieldDecl:installedUpdate",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:42:FieldDecl:links",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:42:StructDecl:(unnamed struct at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManager.h:42:2)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:43:FieldDecl:geoip",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:44:FieldDecl:language",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:45:FieldDecl:ipcheck4",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:46:FieldDecl:ipcheck6",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:52:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManager.h:52:2)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:53:EnumConstantDecl:CONN_VERSION",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:54:EnumConstantDecl:CONN_GEO",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:55:EnumConstantDecl:CONN_LANGUAGE_FILE",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:56:EnumConstantDecl:CONN_LANGUAGE_CHECK",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:57:EnumConstantDecl:CONN_SIGNATURE",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:58:EnumConstantDecl:CONN_IP4",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:59:EnumConstantDecl:CONN_IP6",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:61:EnumConstantDecl:CONN_LAST",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:64:FieldDecl:conns",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:82:FieldDecl:updater",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:86:VarDecl:versionUrl",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:88:FieldDecl:lastIPUpdate",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:89:VarDecl:publicKey",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:91:FieldDecl:versionSig",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:30:ClassDecl:UpdateManagerListener",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:33:ClassTemplate:X<I>",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:33:EnumConstantDecl:TYPE",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:33:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/core/update/UpdateManagerListener.h:33:29)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:28:FieldDecl:infoUrl",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:29:FieldDecl:updateUrl",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:30:FieldDecl:versionStr",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:31:FieldDecl:tth",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:32:FieldDecl:build",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateVersion.h:33:FieldDecl:autoUpdate",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:30:ClassDecl:Updater",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:33:ClassDecl:FileLogger",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:40:CXXMethod:operator=(FileLogger &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:42:FieldDecl:f",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:58:StructDecl:UpdaterInfo",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:59:FieldDecl:updaterFilePath",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:60:FieldDecl:version",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:28:ClassDecl:UpdaterCreator",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:31:TypeAliasDecl:ErrorF",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:32:TypeAliasDecl:FileListF",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:47:StructDecl:Signature",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:48:FieldDecl:sig",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:49:FieldDecl:pubkey",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:52:TypeAliasDecl:SignatureData",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:33:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:38:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:40:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:41:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:42:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:43:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:45:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:47:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:56:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:58:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:60:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:61:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:63:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:64:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:66:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:68:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:70:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:71:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:72:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:76:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:78:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:82:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:83:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:86:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:87:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:30:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:33:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:35:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:36:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:37:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:39:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:40:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:42:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:45:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:46:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:51:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:53:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:56:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:58:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:59:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:60:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:63:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:64:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:67:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:71:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:73:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:28:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:31:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:32:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:35:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:39:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:41:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:43:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:45:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:47:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:48:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:49:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:52:conditional-source",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:40:CXCursor_Constructor:50eaf4bb4cb2",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:32:CXCursor_Destructor:49b43ee6014f",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManager.h:40:CXCursor_Destructor:976b9a079f49",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:35:CXCursor_Constructor:caf7984944d9",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:39:CXCursor_Constructor:3715b2130bd0",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateConstants.h:23-23:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateConstants.h:25-25:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:32-74:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateDownloader.h:76-90:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/Updater.h:29-75:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        },
+        {
+          "declaration_id": "decl:airdcpp/core/update/updater/UpdaterCreator.h:27-54:conditional-region",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.UpdateAvailable",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::UpdateAvailable"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 222,
+          "end_line": 238
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:35:TypedefDecl:UpdateAvailable",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:47:CXXMethod:on(UpdateAvailable, const string &, const string &, const UpdateVersion &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(UpdateAvailable, const string& /*title*/, const string& /*message*/, const UpdateVersion&) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "UpdateAvailable"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Verified compatible newer version and UPDATE_METHOD=PROMPT with Title/Message.",
+          "when": "Call onVersionDownloaded and retain an owned listener snapshot.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:47:CXXMethod:on(UpdateAvailable, const string &, const string &, const UpdateVersion &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.BadVersion",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::BadVersion"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 240,
+          "end_line": 251
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:36:TypedefDecl:BadVersion",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:48:CXXMethod:on(BadVersion, const string &, const UpdateVersion &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(BadVersion, const string& /*message*/, const UpdateVersion&) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "BadVersion"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Verified version XML listing OWN_BUILD as bad.",
+          "when": "Call onVersionDownloaded.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:48:CXXMethod:on(BadVersion, const string &, const UpdateVersion &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.UpdateFailed",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::UpdateFailed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 287,
+          "end_line": 297
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:37:TypedefDecl:UpdateFailed",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:49:CXXMethod:on(UpdateFailed, const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(UpdateFailed, const string& /*line*/) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "UpdateFailed"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Initialized updater with an active signature download.",
+          "when": "Call checkVersion(true) while busy.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:49:CXXMethod:on(UpdateFailed, const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.UpdateComplete",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::UpdateComplete"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/core/update/UpdateDownloader.cpp",
+          "start_line": 92,
+          "end_line": 130
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:38:TypedefDecl:UpdateComplete",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:50:CXXMethod:on(UpdateComplete, const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "verified-absent",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(UpdateComplete, const string& /*updater*/) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "UpdateComplete"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Updater-enabled download with valid ZIP/TTH and extracted updater path.",
+          "when": "Complete downloadUpdate.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "updater.platform"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:50:CXXMethod:on(UpdateComplete, const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.VersionFileDownloaded",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::VersionFileDownloaded"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 235,
+          "end_line": 284
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:39:TypedefDecl:VersionFileDownloaded",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:51:CXXMethod:on(VersionFileDownloaded, SimpleXML &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(VersionFileDownloaded, SimpleXML&) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "VersionFileDownloaded"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Nonempty parseable version XML and a registered listener.",
+          "when": "Complete version HTTP download.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:51:CXXMethod:on(VersionFileDownloaded, SimpleXML &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.SettingUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::SettingUpdated"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 151,
+          "end_line": 169
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:41:TypedefDecl:SettingUpdated",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:53:CXXMethod:on(SettingUpdated, size_t, const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(SettingUpdated, size_t /*key*/, const string& /*value*/) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "SettingUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "IPv4 manualcheck response containing203.0.113.7.",
+          "when": "Complete checkIP(true,false).",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:53:CXXMethod:on(SettingUpdated, size_t, const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.LanguageDownloading",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::LanguageDownloading"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 335,
+          "end_line": 357
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:43:TypedefDecl:LanguageDownloading",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:55:CXXMethod:on(LanguageDownloading)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(LanguageDownloading) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "LanguageDownloading"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Nondefault locale whose remote version is newer.",
+          "when": "Complete language version check.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:55:CXXMethod:on(LanguageDownloading)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.LanguageFinished",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::LanguageFinished"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 318,
+          "end_line": 333
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:44:TypedefDecl:LanguageFinished",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:56:CXXMethod:on(LanguageFinished)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(LanguageFinished) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "LanguageFinished"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Default current language and a registered listener.",
+          "when": "Call checkLanguage.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:56:CXXMethod:on(LanguageFinished)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    },
+    {
+      "id": "updater.event.LanguageFailed",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::UpdateManagerListener::LanguageFailed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/update/UpdateManagerListener.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/core/update/UpdateManager.cpp",
+          "start_line": 212,
+          "end_line": 233
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/update/UpdateManagerListener.h:45:TypedefDecl:LanguageFailed",
+        "decl:airdcpp/core/update/UpdateManagerListener.h:57:CXXMethod:on(LanguageFailed, const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(LanguageFailed, const string& /*updater*/) noexcept { }"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The indicated source emission delivers this exact listener signature synchronously under Speaker listener lock."
+        ],
+        "events": [
+          "LanguageFailed"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "References are borrowed through callback return; VersionFileDownloaded intentionally receives mutable SimpleXML&."
+      ],
+      "threading_evidence": [
+        "Speaker fire holds listenerCS during callbacks; HTTP/timer emitter thread governs delivery."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Empty locale version response with HTTPstatuserror.",
+          "when": "Complete language check.",
+          "then": "The recorded payload is delivered on the emitting thread; copied consumer values survive return and original event distinctions are preserved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/core/update/UpdateManagerListener.h:57:CXXMethod:on(LanguageFailed, const string &)",
+          "rationale": "Source declaration belongs to this inspected contract or its explicitly classified supporting storage/type machinery."
+        }
+      ]
+    }
+  ]
+}

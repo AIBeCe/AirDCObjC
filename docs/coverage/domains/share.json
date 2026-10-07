@@ -1,0 +1,2456 @@
+{
+  "schema_version": 1,
+  "domain_id": "share",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "share.refresh-tasks",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::refresh",
+        "ShareManager::refreshVirtualName",
+        "ShareManager::refreshPathsHooked",
+        "ShareManager::refreshPathsHookedThrow"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 85,
+          "end_line": 105
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 763,
+          "end_line": 818
+        },
+        {
+          "path": "airdcpp/share/ShareTasks.h",
+          "start_line": 34,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 925,
+          "end_line": 934
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Refresh type and priority; optionally virtual name or real paths, caller, display name, and progress callback."
+        ],
+        "preconditions": [
+          "refreshPathsHookedThrow validates each path through validatePathHooked; refreshVirtualName requires a matching root."
+        ],
+        "defaults": [],
+        "effects": [
+          "Queues one background refresh task over selected roots/paths. Whole-share refresh selects all roots, incoming-only selects roots marked incoming; path refresh may return nullopt on validation failure."
+        ],
+        "events": [
+          "share.refresh-queued",
+          "share.refresh-started",
+          "share.refresh-completed",
+          "share.root-refresh-state"
+        ],
+        "errors": [
+          "refreshPathsHooked catches Core Exception and returns nullopt; throwing variant propagates it."
+        ],
+        "completion": "Queue admission is synchronous; tree scan and completion run on ShareTasks worker and completion event carries success plus stats.",
+        "cancellation": "abortRefresh(optional task token) marks matching queued/running work canceled; tree changes apply only when the builder completes successfully.",
+        "persistence": [
+          "Refresh updates in-memory tree and dirty profile/cache state; periodic saveShareCache persists dirty root caches."
+        ],
+        "resources": [
+          "ShareTasks worker; filesystem traversal; HashManager; share tree locks."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a matching root, when a virtual-name refresh is requested, then the matching root path is queued and task metadata is returned.",
+        "Given a refresh task token, when abortRefresh is called while it is active, then matching paths are canceled and their refresh state is reset."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/ShareRefreshInfo.h:31:StructDecl:ShareRefreshStats",
+        "decl:airdcpp/share/ShareRefreshInfo.h:32:FieldDecl:hashSize",
+        "decl:airdcpp/share/ShareRefreshInfo.h:33:FieldDecl:addedSize",
+        "decl:airdcpp/share/ShareRefreshInfo.h:35:FieldDecl:existingDirectoryCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:36:FieldDecl:existingFileCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:37:FieldDecl:newDirectoryCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:38:FieldDecl:newFileCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:39:FieldDecl:skippedDirectoryCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:40:FieldDecl:skippedFileCount",
+        "decl:airdcpp/share/ShareRefreshInfo.h:42:CXXMethod:isEmpty()",
+        "decl:airdcpp/share/ShareRefreshInfo.h:43:CXXMethod:merge(const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareRefreshInfo.h:46:ClassDecl:ShareRefreshInfo",
+        "decl:airdcpp/share/ShareRefreshInfo.h:51:FieldDecl:optionalOldDirectory",
+        "decl:airdcpp/share/ShareRefreshInfo.h:52:FieldDecl:newDirectory",
+        "decl:airdcpp/share/ShareRefreshInfo.h:54:FieldDecl:stats",
+        "decl:airdcpp/share/ShareRefreshInfo.h:56:FieldDecl:path",
+        "decl:airdcpp/share/ShareRefreshInfo.h:58:CXXMethod:checkContent(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareRefreshInfo.h:59:CXXMethod:applyRefreshChanges(ShareDirectory::MultiMap &, ShareDirectory::Map &, ShareDirectory::File::TTHMap &, int64_t &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareRefreshInfo.h:62:CXXMethod:operator=(ShareRefreshInfo &)",
+        "decl:airdcpp/share/ShareRefreshTask.h:31:EnumDecl:RefreshTaskType",
+        "decl:airdcpp/share/ShareRefreshTask.h:32:EnumConstantDecl:REFRESH",
+        "decl:airdcpp/share/ShareRefreshTask.h:35:EnumDecl:RefreshTaskQueueResult",
+        "decl:airdcpp/share/ShareRefreshTask.h:36:EnumConstantDecl:STARTED",
+        "decl:airdcpp/share/ShareRefreshTask.h:37:EnumConstantDecl:QUEUED",
+        "decl:airdcpp/share/ShareRefreshTask.h:38:EnumConstantDecl:EXISTS",
+        "decl:airdcpp/share/ShareRefreshTask.h:41:StructDecl:RefreshTaskQueueInfo",
+        "decl:airdcpp/share/ShareRefreshTask.h:42:FieldDecl:token",
+        "decl:airdcpp/share/ShareRefreshTask.h:43:FieldDecl:result",
+        "decl:airdcpp/share/ShareRefreshTask.h:46:EnumDecl:ShareRefreshType",
+        "decl:airdcpp/share/ShareRefreshTask.h:47:EnumConstantDecl:ADD_ROOT_DIRECTORY",
+        "decl:airdcpp/share/ShareRefreshTask.h:48:EnumConstantDecl:REFRESH_DIRS",
+        "decl:airdcpp/share/ShareRefreshTask.h:49:EnumConstantDecl:REFRESH_INCOMING",
+        "decl:airdcpp/share/ShareRefreshTask.h:50:EnumConstantDecl:REFRESH_ALL",
+        "decl:airdcpp/share/ShareRefreshTask.h:51:EnumConstantDecl:STARTUP",
+        "decl:airdcpp/share/ShareRefreshTask.h:52:EnumConstantDecl:BUNDLE",
+        "decl:airdcpp/share/ShareRefreshTask.h:55:EnumDecl:ShareRefreshPriority",
+        "decl:airdcpp/share/ShareRefreshTask.h:56:EnumConstantDecl:MANUAL",
+        "decl:airdcpp/share/ShareRefreshTask.h:57:EnumConstantDecl:SCHEDULED",
+        "decl:airdcpp/share/ShareRefreshTask.h:58:EnumConstantDecl:NORMAL",
+        "decl:airdcpp/share/ShareRefreshTask.h:59:EnumConstantDecl:BLOCKING",
+        "decl:airdcpp/share/ShareRefreshTask.h:62:StructDecl:ShareRefreshTask",
+        "decl:airdcpp/share/ShareRefreshTask.h:65:FieldDecl:token",
+        "decl:airdcpp/share/ShareRefreshTask.h:66:FieldDecl:dirs",
+        "decl:airdcpp/share/ShareRefreshTask.h:67:FieldDecl:displayName",
+        "decl:airdcpp/share/ShareRefreshTask.h:68:FieldDecl:type",
+        "decl:airdcpp/share/ShareRefreshTask.h:69:FieldDecl:priority",
+        "decl:airdcpp/share/ShareRefreshTask.h:71:FieldDecl:canceled",
+        "decl:airdcpp/share/ShareRefreshTask.h:72:FieldDecl:running",
+        "decl:airdcpp/share/ShareRefreshTask.h:75:TypedefDecl:ShareRefreshTaskList",
+        "decl:airdcpp/share/ShareRefreshTask.h:77:StructDecl:ShareTasksManager",
+        "decl:airdcpp/share/ShareRefreshTask.h:78:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareRefreshTask.h:79:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareRefreshTask.h:80:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareRefreshTask.h:85:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareRefreshTask.h:86:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareStats.h:26:StructDecl:ShareSearchStats",
+        "decl:airdcpp/share/ShareStats.h:27:FieldDecl:totalSearches",
+        "decl:airdcpp/share/ShareStats.h:28:FieldDecl:totalSearchesPerSecond",
+        "decl:airdcpp/share/ShareStats.h:29:FieldDecl:filteredSearches",
+        "decl:airdcpp/share/ShareStats.h:29:FieldDecl:recursiveSearches",
+        "decl:airdcpp/share/ShareStats.h:30:FieldDecl:averageSearchMatchMs",
+        "decl:airdcpp/share/ShareStats.h:31:FieldDecl:recursiveSearchesResponded",
+        "decl:airdcpp/share/ShareStats.h:33:FieldDecl:unfilteredRecursiveSearchesPerSecond",
+        "decl:airdcpp/share/ShareStats.h:35:FieldDecl:averageSearchTokenCount",
+        "decl:airdcpp/share/ShareStats.h:36:FieldDecl:averageSearchTokenLength",
+        "decl:airdcpp/share/ShareStats.h:38:FieldDecl:autoSearches",
+        "decl:airdcpp/share/ShareStats.h:38:FieldDecl:tthSearches",
+        "decl:airdcpp/share/ShareStats.h:41:StructDecl:ShareItemStats",
+        "decl:airdcpp/share/ShareStats.h:42:FieldDecl:profileCount",
+        "decl:airdcpp/share/ShareStats.h:43:FieldDecl:rootDirectoryCount",
+        "decl:airdcpp/share/ShareStats.h:45:FieldDecl:totalSize",
+        "decl:airdcpp/share/ShareStats.h:46:FieldDecl:totalFileCount",
+        "decl:airdcpp/share/ShareStats.h:47:FieldDecl:totalDirectoryCount",
+        "decl:airdcpp/share/ShareStats.h:48:FieldDecl:uniqueFileCount",
+        "decl:airdcpp/share/ShareStats.h:49:FieldDecl:lowerCaseFiles",
+        "decl:airdcpp/share/ShareStats.h:50:FieldDecl:averageNameLength",
+        "decl:airdcpp/share/ShareStats.h:51:FieldDecl:totalNameSize",
+        "decl:airdcpp/share/ShareStats.h:52:FieldDecl:averageFileAge",
+        "decl:airdcpp/share/ShareTasks.h:37:ClassDecl:ShareTasks",
+        "decl:airdcpp/share/ShareTasks.h:39:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareTasks.h:41:CXXMethod:shutdown()",
+        "decl:airdcpp/share/ShareTasks.h:43:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareTasks.h:46:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareTasks.h:48:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareTasks.h:54:CXXMethod:addRefreshTask(ShareRefreshPriority, const StringList &, ShareRefreshType, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareTasks.h:56:FieldDecl:manager",
+        "decl:airdcpp/share/ShareTasks.h:58:StructDecl:TaskData",
+        "decl:airdcpp/share/ShareTasks.h:62:StructDecl:RefreshTask",
+        "decl:airdcpp/share/ShareTasks.h:64:FieldDecl:refreshOptions",
+        "decl:airdcpp/share/ShareTasks.h:67:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareTasks.h:69:VarDecl:tasksRunning",
+        "decl:airdcpp/share/ShareTasks.h:70:FieldDecl:refreshRunning",
+        "decl:airdcpp/share/ShareTasks.h:73:CXXMethod:reportPendingRefresh(ShareRefreshType, const RefreshPathList &, const string &)",
+        "decl:airdcpp/share/ShareTasks.h:76:CXXMethod:validateRefreshTask(StringList &)",
+        "decl:airdcpp/share/ShareTasks.h:78:CXXMethod:run()",
+        "decl:airdcpp/share/ShareTasks.h:80:CXXMethod:runTasks(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareTasks.h:81:CXXMethod:runRefreshTask(const ShareRefreshTask &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareTasks.h:83:CXXMethod:reportTaskStatus(const ShareRefreshTask &, bool, const ShareRefreshStats *)",
+        "decl:airdcpp/share/ShareRefreshInfo.h:48:CXCursor_Constructor:2d0768da3781",
+        "decl:airdcpp/share/ShareRefreshInfo.h:49:CXCursor_Destructor:fb8f61dc9ad0",
+        "decl:airdcpp/share/ShareRefreshInfo.h:61:CXCursor_Constructor:0a3a7f53001c",
+        "decl:airdcpp/share/ShareRefreshTask.h:63:CXCursor_Constructor:712e9cdc1892",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/ShareTasks.h:50:CXCursor_Constructor:a26ab9bf66f9",
+        "decl:airdcpp/share/ShareTasks.h:51:CXCursor_Destructor:8ff3d8b5063c",
+        "decl:airdcpp/share/ShareTasks.h:59:CXCursor_Destructor:37d33d390ec3",
+        "decl:airdcpp/share/ShareTasks.h:63:CXCursor_Constructor:1f32694dd1a6"
+      ]
+    },
+    {
+      "id": "share.root-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::addRootDirectory",
+        "ShareManager::updateRootDirectory",
+        "ShareManager::removeRootDirectory",
+        "ShareTree::addShareRoot",
+        "ShareTree::updateShareRoot",
+        "ShareTree::removeShareRoot"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 156,
+          "end_line": 169
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 960,
+          "end_line": 1010
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 375,
+          "end_line": 466
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ShareDirectoryInfo containing real path, virtual name, profiles, and incoming flag; remove accepts a real path."
+        ],
+        "preconditions": [
+          "Root paths must pass SharePathValidator; ShareTree rejects an already-existing root and assumes parent/child root conflicts were validated."
+        ],
+        "defaults": [],
+        "effects": [
+          "Add creates a root then queues an ADD_ROOT_DIRECTORY refresh and marks profiles dirty; update sanitizes virtual separators and changes incoming/profile metadata; removal removes tree indexes/cache and stops hashing the path."
+        ],
+        "events": [
+          "share.root-created",
+          "share.root-updated",
+          "share.root-removed"
+        ],
+        "errors": [
+          "Boolean false indicates tree mutation did not find/add the requested root; root path validation may throw ShareException through validateRootPath."
+        ],
+        "completion": "Root add/update/remove mutates synchronously; initial content indexing after add is asynchronous via refresh task.",
+        "cancellation": "The add-triggered refresh may be canceled by refresh task token; root mutation is not rolled back by cancellation.",
+        "persistence": [
+          "Root metadata/profile state is managed by profile settings persistence; root cache is written by saveShareCache."
+        ],
+        "resources": [
+          "ShareTree exclusive lock during index mutation; filesystem cache file removed on root removal; HashManager stops hashing removed root."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a validated new root, when it is added, then a root-created event fires and a refresh task is queued.",
+        "Given an existing root, when it is removed, then its tree indexes and cache file are removed, hashing is stopped, and root-removed fires."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareDirectoryInfo.h:36:TypedefDecl:ShareDirectoryInfoPtr",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:37:TypedefDecl:ShareDirectoryInfoList",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:38:TypedefDecl:ShareDirectoryInfoSet",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:39:TypedefDecl:ShareDirectoryInfoMap",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:41:ClassDecl:ShareDirectoryInfo",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:58:CXXMethod:getToken()",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:62:CXXMethod:merge(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:73:FieldDecl:virtualName",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:75:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:77:FieldDecl:id",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:78:FieldDecl:path",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:79:FieldDecl:incoming",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:81:FieldDecl:size",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:82:FieldDecl:contentInfo",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:84:FieldDecl:refreshState",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:85:FieldDecl:lastRefreshTime",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:86:FieldDecl:refreshTaskToken",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:88:ClassDecl:PathCompare",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:91:CXXMethod:operator()(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:92:CXXMethod:operator=(const PathCompare &)",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:94:FieldDecl:a",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:97:ClassDecl:IdCompare",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:100:CXXMethod:operator()(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:101:CXXMethod:operator=(const IdCompare &)",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:103:FieldDecl:a",
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/ShareTree.h:45:ClassDecl:ShareTree",
+        "decl:airdcpp/share/ShareTree.h:50:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareTree.h:53:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareTree.h:55:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:56:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:58:CXXMethod:toTTHList(OutputStream &, const string &, bool, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:60:CXXMethod:toFilelist(OutputStream &, const string &, const OptionalProfileToken &, bool, const FilelistDirectory::DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareTree.h:61:CXXMethod:toCache(OutputStream &, const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:64:CXXMethod:getFileInfo(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:67:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareTree.h:71:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:75:FieldDecl:providerName",
+        "decl:airdcpp/share/ShareTree.h:76:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/ShareTree.h:80:CXXMethod:getRealPaths(const TTHValue &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:85:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/ShareTree.h:89:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/ShareTree.h:90:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:92:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)",
+        "decl:airdcpp/share/ShareTree.h:95:CXXMethod:searchText(SearchResultList &, ShareSearch &, ShareSearchCounters &)",
+        "decl:airdcpp/share/ShareTree.h:97:FieldDecl:sharedSize",
+        "decl:airdcpp/share/ShareTree.h:100:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:103:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareTree.h:104:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareTree.h:108:CXXMethod:addShareRoot(const string &, const string &, const ProfileTokenSet &, bool, time_t, time_t)",
+        "decl:airdcpp/share/ShareTree.h:109:CXXMethod:addShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:110:CXXMethod:updateShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:113:CXXMethod:removeShareRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:117:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareTree.h:119:TypeAliasDecl:HashFileMap",
+        "decl:airdcpp/share/ShareTree.h:121:TypeAliasDecl:ProfileFormatter",
+        "decl:airdcpp/share/ShareTree.h:122:CXXMethod:validateRootPath(const string &, const ProfileFormatter &)",
+        "decl:airdcpp/share/ShareTree.h:130:CXXMethod:countStats(time_t &, size_t &, int64_t &, size_t &, size_t &, size_t &, size_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:133:CXXMethod:getDirectoriesByAdcNameUnsafe(const string &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:137:CXXMethod:findDirectoryUnsafe(const string &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:140:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:142:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareTree.h:143:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareTree.h:145:CXXMethod:addHashedFile(const string &, const HashedFile &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:147:CXXMethod:getBloom()",
+        "decl:airdcpp/share/ShareTree.h:151:CXXMethod:setBloom(ShareBloom *)",
+        "decl:airdcpp/share/ShareTree.h:153:CXXMethod:applyRefreshChanges(ShareRefreshInfo &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:155:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:157:CXXMethod:removeProfile(ProfileToken, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:158:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:161:CXXMethod:getRoots(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:163:CXXMethod:getRootPaths()",
+        "decl:airdcpp/share/ShareTree.h:165:CXXMethod:getRootPathsUnsafe()",
+        "decl:airdcpp/share/ShareTree.h:170:CXXMethod:getRootPathList()",
+        "decl:airdcpp/share/ShareTree.h:171:CXXMethod:getShareRoots()",
+        "decl:airdcpp/share/ShareTree.h:174:CXXMethod:parseRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:176:CXXMethod:getCS()",
+        "decl:airdcpp/share/ShareTree.h:178:FieldDecl:cs",
+        "decl:airdcpp/share/ShareTree.h:180:CXXMethod:matchBloom(const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:182:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareTree.h:184:CXXMethod:getRootInfoUnsafe(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:186:CXXMethod:addDirectoryResultUnsafe(const ShareDirectory *, SearchResultList &, const OptionalProfileToken &, const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:190:CXXMethod:getRootsByVirtualUnsafe(const string &, const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:194:CXXMethod:getRootsByVirtualUnsafe(const string &, const ProfileTokenSet &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:197:CXXMethod:ensureDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:198:CXXMethod:findFileUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:200:CXXMethod:getRootsUnsafe(const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:203:CXXMethod:findRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:206:CXXMethod:parseRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:212:FunctionTemplate:getDirectoriesByVirtualUnsafe(const string &, const T &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:218:VarDecl:start",
+        "decl:airdcpp/share/ShareTree.h:223:VarDecl:virtuals",
+        "decl:airdcpp/share/ShareTree.h:230:VarDecl:root",
+        "decl:airdcpp/share/ShareTree.h:231:VarDecl:i",
+        "decl:airdcpp/share/ShareTree.h:232:VarDecl:j",
+        "decl:airdcpp/share/ShareTree.h:234:VarDecl:d",
+        "decl:airdcpp/share/ShareTree.h:97:macro:IGETSET",
+        "decl:airdcpp/share/ShareTree.h:256:conditional-source",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:44:CXCursor_Constructor:1aa81d5576b6",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:56:CXCursor_Destructor:4f8bc8587a35",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:90:CXCursor_Constructor:475db8b1c1ff",
+        "decl:airdcpp/share/ShareDirectoryInfo.h:99:CXCursor_Constructor:4286a7300753",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/ShareTree.h:106:CXCursor_Constructor:ce262e98266f"
+      ]
+    },
+    {
+      "id": "share.virtual-and-upload-lookup",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::toRealWithSize",
+        "ShareManager::getRealPaths",
+        "ShareManager::realToVirtualAdc",
+        "ShareManager::getFileInfo",
+        "ShareTree::toRealWithSize",
+        "ShareTree::getFileInfo"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 64,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 128,
+          "end_line": 146
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 465,
+          "end_line": 500
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 537,
+          "end_line": 545
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 60,
+          "end_line": 99
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 101,
+          "end_line": 153
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Virtual ADC path or TTH; optional profile/user/segment constraints for upload resolution."
+        ],
+        "preconditions": [
+          "TTH virtual upload lookup requires a `TTH/` prefix; profile filtering is honored by ShareTree provider."
+        ],
+        "defaults": [],
+        "effects": [
+          "Maps shared virtual names to real paths; upload lookup searches registered providers and reports found/path/size/noAccess; file-info emits ADC result fields FN/SI/TR."
+        ],
+        "events": [],
+        "errors": [
+          "Virtual-path getRealPaths throws ShareException for an empty path; getFileInfo throws FILE_NOT_AVAILABLE when TTH is absent."
+        ],
+        "completion": "Synchronous lookup; returned paths and metadata are values, provider pointer is borrowed from registered provider list.",
+        "cancellation": "Not cancellable.",
+        "persistence": [],
+        "resources": [
+          "ShareTree shared lock for indexed lookup."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a shared TTH and an allowed profile, when an upload lookup resolves it, then the provider returns its real path and size with noAccess false.",
+        "Given an empty virtual path, when getRealPaths is called, then ShareException is raised."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/ShareTree.h:45:ClassDecl:ShareTree",
+        "decl:airdcpp/share/ShareTree.h:50:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareTree.h:53:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareTree.h:55:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:56:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:58:CXXMethod:toTTHList(OutputStream &, const string &, bool, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:60:CXXMethod:toFilelist(OutputStream &, const string &, const OptionalProfileToken &, bool, const FilelistDirectory::DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareTree.h:61:CXXMethod:toCache(OutputStream &, const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:64:CXXMethod:getFileInfo(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:67:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareTree.h:71:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:75:FieldDecl:providerName",
+        "decl:airdcpp/share/ShareTree.h:76:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/ShareTree.h:80:CXXMethod:getRealPaths(const TTHValue &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:85:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/ShareTree.h:89:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/ShareTree.h:90:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:92:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)",
+        "decl:airdcpp/share/ShareTree.h:95:CXXMethod:searchText(SearchResultList &, ShareSearch &, ShareSearchCounters &)",
+        "decl:airdcpp/share/ShareTree.h:97:FieldDecl:sharedSize",
+        "decl:airdcpp/share/ShareTree.h:100:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:103:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareTree.h:104:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareTree.h:108:CXXMethod:addShareRoot(const string &, const string &, const ProfileTokenSet &, bool, time_t, time_t)",
+        "decl:airdcpp/share/ShareTree.h:109:CXXMethod:addShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:110:CXXMethod:updateShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:113:CXXMethod:removeShareRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:117:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareTree.h:119:TypeAliasDecl:HashFileMap",
+        "decl:airdcpp/share/ShareTree.h:121:TypeAliasDecl:ProfileFormatter",
+        "decl:airdcpp/share/ShareTree.h:122:CXXMethod:validateRootPath(const string &, const ProfileFormatter &)",
+        "decl:airdcpp/share/ShareTree.h:130:CXXMethod:countStats(time_t &, size_t &, int64_t &, size_t &, size_t &, size_t &, size_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:133:CXXMethod:getDirectoriesByAdcNameUnsafe(const string &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:137:CXXMethod:findDirectoryUnsafe(const string &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:140:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:142:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareTree.h:143:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareTree.h:145:CXXMethod:addHashedFile(const string &, const HashedFile &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:147:CXXMethod:getBloom()",
+        "decl:airdcpp/share/ShareTree.h:151:CXXMethod:setBloom(ShareBloom *)",
+        "decl:airdcpp/share/ShareTree.h:153:CXXMethod:applyRefreshChanges(ShareRefreshInfo &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:155:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:157:CXXMethod:removeProfile(ProfileToken, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:158:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:161:CXXMethod:getRoots(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:163:CXXMethod:getRootPaths()",
+        "decl:airdcpp/share/ShareTree.h:165:CXXMethod:getRootPathsUnsafe()",
+        "decl:airdcpp/share/ShareTree.h:170:CXXMethod:getRootPathList()",
+        "decl:airdcpp/share/ShareTree.h:171:CXXMethod:getShareRoots()",
+        "decl:airdcpp/share/ShareTree.h:174:CXXMethod:parseRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:176:CXXMethod:getCS()",
+        "decl:airdcpp/share/ShareTree.h:178:FieldDecl:cs",
+        "decl:airdcpp/share/ShareTree.h:180:CXXMethod:matchBloom(const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:182:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareTree.h:184:CXXMethod:getRootInfoUnsafe(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:186:CXXMethod:addDirectoryResultUnsafe(const ShareDirectory *, SearchResultList &, const OptionalProfileToken &, const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:190:CXXMethod:getRootsByVirtualUnsafe(const string &, const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:194:CXXMethod:getRootsByVirtualUnsafe(const string &, const ProfileTokenSet &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:197:CXXMethod:ensureDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:198:CXXMethod:findFileUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:200:CXXMethod:getRootsUnsafe(const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:203:CXXMethod:findRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:206:CXXMethod:parseRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:212:FunctionTemplate:getDirectoriesByVirtualUnsafe(const string &, const T &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:218:VarDecl:start",
+        "decl:airdcpp/share/ShareTree.h:223:VarDecl:virtuals",
+        "decl:airdcpp/share/ShareTree.h:230:VarDecl:root",
+        "decl:airdcpp/share/ShareTree.h:231:VarDecl:i",
+        "decl:airdcpp/share/ShareTree.h:232:VarDecl:j",
+        "decl:airdcpp/share/ShareTree.h:234:VarDecl:d",
+        "decl:airdcpp/share/UploadFileProvider.h:31:StructDecl:UploadFileQuery",
+        "decl:airdcpp/share/UploadFileProvider.h:35:FieldDecl:tth",
+        "decl:airdcpp/share/UploadFileProvider.h:36:FieldDecl:user",
+        "decl:airdcpp/share/UploadFileProvider.h:38:FieldDecl:profiles",
+        "decl:airdcpp/share/UploadFileProvider.h:39:FieldDecl:segment",
+        "decl:airdcpp/share/UploadFileProvider.h:41:CXXMethod:enableAccessChecks()",
+        "decl:airdcpp/share/UploadFileProvider.h:48:ClassDecl:UploadFileProvider",
+        "decl:airdcpp/share/UploadFileProvider.h:50:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/UploadFileProvider.h:51:CXXMethod:getRealPaths(const TTHValue &, StringList &)",
+        "decl:airdcpp/share/UploadFileProvider.h:52:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/UploadFileProvider.h:53:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/UploadFileProvider.h:54:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)",
+        "decl:airdcpp/share/UploadFileProvider.h:56:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/ShareTree.h:97:macro:IGETSET",
+        "decl:airdcpp/share/ShareTree.h:256:conditional-source",
+        "decl:airdcpp/share/UploadFileProvider.h:32:CXCursor_Constructor:8152bf576f20",
+        "decl:airdcpp/share/UploadFileProvider.h:33:CXCursor_Constructor:c9a078ced183",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/ShareTree.h:106:CXCursor_Constructor:ce262e98266f"
+      ]
+    },
+    {
+      "id": "share.search",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::search",
+        "ShareTree::searchText"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 101,
+          "end_line": 105
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 502,
+          "end_line": 536
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 712,
+          "end_line": 774
+        },
+        {
+          "path": "airdcpp/share/ShareDirectory.cpp",
+          "start_line": 436,
+          "end_line": 485
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ShareSearch with profile, virtual path, query, optional TTH root, and maximum-results constraints."
+        ],
+        "preconditions": [
+          "Recursive text search requires a nonempty virtual path; hidden profile returns no results."
+        ],
+        "defaults": [],
+        "effects": [
+          "TTH-root search fans out to registered providers; text search checks each include pattern against the bloom filter; excludes are evaluated later by ShareDirectory::search, walks matching directories, and appends results up to maxResults."
+        ],
+        "events": [],
+        "errors": [
+          "Invalid virtual path may raise ShareException in tree path resolution; bloom mismatch returns no results."
+        ],
+        "completion": "Synchronous; counters record searches and matching duration.",
+        "cancellation": "Not cancellable.",
+        "persistence": [],
+        "resources": [
+          "Bloom filter; ShareTree shared lock during text traversal."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given an include pattern is absent from the share bloom filter, when a text search runs, then bloom prefiltering skips traversal and no results are appended. Exclusion patterns are checked later per directory/file during traversal.",
+        "Given a query constrained to a TTH root, when search runs, then registered upload providers perform the TTH search."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/ShareSearchInfo.h:29:StructDecl:ShareSearch",
+        "decl:airdcpp/share/ShareSearchInfo.h:33:FieldDecl:search",
+        "decl:airdcpp/share/ShareSearchInfo.h:34:FieldDecl:profile",
+        "decl:airdcpp/share/ShareSearchInfo.h:35:FieldDecl:optionalUser",
+        "decl:airdcpp/share/ShareSearchInfo.h:36:FieldDecl:virtualPath",
+        "decl:airdcpp/share/ShareSearchInfo.h:37:FieldDecl:isAutoSearch",
+        "decl:airdcpp/share/ShareSearchInfo.h:40:StructDecl:ShareSearchCounters",
+        "decl:airdcpp/share/ShareSearchInfo.h:41:FieldDecl:totalSearches",
+        "decl:airdcpp/share/ShareSearchInfo.h:42:FieldDecl:tthSearches",
+        "decl:airdcpp/share/ShareSearchInfo.h:43:FieldDecl:recursiveSearches",
+        "decl:airdcpp/share/ShareSearchInfo.h:44:FieldDecl:recursiveSearchTime",
+        "decl:airdcpp/share/ShareSearchInfo.h:45:FieldDecl:filteredSearches",
+        "decl:airdcpp/share/ShareSearchInfo.h:46:FieldDecl:recursiveSearchesResponded",
+        "decl:airdcpp/share/ShareSearchInfo.h:47:FieldDecl:searchTokenCount",
+        "decl:airdcpp/share/ShareSearchInfo.h:48:FieldDecl:searchTokenLength",
+        "decl:airdcpp/share/ShareSearchInfo.h:49:FieldDecl:autoSearches",
+        "decl:airdcpp/share/ShareSearchInfo.h:51:CXXMethod:toStats()",
+        "decl:airdcpp/share/ShareSearchInfo.h:53:CXXMethod:onMatchingRecursiveSearch(const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:45:ClassDecl:ShareTree",
+        "decl:airdcpp/share/ShareTree.h:50:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareTree.h:53:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareTree.h:55:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:56:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:58:CXXMethod:toTTHList(OutputStream &, const string &, bool, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:60:CXXMethod:toFilelist(OutputStream &, const string &, const OptionalProfileToken &, bool, const FilelistDirectory::DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareTree.h:61:CXXMethod:toCache(OutputStream &, const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:64:CXXMethod:getFileInfo(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:67:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareTree.h:71:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:75:FieldDecl:providerName",
+        "decl:airdcpp/share/ShareTree.h:76:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/ShareTree.h:80:CXXMethod:getRealPaths(const TTHValue &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:85:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/ShareTree.h:89:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/ShareTree.h:90:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:92:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)",
+        "decl:airdcpp/share/ShareTree.h:95:CXXMethod:searchText(SearchResultList &, ShareSearch &, ShareSearchCounters &)",
+        "decl:airdcpp/share/ShareTree.h:97:FieldDecl:sharedSize",
+        "decl:airdcpp/share/ShareTree.h:100:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:103:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareTree.h:104:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareTree.h:108:CXXMethod:addShareRoot(const string &, const string &, const ProfileTokenSet &, bool, time_t, time_t)",
+        "decl:airdcpp/share/ShareTree.h:109:CXXMethod:addShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:110:CXXMethod:updateShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:113:CXXMethod:removeShareRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:117:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareTree.h:119:TypeAliasDecl:HashFileMap",
+        "decl:airdcpp/share/ShareTree.h:121:TypeAliasDecl:ProfileFormatter",
+        "decl:airdcpp/share/ShareTree.h:122:CXXMethod:validateRootPath(const string &, const ProfileFormatter &)",
+        "decl:airdcpp/share/ShareTree.h:130:CXXMethod:countStats(time_t &, size_t &, int64_t &, size_t &, size_t &, size_t &, size_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:133:CXXMethod:getDirectoriesByAdcNameUnsafe(const string &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:137:CXXMethod:findDirectoryUnsafe(const string &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:140:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:142:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareTree.h:143:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareTree.h:145:CXXMethod:addHashedFile(const string &, const HashedFile &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:147:CXXMethod:getBloom()",
+        "decl:airdcpp/share/ShareTree.h:151:CXXMethod:setBloom(ShareBloom *)",
+        "decl:airdcpp/share/ShareTree.h:153:CXXMethod:applyRefreshChanges(ShareRefreshInfo &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:155:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:157:CXXMethod:removeProfile(ProfileToken, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:158:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:161:CXXMethod:getRoots(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:163:CXXMethod:getRootPaths()",
+        "decl:airdcpp/share/ShareTree.h:165:CXXMethod:getRootPathsUnsafe()",
+        "decl:airdcpp/share/ShareTree.h:170:CXXMethod:getRootPathList()",
+        "decl:airdcpp/share/ShareTree.h:171:CXXMethod:getShareRoots()",
+        "decl:airdcpp/share/ShareTree.h:174:CXXMethod:parseRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:176:CXXMethod:getCS()",
+        "decl:airdcpp/share/ShareTree.h:178:FieldDecl:cs",
+        "decl:airdcpp/share/ShareTree.h:180:CXXMethod:matchBloom(const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:182:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareTree.h:184:CXXMethod:getRootInfoUnsafe(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:186:CXXMethod:addDirectoryResultUnsafe(const ShareDirectory *, SearchResultList &, const OptionalProfileToken &, const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:190:CXXMethod:getRootsByVirtualUnsafe(const string &, const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:194:CXXMethod:getRootsByVirtualUnsafe(const string &, const ProfileTokenSet &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:197:CXXMethod:ensureDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:198:CXXMethod:findFileUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:200:CXXMethod:getRootsUnsafe(const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:203:CXXMethod:findRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:206:CXXMethod:parseRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:212:FunctionTemplate:getDirectoriesByVirtualUnsafe(const string &, const T &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:218:VarDecl:start",
+        "decl:airdcpp/share/ShareTree.h:223:VarDecl:virtuals",
+        "decl:airdcpp/share/ShareTree.h:230:VarDecl:root",
+        "decl:airdcpp/share/ShareTree.h:231:VarDecl:i",
+        "decl:airdcpp/share/ShareTree.h:232:VarDecl:j",
+        "decl:airdcpp/share/ShareTree.h:234:VarDecl:d",
+        "decl:airdcpp/share/ShareTree.h:97:macro:IGETSET",
+        "decl:airdcpp/share/ShareTree.h:256:conditional-source",
+        "decl:airdcpp/share/ShareSearchInfo.h:30:CXCursor_Constructor:8006d183566a",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/ShareTree.h:106:CXCursor_Constructor:ce262e98266f"
+      ]
+    },
+    {
+      "id": "share.cache-persistence",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::saveShareCache",
+        "ShareManager::loadCache"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 120,
+          "end_line": 121
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 1136,
+          "end_line": 1186
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 227,
+          "end_line": 282
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Optional progress callback."
+        ],
+        "preconditions": [
+          "Only roots whose cache is marked dirty are written."
+        ],
+        "defaults": [],
+        "effects": [
+          "Writes each dirty root cache to `.tmp`, serializes tree, removes old cache and renames temporary file; failed writes log a warning and process continues."
+        ],
+        "events": [],
+        "errors": [
+          "Per-root serialization or file errors are logged; outer parallel exception is caught and logged."
+        ],
+        "completion": "Synchronous saveShareCache returns after parallel writes; loadCache returns false if cache loading cannot restore state, causing startup refresh to be scheduled.",
+        "cancellation": "No cancellation parameter; progress callback does not cancel.",
+        "persistence": [
+          "Share tree cache files under PATH_SHARECACHE; save timer runs at 15-minute intervals."
+        ],
+        "resources": [
+          "Filesystem, parallel worker execution, progress callback; shareCacheSaving suppresses reentrant save."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a dirty root cache, when saveShareCache succeeds, then a temporary cache is serialized and renamed into the root cache path.",
+        "Given a cache save exception for one root, when saveShareCache completes, then the error is logged and the root loop continues."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareDirectory.h:34:TypedefDecl:ShareBloom",
+        "decl:airdcpp/share/ShareDirectory.h:36:EnumDecl:ShareRootRefreshState",
+        "decl:airdcpp/share/ShareDirectory.h:37:EnumConstantDecl:STATE_NORMAL",
+        "decl:airdcpp/share/ShareDirectory.h:38:EnumConstantDecl:STATE_PENDING",
+        "decl:airdcpp/share/ShareDirectory.h:39:EnumConstantDecl:STATE_RUNNING",
+        "decl:airdcpp/share/ShareDirectory.h:42:ClassDecl:ShareRoot",
+        "decl:airdcpp/share/ShareDirectory.h:44:TypedefDecl:Ptr",
+        "decl:airdcpp/share/ShareDirectory.h:45:TypedefDecl:Map",
+        "decl:airdcpp/share/ShareDirectory.h:47:CXXMethod:create(const string &, const string &, const ProfileTokenSet &, bool, time_t)",
+        "decl:airdcpp/share/ShareDirectory.h:49:FieldDecl:rootProfiles",
+        "decl:airdcpp/share/ShareDirectory.h:50:FieldDecl:cacheDirty",
+        "decl:airdcpp/share/ShareDirectory.h:51:FieldDecl:incoming",
+        "decl:airdcpp/share/ShareDirectory.h:52:FieldDecl:refreshState",
+        "decl:airdcpp/share/ShareDirectory.h:53:FieldDecl:refreshTaskToken",
+        "decl:airdcpp/share/ShareDirectory.h:54:FieldDecl:lastRefreshTime",
+        "decl:airdcpp/share/ShareDirectory.h:56:CXXMethod:hasRootProfile(ProfileToken)",
+        "decl:airdcpp/share/ShareDirectory.h:57:CXXMethod:hasRootProfile(const ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareDirectory.h:58:CXXMethod:addRootProfile(ProfileToken)",
+        "decl:airdcpp/share/ShareDirectory.h:59:CXXMethod:removeRootProfile(ProfileToken)",
+        "decl:airdcpp/share/ShareDirectory.h:61:CXXMethod:getName()",
+        "decl:airdcpp/share/ShareDirectory.h:65:CXXMethod:getNameLower()",
+        "decl:airdcpp/share/ShareDirectory.h:69:CXXMethod:getPath()",
+        "decl:airdcpp/share/ShareDirectory.h:73:CXXMethod:getPathLower()",
+        "decl:airdcpp/share/ShareDirectory.h:77:CXXMethod:setName(const string &)",
+        "decl:airdcpp/share/ShareDirectory.h:78:CXXMethod:getCacheXmlPath()",
+        "decl:airdcpp/share/ShareDirectory.h:81:CXXMethod:operator=(ShareRoot &)",
+        "decl:airdcpp/share/ShareDirectory.h:85:FieldDecl:virtualName",
+        "decl:airdcpp/share/ShareDirectory.h:86:FieldDecl:path",
+        "decl:airdcpp/share/ShareDirectory.h:87:FieldDecl:pathLower",
+        "decl:airdcpp/share/ShareDirectory.h:92:ClassDecl:ShareDirectory",
+        "decl:airdcpp/share/ShareDirectory.h:94:TypedefDecl:Ptr",
+        "decl:airdcpp/share/ShareDirectory.h:95:TypedefDecl:Map",
+        "decl:airdcpp/share/ShareDirectory.h:96:TypedefDecl:MultiMap",
+        "decl:airdcpp/share/ShareDirectory.h:97:TypedefDecl:MapIter",
+        "decl:airdcpp/share/ShareDirectory.h:98:TypedefDecl:List",
+        "decl:airdcpp/share/ShareDirectory.h:100:StructDecl:NameLower",
+        "decl:airdcpp/share/ShareDirectory.h:101:CXXMethod:operator()(const Ptr &)",
+        "decl:airdcpp/share/ShareDirectory.h:104:ClassDecl:File",
+        "decl:airdcpp/share/ShareDirectory.h:106:StructDecl:NameLower",
+        "decl:airdcpp/share/ShareDirectory.h:107:CXXMethod:operator()(const File *)",
+        "decl:airdcpp/share/ShareDirectory.h:110:TypedefDecl:Set",
+        "decl:airdcpp/share/ShareDirectory.h:111:TypedefDecl:ConstSet",
+        "decl:airdcpp/share/ShareDirectory.h:112:TypedefDecl:TTHMap",
+        "decl:airdcpp/share/ShareDirectory.h:117:CXXMethod:getAdcPath()",
+        "decl:airdcpp/share/ShareDirectory.h:118:CXXMethod:getRealPath()",
+        "decl:airdcpp/share/ShareDirectory.h:119:CXXMethod:hasProfile(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareDirectory.h:121:CXXMethod:toXml(OutputStream &, string &, string &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:122:CXXMethod:addSR(SearchResultList &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:124:FieldDecl:size",
+        "decl:airdcpp/share/ShareDirectory.h:125:FieldDecl:parent",
+        "decl:airdcpp/share/ShareDirectory.h:126:FieldDecl:lastWrite",
+        "decl:airdcpp/share/ShareDirectory.h:127:FieldDecl:tth",
+        "decl:airdcpp/share/ShareDirectory.h:129:CXXMethod:updateIndices(ShareBloom &, int64_t &, File::TTHMap &)",
+        "decl:airdcpp/share/ShareDirectory.h:130:CXXMethod:cleanIndices(int64_t &, TTHMap &)",
+        "decl:airdcpp/share/ShareDirectory.h:137:CXXMethod:getName()",
+        "decl:airdcpp/share/ShareDirectory.h:141:FieldDecl:name",
+        "decl:airdcpp/share/ShareDirectory.h:144:ClassDecl:SearchResultInfo",
+        "decl:airdcpp/share/ShareDirectory.h:146:StructDecl:Sort",
+        "decl:airdcpp/share/ShareDirectory.h:147:CXXMethod:operator()(const SearchResultInfo &, const SearchResultInfo &)",
+        "decl:airdcpp/share/ShareDirectory.h:153:TypedefDecl:Set",
+        "decl:airdcpp/share/ShareDirectory.h:154:EnumDecl:Type",
+        "decl:airdcpp/share/ShareDirectory.h:155:EnumConstantDecl:FILE",
+        "decl:airdcpp/share/ShareDirectory.h:156:EnumConstantDecl:DIRECTORY",
+        "decl:airdcpp/share/ShareDirectory.h:159:UnionDecl:(anonymous union at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/ShareDirectory.h:159:3)",
+        "decl:airdcpp/share/ShareDirectory.h:160:FieldDecl:directory",
+        "decl:airdcpp/share/ShareDirectory.h:161:FieldDecl:file",
+        "decl:airdcpp/share/ShareDirectory.h:164:CXXMethod:getType()",
+        "decl:airdcpp/share/ShareDirectory.h:166:FieldDecl:type",
+        "decl:airdcpp/share/ShareDirectory.h:167:FieldDecl:scores",
+        "decl:airdcpp/share/ShareDirectory.h:170:TypedefDecl:Set",
+        "decl:airdcpp/share/ShareDirectory.h:172:CXXMethod:createNormal(DualString &&, ShareDirectory *, time_t, ShareTreeMaps &)",
+        "decl:airdcpp/share/ShareDirectory.h:173:CXXMethod:createRoot(const string &, const string &, const ProfileTokenSet &, bool, time_t, ShareTreeMaps &, time_t)",
+        "decl:airdcpp/share/ShareDirectory.h:174:CXXMethod:cloneRoot(const Ptr &, time_t, ShareTreeMaps &)",
+        "decl:airdcpp/share/ShareDirectory.h:178:CXXMethod:setParent(const ShareDirectory::Ptr &, ShareDirectory *)",
+        "decl:airdcpp/share/ShareDirectory.h:181:CXXMethod:cleanIndices(ShareDirectory &, int64_t &, File::TTHMap &, ShareDirectory::MultiMap &)",
+        "decl:airdcpp/share/ShareDirectory.h:183:StructDecl:HasRootProfile",
+        "decl:airdcpp/share/ShareDirectory.h:185:CXXMethod:operator()(const Ptr &)",
+        "decl:airdcpp/share/ShareDirectory.h:188:FieldDecl:profile",
+        "decl:airdcpp/share/ShareDirectory.h:190:CXXMethod:operator=(const HasRootProfile &)",
+        "decl:airdcpp/share/ShareDirectory.h:193:CXXMethod:ToRoot(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareDirectory.h:199:CXXMethod:getAdcPathUnsafe()",
+        "decl:airdcpp/share/ShareDirectory.h:200:CXXMethod:getVirtualName()",
+        "decl:airdcpp/share/ShareDirectory.h:201:CXXMethod:getVirtualNameLower()",
+        "decl:airdcpp/share/ShareDirectory.h:204:CXXMethod:getRealPathUnsafe()",
+        "decl:airdcpp/share/ShareDirectory.h:206:CXXMethod:hasProfile(const ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareDirectory.h:207:CXXMethod:hasProfile(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareDirectory.h:209:CXXMethod:getContentInfo(int64_t &, DirectoryContentInfo &)",
+        "decl:airdcpp/share/ShareDirectory.h:212:CXXMethod:getLevelSize()",
+        "decl:airdcpp/share/ShareDirectory.h:215:CXXMethod:getTotalSize()",
+        "decl:airdcpp/share/ShareDirectory.h:217:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)",
+        "decl:airdcpp/share/ShareDirectory.h:219:CXXMethod:search(SearchResultInfo::Set &, SearchQuery &, int)",
+        "decl:airdcpp/share/ShareDirectory.h:221:CXXMethod:toTTHList(OutputStream &, string &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:224:CXXMethod:toCacheXmlList(OutputStream &, string &, string &)",
+        "decl:airdcpp/share/ShareDirectory.h:225:CXXMethod:filesToCacheXmlList(OutputStream &, string &, string &)",
+        "decl:airdcpp/share/ShareDirectory.h:227:FieldDecl:lastWrite",
+        "decl:airdcpp/share/ShareDirectory.h:231:CXXMethod:getRootProfiles()",
+        "decl:airdcpp/share/ShareDirectory.h:232:CXXMethod:copyRootProfiles(ProfileTokenSet &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:233:CXXMethod:isRoot()",
+        "decl:airdcpp/share/ShareDirectory.h:235:CXXMethod:countStats(time_t &, size_t &, int64_t &, size_t &, size_t &, size_t &)",
+        "decl:airdcpp/share/ShareDirectory.h:238:CXXMethod:updateModifyDate()",
+        "decl:airdcpp/share/ShareDirectory.h:241:CXXMethod:operator=(ShareDirectory &)",
+        "decl:airdcpp/share/ShareDirectory.h:243:CXXMethod:getRoot()",
+        "decl:airdcpp/share/ShareDirectory.h:244:CXXMethod:increaseSize(int64_t, int64_t &)",
+        "decl:airdcpp/share/ShareDirectory.h:245:CXXMethod:decreaseSize(int64_t, int64_t &)",
+        "decl:airdcpp/share/ShareDirectory.h:247:CXXMethod:getDirectories()",
+        "decl:airdcpp/share/ShareDirectory.h:251:CXXMethod:getParent()",
+        "decl:airdcpp/share/ShareDirectory.h:257:CXXMethod:findDirectoryByPath(const string &, char)",
+        "decl:airdcpp/share/ShareDirectory.h:259:CXXMethod:findDirectoryLower(const string &)",
+        "decl:airdcpp/share/ShareDirectory.h:260:CXXMethod:findFileLower(const string &)",
+        "decl:airdcpp/share/ShareDirectory.h:263:ClassDecl:RootIsParentOrExact",
+        "decl:airdcpp/share/ShareDirectory.h:267:CXXMethod:operator()(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareDirectory.h:269:CXXMethod:operator=(const RootIsParentOrExact &)",
+        "decl:airdcpp/share/ShareDirectory.h:271:FieldDecl:compareToLower",
+        "decl:airdcpp/share/ShareDirectory.h:272:FieldDecl:separator",
+        "decl:airdcpp/share/ShareDirectory.h:275:CXXMethod:addDirName(const ShareDirectory::Ptr &, ShareDirectory::MultiMap &, ShareBloom &)",
+        "decl:airdcpp/share/ShareDirectory.h:276:CXXMethod:removeDirName(const ShareDirectory &, ShareDirectory::MultiMap &)",
+        "decl:airdcpp/share/ShareDirectory.h:284:CXXMethod:addFile(DualString &&, const HashedFile &, ShareTreeMaps &, int64_t &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareDirectory.h:286:CXXMethod:getFiles()",
+        "decl:airdcpp/share/ShareDirectory.h:290:CXXMethod:getRealName()",
+        "decl:airdcpp/share/ShareDirectory.h:297:FieldDecl:files",
+        "decl:airdcpp/share/ShareDirectory.h:298:CXXMethod:cleanIndices(int64_t &, File::TTHMap &, ShareDirectory::MultiMap &)",
+        "decl:airdcpp/share/ShareDirectory.h:300:FieldDecl:parent",
+        "decl:airdcpp/share/ShareDirectory.h:301:FieldDecl:directories",
+        "decl:airdcpp/share/ShareDirectory.h:304:FieldDecl:size",
+        "decl:airdcpp/share/ShareDirectory.h:305:FieldDecl:root",
+        "decl:airdcpp/share/ShareDirectory.h:307:CXXMethod:getRealPath(const string &)",
+        "decl:airdcpp/share/ShareDirectory.h:308:FieldDecl:realName",
+        "decl:airdcpp/share/ShareDirectory.h:311:ClassDecl:ShareTreeMaps",
+        "decl:airdcpp/share/ShareDirectory.h:313:TypedefDecl:GetBloomF",
+        "decl:airdcpp/share/ShareDirectory.h:317:FieldDecl:rootPaths",
+        "decl:airdcpp/share/ShareDirectory.h:320:FieldDecl:lowerDirNameMap",
+        "decl:airdcpp/share/ShareDirectory.h:322:FieldDecl:tthIndex",
+        "decl:airdcpp/share/ShareDirectory.h:323:CXXMethod:getBloom()",
+        "decl:airdcpp/share/ShareDirectory.h:327:FieldDecl:getBloomF",
+        "decl:airdcpp/share/ShareDirectory.h:330:ClassDecl:FilelistDirectory",
+        "decl:airdcpp/share/ShareDirectory.h:332:TypedefDecl:Map",
+        "decl:airdcpp/share/ShareDirectory.h:334:CXXMethod:generateRoot(const ShareDirectory::List &, const ShareDirectory::List &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:336:TypedefDecl:DuplicateFileHandler",
+        "decl:airdcpp/share/ShareDirectory.h:337:CXXMethod:toXml(OutputStream &, string &, string &, bool, const DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareDirectory.h:338:CXXMethod:filesToXml(OutputStream &, string &, string &, bool, const DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareDirectory.h:341:CXXMethod:operator=(FilelistDirectory &)",
+        "decl:airdcpp/share/ShareDirectory.h:343:FieldDecl:date",
+        "decl:airdcpp/share/ShareDirectory.h:344:FieldDecl:listDirectories",
+        "decl:airdcpp/share/ShareDirectory.h:348:CXXMethod:toFileList(const ShareDirectory::Ptr &, bool)",
+        "decl:airdcpp/share/ShareDirectory.h:350:FieldDecl:shareDirs",
+        "decl:airdcpp/share/ShareDirectory.h:351:FieldDecl:name",
+        "decl:airdcpp/share/ShareDirectory.h:354:TypedefDecl:ShareDirectoryCallback",
+        "decl:airdcpp/share/ShareDirectory.h:355:TypedefDecl:ShareFileCallback",
+        "decl:airdcpp/share/ShareDirectory.h:357:TypedefDecl:ShareRootList",
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/ShareTree.h:45:ClassDecl:ShareTree",
+        "decl:airdcpp/share/ShareTree.h:50:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareTree.h:53:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareTree.h:55:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:56:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:58:CXXMethod:toTTHList(OutputStream &, const string &, bool, ProfileToken)",
+        "decl:airdcpp/share/ShareTree.h:60:CXXMethod:toFilelist(OutputStream &, const string &, const OptionalProfileToken &, bool, const FilelistDirectory::DuplicateFileHandler &)",
+        "decl:airdcpp/share/ShareTree.h:61:CXXMethod:toCache(OutputStream &, const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:64:CXXMethod:getFileInfo(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:67:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareTree.h:71:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:75:FieldDecl:providerName",
+        "decl:airdcpp/share/ShareTree.h:76:CXXMethod:getProviderName()",
+        "decl:airdcpp/share/ShareTree.h:80:CXXMethod:getRealPaths(const TTHValue &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:85:CXXMethod:toRealWithSize(const UploadFileQuery &, string &, int64_t &, bool &)",
+        "decl:airdcpp/share/ShareTree.h:89:CXXMethod:getBloom(ProfileToken, HashBloom &)",
+        "decl:airdcpp/share/ShareTree.h:90:CXXMethod:getBloomFileCount(ProfileToken, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:92:CXXMethod:search(SearchResultList &, const TTHValue &, const ShareSearch &)",
+        "decl:airdcpp/share/ShareTree.h:95:CXXMethod:searchText(SearchResultList &, ShareSearch &, ShareSearchCounters &)",
+        "decl:airdcpp/share/ShareTree.h:97:FieldDecl:sharedSize",
+        "decl:airdcpp/share/ShareTree.h:100:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:103:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareTree.h:104:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareTree.h:108:CXXMethod:addShareRoot(const string &, const string &, const ProfileTokenSet &, bool, time_t, time_t)",
+        "decl:airdcpp/share/ShareTree.h:109:CXXMethod:addShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:110:CXXMethod:updateShareRoot(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareTree.h:113:CXXMethod:removeShareRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:117:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareTree.h:119:TypeAliasDecl:HashFileMap",
+        "decl:airdcpp/share/ShareTree.h:121:TypeAliasDecl:ProfileFormatter",
+        "decl:airdcpp/share/ShareTree.h:122:CXXMethod:validateRootPath(const string &, const ProfileFormatter &)",
+        "decl:airdcpp/share/ShareTree.h:130:CXXMethod:countStats(time_t &, size_t &, int64_t &, size_t &, size_t &, size_t &, size_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:133:CXXMethod:getDirectoriesByAdcNameUnsafe(const string &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:137:CXXMethod:findDirectoryUnsafe(const string &, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:140:CXXMethod:findDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:142:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareTree.h:143:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareTree.h:145:CXXMethod:addHashedFile(const string &, const HashedFile &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:147:CXXMethod:getBloom()",
+        "decl:airdcpp/share/ShareTree.h:151:CXXMethod:setBloom(ShareBloom *)",
+        "decl:airdcpp/share/ShareTree.h:153:CXXMethod:applyRefreshChanges(ShareRefreshInfo &, ProfileTokenSet *)",
+        "decl:airdcpp/share/ShareTree.h:155:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareTree.h:157:CXXMethod:removeProfile(ProfileToken, StringList &)",
+        "decl:airdcpp/share/ShareTree.h:158:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)",
+        "decl:airdcpp/share/ShareTree.h:161:CXXMethod:getRoots(const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareTree.h:163:CXXMethod:getRootPaths()",
+        "decl:airdcpp/share/ShareTree.h:165:CXXMethod:getRootPathsUnsafe()",
+        "decl:airdcpp/share/ShareTree.h:170:CXXMethod:getRootPathList()",
+        "decl:airdcpp/share/ShareTree.h:171:CXXMethod:getShareRoots()",
+        "decl:airdcpp/share/ShareTree.h:174:CXXMethod:parseRoot(const string &)",
+        "decl:airdcpp/share/ShareTree.h:176:CXXMethod:getCS()",
+        "decl:airdcpp/share/ShareTree.h:178:FieldDecl:cs",
+        "decl:airdcpp/share/ShareTree.h:180:CXXMethod:matchBloom(const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:182:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareTree.h:184:CXXMethod:getRootInfoUnsafe(const ShareDirectory::Ptr &)",
+        "decl:airdcpp/share/ShareTree.h:186:CXXMethod:addDirectoryResultUnsafe(const ShareDirectory *, SearchResultList &, const OptionalProfileToken &, const SearchQuery &)",
+        "decl:airdcpp/share/ShareTree.h:190:CXXMethod:getRootsByVirtualUnsafe(const string &, const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:194:CXXMethod:getRootsByVirtualUnsafe(const string &, const ProfileTokenSet &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:197:CXXMethod:ensureDirectoryUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:198:CXXMethod:findFileUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:200:CXXMethod:getRootsUnsafe(const OptionalProfileToken &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:203:CXXMethod:findRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:206:CXXMethod:parseRootUnsafe(const string &)",
+        "decl:airdcpp/share/ShareTree.h:212:FunctionTemplate:getDirectoriesByVirtualUnsafe(const string &, const T &, ShareDirectory::List &)",
+        "decl:airdcpp/share/ShareTree.h:218:VarDecl:start",
+        "decl:airdcpp/share/ShareTree.h:223:VarDecl:virtuals",
+        "decl:airdcpp/share/ShareTree.h:230:VarDecl:root",
+        "decl:airdcpp/share/ShareTree.h:231:VarDecl:i",
+        "decl:airdcpp/share/ShareTree.h:232:VarDecl:j",
+        "decl:airdcpp/share/ShareTree.h:234:VarDecl:d",
+        "decl:airdcpp/share/ShareDirectory.h:49:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:50:macro:IGETSET",
+        "decl:airdcpp/share/ShareDirectory.h:51:macro:IGETSET",
+        "decl:airdcpp/share/ShareDirectory.h:52:macro:IGETSET",
+        "decl:airdcpp/share/ShareDirectory.h:53:macro:IGETSET",
+        "decl:airdcpp/share/ShareDirectory.h:54:macro:IGETSET",
+        "decl:airdcpp/share/ShareDirectory.h:124:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:125:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:126:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:127:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:227:macro:GETSET",
+        "decl:airdcpp/share/ShareDirectory.h:343:macro:GETPROP",
+        "decl:airdcpp/share/ShareDirectory.h:344:macro:GETPROP",
+        "decl:airdcpp/share/ShareTree.h:97:macro:IGETSET",
+        "decl:airdcpp/share/ShareTree.h:256:conditional-source",
+        "decl:airdcpp/share/ShareDirectory.h:80:CXCursor_Constructor:2e12c4dda2c7",
+        "decl:airdcpp/share/ShareDirectory.h:83:CXCursor_Constructor:82fcc72098ec",
+        "decl:airdcpp/share/ShareDirectory.h:114:CXCursor_Constructor:bdae134287b4",
+        "decl:airdcpp/share/ShareDirectory.h:115:CXCursor_Destructor:ae4858f0e0cf",
+        "decl:airdcpp/share/ShareDirectory.h:150:CXCursor_Constructor:1294fc78d6ee",
+        "decl:airdcpp/share/ShareDirectory.h:151:CXCursor_Constructor:01141504ac41",
+        "decl:airdcpp/share/ShareDirectory.h:184:CXCursor_Constructor:08d518afbd5a",
+        "decl:airdcpp/share/ShareDirectory.h:229:CXCursor_Destructor:b2d179f088a8",
+        "decl:airdcpp/share/ShareDirectory.h:240:CXCursor_Constructor:9c937453b83b",
+        "decl:airdcpp/share/ShareDirectory.h:266:CXCursor_Constructor:f1b3a1868225",
+        "decl:airdcpp/share/ShareDirectory.h:295:CXCursor_Constructor:746ef8b1560b",
+        "decl:airdcpp/share/ShareDirectory.h:314:CXCursor_Constructor:3c99e80aafa1",
+        "decl:airdcpp/share/ShareDirectory.h:340:CXCursor_Constructor:3ab5d9f98a74",
+        "decl:airdcpp/share/ShareDirectory.h:346:CXCursor_Constructor:3199ddc3029d",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/ShareTree.h:106:CXCursor_Constructor:ce262e98266f"
+      ]
+    },
+    {
+      "id": "share.exclude-and-validation",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::validateRootPath",
+        "ShareManager::validatePathHooked",
+        "ShareManager::addExcludedPath",
+        "ShareManager::removeExcludedPath",
+        "ShareManager::allowShareDirectoryHooked"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 56,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 93,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 182,
+          "end_line": 185
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 1222,
+          "end_line": 1300
+        },
+        {
+          "path": "airdcpp/share/SharePathValidator.h",
+          "start_line": 31,
+          "end_line": 90
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Real filesystem path, queue-check flag, caller; exclude operations use a path string."
+        ],
+        "preconditions": [
+          "Root path must pass validator checks; when matching roots is enabled, conflicting roots are checked across share profiles."
+        ],
+        "defaults": [],
+        "effects": [
+          "Path validation resolves existing shared directory ancestors, validates missing path tokens and unshared files; exclude add/remove updates validator state and emits events on successful mutation."
+        ],
+        "events": [
+          "share.exclude-added",
+          "share.exclude-removed"
+        ],
+        "errors": [
+          "Validation throws ShareException for missing directory or policy violations; allowShareDirectoryHooked converts any Core Exception to false."
+        ],
+        "completion": "Synchronous.",
+        "cancellation": "Not cancellable.",
+        "persistence": [
+          "Excluded paths are loaded from settings and skiplist is reloaded on relevant setting changes."
+        ],
+        "resources": [
+          "SharePathValidator and ShareTree shared lock during ancestor lookup."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a valid exclude path, when added, then exclude-added fires; when removal succeeds, exclude-removed fires.",
+        "Given a path rejected by validation, when allowShareDirectoryHooked is called, then it returns false without propagating the Core exception."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:58:ClassDecl:ShareManager",
+        "decl:airdcpp/share/ShareManager.h:62:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/ShareManager.h:63:CXXMethod:duplicateFilelistFileLogger(const StringList &, int)",
+        "decl:airdcpp/share/ShareManager.h:65:CXXMethod:getValidator()",
+        "decl:airdcpp/share/ShareManager.h:69:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/share/ShareManager.h:70:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:74:CXXMethod:validateRootPath(const string &, bool)",
+        "decl:airdcpp/share/ShareManager.h:79:CXXMethod:getFileListInfo(const string_view &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:81:StructDecl:HashedFileInfo",
+        "decl:airdcpp/share/ShareManager.h:82:FieldDecl:path",
+        "decl:airdcpp/share/ShareManager.h:83:FieldDecl:size",
+        "decl:airdcpp/share/ShareManager.h:86:FieldDecl:noAccess",
+        "decl:airdcpp/share/ShareManager.h:88:FieldDecl:provider",
+        "decl:airdcpp/share/ShareManager.h:89:FieldDecl:found",
+        "decl:airdcpp/share/ShareManager.h:93:CXXMethod:toRealWithSize(const string &, const ProfileTokenSet &, const UserPtr &, const Segment &)",
+        "decl:airdcpp/share/ShareManager.h:94:CXXMethod:toRealWithSize(const UploadFileQuery &)",
+        "decl:airdcpp/share/ShareManager.h:97:CXXMethod:refresh(ShareRefreshType, ShareRefreshPriority, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:101:CXXMethod:refreshVirtualName(const string &, ShareRefreshPriority)",
+        "decl:airdcpp/share/ShareManager.h:105:CXXMethod:refreshPathsHooked(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:109:CXXMethod:refreshPathsHookedThrow(ShareRefreshPriority, const StringList &, CallerPtr, const string &, const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:111:CXXMethod:isRefreshing()",
+        "decl:airdcpp/share/ShareManager.h:114:CXXMethod:abortRefresh(optional<ShareRefreshTaskToken>)",
+        "decl:airdcpp/share/ShareManager.h:116:CXXMethod:handleRefreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:117:CXXMethod:onRefreshTaskCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &, ShareBloom *, ProfileTokenSet &)",
+        "decl:airdcpp/share/ShareManager.h:119:CXXMethod:startRefresh(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:120:CXXMethod:onRefreshQueued(const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManager.h:122:CXXMethod:getRefreshTasks()",
+        "decl:airdcpp/share/ShareManager.h:125:CXXMethod:search(SearchResultList &, ShareSearch &)",
+        "decl:airdcpp/share/ShareManager.h:130:CXXMethod:getAdcDirectoryDupe(const string &, int64_t)",
+        "decl:airdcpp/share/ShareManager.h:133:CXXMethod:getAdcDirectoryDupePaths(const string &)",
+        "decl:airdcpp/share/ShareManager.h:135:CXXMethod:isFileShared(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:136:CXXMethod:isFileShared(const TTHValue &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:137:CXXMethod:isRealPathShared(const string &)",
+        "decl:airdcpp/share/ShareManager.h:140:CXXMethod:allowShareDirectoryHooked(const string &, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:144:CXXMethod:validatePathHooked(const string &, bool, CallerPtr)",
+        "decl:airdcpp/share/ShareManager.h:146:CXXMethod:getGroupedDirectories()",
+        "decl:airdcpp/share/ShareManager.h:151:CXXMethod:saveShareCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:154:CXXMethod:getFileInfo(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:162:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:169:CXXMethod:validateVirtualName(const string &)",
+        "decl:airdcpp/share/ShareManager.h:177:CXXMethod:getRealPaths(const string &, StringList &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:179:CXXMethod:getRealPaths(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:181:CXXMethod:getSharedSize()",
+        "decl:airdcpp/share/ShareManager.h:186:CXXMethod:getRootInfos()",
+        "decl:airdcpp/share/ShareManager.h:187:CXXMethod:getRootInfo(const string &)",
+        "decl:airdcpp/share/ShareManager.h:189:CXXMethod:addRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:190:CXXMethod:updateRootDirectory(const ShareDirectoryInfoPtr &)",
+        "decl:airdcpp/share/ShareManager.h:193:CXXMethod:removeRootDirectory(const string &)",
+        "decl:airdcpp/share/ShareManager.h:196:CXXMethod:realToVirtualAdc(const string &, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:198:CXXMethod:shareBundle(const BundlePtr &)",
+        "decl:airdcpp/share/ShareManager.h:199:CXXMethod:onFileHashed(const string &, const HashedFile &)",
+        "decl:airdcpp/share/ShareManager.h:201:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/ShareManager.h:202:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:203:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/ShareManager.h:205:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/ShareManager.h:206:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/ShareManager.h:208:CXXMethod:findDirectoryByRealPath(const string &, const ShareDirectoryCallback &)",
+        "decl:airdcpp/share/ShareManager.h:209:CXXMethod:findFileByRealPath(const string &, const ShareFileCallback &)",
+        "decl:airdcpp/share/ShareManager.h:210:CXXMethod:findFiles(const TTHValue &)",
+        "decl:airdcpp/share/ShareManager.h:214:CXXMethod:registerUploadFileProvider(const UploadFileProvider *)",
+        "decl:airdcpp/share/ShareManager.h:216:CXXMethod:getProfileMgr()",
+        "decl:airdcpp/share/ShareManager.h:219:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/ShareManager.h:221:CXXMethod:removeRootProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/ShareManager.h:223:TypeAliasDecl:UploadFileProviderList",
+        "decl:airdcpp/share/ShareManager.h:224:FieldDecl:hashedFileProviders",
+        "decl:airdcpp/share/ShareManager.h:226:FieldDecl:profiles",
+        "decl:airdcpp/share/ShareManager.h:227:FieldDecl:validator",
+        "decl:airdcpp/share/ShareManager.h:228:FieldDecl:tasks",
+        "decl:airdcpp/share/ShareManager.h:229:FieldDecl:tree",
+        "decl:airdcpp/share/ShareManager.h:237:CXXMethod:generateXmlList(ProfileToken, bool)",
+        "decl:airdcpp/share/ShareManager.h:239:CXXMethod:loadCache(const ProgressFunction &)",
+        "decl:airdcpp/share/ShareManager.h:241:FieldDecl:lastFullUpdate",
+        "decl:airdcpp/share/ShareManager.h:242:FieldDecl:lastIncomingUpdate",
+        "decl:airdcpp/share/ShareManager.h:243:FieldDecl:lastSave",
+        "decl:airdcpp/share/ShareManager.h:245:FieldDecl:shareCacheSaving",
+        "decl:airdcpp/share/ShareManager.h:247:StructDecl:RefreshTaskHandler",
+        "decl:airdcpp/share/ShareManager.h:248:TypeAliasDecl:PathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:249:TypeAliasDecl:CompletionF",
+        "decl:airdcpp/share/ShareManager.h:253:CXXMethod:refreshCompleted(bool, const ShareRefreshTask &, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:254:CXXMethod:refreshPath(const string &, const ShareRefreshTask &, ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManager.h:256:FieldDecl:pathRefreshF",
+        "decl:airdcpp/share/ShareManager.h:257:FieldDecl:completionF",
+        "decl:airdcpp/share/ShareManager.h:259:FieldDecl:bloom",
+        "decl:airdcpp/share/ShareManager.h:260:FieldDecl:dirtyProfiles",
+        "decl:airdcpp/share/ShareManager.h:263:ClassDecl:ShareBuilder",
+        "decl:airdcpp/share/ShareManager.h:268:CXXMethod:buildTree(const bool &)",
+        "decl:airdcpp/share/ShareManager.h:270:CXXMethod:buildTree(const string &, const string &, const ShareDirectory::Ptr &, const ShareDirectory::Ptr &, const bool &)",
+        "decl:airdcpp/share/ShareManager.h:272:CXXMethod:validateFileItem(const FileItemInfoBase &, const string &, bool, bool, ErrorCollector &)",
+        "decl:airdcpp/share/ShareManager.h:274:FieldDecl:sm",
+        "decl:airdcpp/share/ShareManager.h:277:TypeAliasDecl:ShareBuilderPtr",
+        "decl:airdcpp/share/ShareManager.h:278:TypeAliasDecl:ShareBuilderSet",
+        "decl:airdcpp/share/ShareManager.h:283:CXXMethod:setRefreshState(const string &, ShareRootRefreshState, bool, const optional<ShareRefreshTaskToken> &)",
+        "decl:airdcpp/share/ShareManager.h:286:CXXMethod:on(HashManagerListener::FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/share/ShareManager.h:289:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:292:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:296:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/share/ShareManager.h:299:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/share/ShareManager.h:301:CXXMethod:loadProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:302:CXXMethod:loadProfile(SimpleXML &, bool)",
+        "decl:airdcpp/share/ShareManager.h:303:CXXMethod:saveProfiles(SimpleXML &)",
+        "decl:airdcpp/share/ShareManager.h:305:FieldDecl:searchCounters",
+        "decl:airdcpp/share/SharePathValidator.h:34:EnumDecl:ShareValidatorErrorType",
+        "decl:airdcpp/share/SharePathValidator.h:35:EnumConstantDecl:TYPE_FORBIDDEN_GENERIC",
+        "decl:airdcpp/share/SharePathValidator.h:36:EnumConstantDecl:TYPE_CONFIG_BOOLEAN",
+        "decl:airdcpp/share/SharePathValidator.h:37:EnumConstantDecl:TYPE_CONFIG_ADJUSTABLE",
+        "decl:airdcpp/share/SharePathValidator.h:39:EnumConstantDecl:TYPE_EXCLUDED",
+        "decl:airdcpp/share/SharePathValidator.h:40:EnumConstantDecl:TYPE_HOOK",
+        "decl:airdcpp/share/SharePathValidator.h:43:ClassDecl:ShareValidatorException",
+        "decl:airdcpp/share/SharePathValidator.h:49:CXXMethod:getType()",
+        "decl:airdcpp/share/SharePathValidator.h:53:CXXMethod:isReportableError(ShareValidatorErrorType)",
+        "decl:airdcpp/share/SharePathValidator.h:55:FieldDecl:type",
+        "decl:airdcpp/share/SharePathValidator.h:58:ClassDecl:SharePathValidator",
+        "decl:airdcpp/share/SharePathValidator.h:60:FieldDecl:fileValidationHook",
+        "decl:airdcpp/share/SharePathValidator.h:61:FieldDecl:directoryValidationHook",
+        "decl:airdcpp/share/SharePathValidator.h:62:FieldDecl:newDirectoryValidationHook",
+        "decl:airdcpp/share/SharePathValidator.h:63:FieldDecl:newFileValidationHook",
+        "decl:airdcpp/share/SharePathValidator.h:65:TypeAliasDecl:RootPointParser",
+        "decl:airdcpp/share/SharePathValidator.h:69:CXXMethod:getExcludedPaths()",
+        "decl:airdcpp/share/SharePathValidator.h:70:CXXMethod:setExcludedPaths(const StringSet &)",
+        "decl:airdcpp/share/SharePathValidator.h:74:CXXMethod:addExcludedPath(const string &)",
+        "decl:airdcpp/share/SharePathValidator.h:75:CXXMethod:removeExcludedPath(const string &)",
+        "decl:airdcpp/share/SharePathValidator.h:78:CXXMethod:reloadSkiplist()",
+        "decl:airdcpp/share/SharePathValidator.h:81:CXXMethod:matchSkipList(const string &)",
+        "decl:airdcpp/share/SharePathValidator.h:83:CXXMethod:saveExcludes(SimpleXML &)",
+        "decl:airdcpp/share/SharePathValidator.h:84:CXXMethod:loadExcludes(SimpleXML &)",
+        "decl:airdcpp/share/SharePathValidator.h:88:CXXMethod:validateRootPath(const string &)",
+        "decl:airdcpp/share/SharePathValidator.h:93:CXXMethod:validateNewDirectoryPathTokensHooked(const string &, const StringList &, bool, CallerPtr)",
+        "decl:airdcpp/share/SharePathValidator.h:97:CXXMethod:validateHooked(const FileItemInfoBase &, const string &, bool, CallerPtr, bool, bool)",
+        "decl:airdcpp/share/SharePathValidator.h:102:CXXMethod:validateNewPathHooked(const string &, bool, bool, CallerPtr)",
+        "decl:airdcpp/share/SharePathValidator.h:107:CXXMethod:checkSharedName(const string &, bool, int64_t)",
+        "decl:airdcpp/share/SharePathValidator.h:109:CXXMethod:isExcluded(const string &)",
+        "decl:airdcpp/share/SharePathValidator.h:111:FieldDecl:skipList",
+        "decl:airdcpp/share/SharePathValidator.h:112:FieldDecl:winDir",
+        "decl:airdcpp/share/SharePathValidator.h:116:FieldDecl:excludedPaths",
+        "decl:airdcpp/share/SharePathValidator.h:118:FieldDecl:rootPointParser",
+        "decl:airdcpp/share/SharePathValidator.h:120:FieldDecl:cs",
+        "decl:airdcpp/share/ShareManager.h:233:CXCursor_Constructor:4493a5334617",
+        "decl:airdcpp/share/ShareManager.h:234:CXCursor_Destructor:a44c01403434",
+        "decl:airdcpp/share/ShareManager.h:251:CXCursor_Constructor:42f9ec4c4d96",
+        "decl:airdcpp/share/ShareManager.h:265:CXCursor_Constructor:b43f89a63893",
+        "decl:airdcpp/share/SharePathValidator.h:45:CXCursor_Constructor:890ff2843770",
+        "decl:airdcpp/share/SharePathValidator.h:66:CXCursor_Constructor:f0ed0f95d19f"
+      ]
+    },
+    {
+      "id": "share.events",
+      "kind": "event",
+      "upstream_symbols": [
+        "ShareManagerListener::RefreshQueued",
+        "ShareManagerListener::RefreshStarted",
+        "ShareManagerListener::RefreshCompleted",
+        "ShareManagerListener::RootCreated",
+        "ShareManagerListener::RootRemoved",
+        "ShareManagerListener::RootUpdated",
+        "ShareManagerListener::RootRefreshState",
+        "ShareManagerListener::ExcludeAdded",
+        "ShareManagerListener::ExcludeRemoved"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManagerListener.h",
+          "start_line": 25,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 960,
+          "end_line": 1008
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 925,
+          "end_line": 934
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Refresh events carry ShareRefreshTask; completion carries success and ShareRefreshStats. Root and exclude events carry the affected path; refresh-state carries path."
+        ],
+        "events": [
+          "refresh queued, started, completed; root created/removed/updated/refresh-state; exclude added/removed"
+        ],
+        "errors": [
+          "No event payload is supplied for an error; completion success is an explicit boolean."
+        ],
+        "completion": "Speaker callbacks are synchronous at fire sites; actual refresh completion occurs on task worker.",
+        "cancellation": "Canceled refresh is represented in task state and completion success flag; consumers must not equate task removal with success.",
+        "persistence": [],
+        "resources": [
+          "Speaker listener registry; callback invocation follows Speaker locking contract documented in docs/lifecycle-and-threading.md."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given a refresh task is queued and later completes, when listener callbacks are delivered, then queued/start/completed events preserve task identity and completion includes success and stats."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManagerListener.h:26:ClassDecl:ShareManagerListener",
+        "decl:airdcpp/share/ShareManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/share/ShareManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/share/ShareManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/ShareManagerListener.h:29:30)",
+        "decl:airdcpp/share/ShareManagerListener.h:31:TypedefDecl:RefreshQueued",
+        "decl:airdcpp/share/ShareManagerListener.h:32:TypedefDecl:RefreshStarted",
+        "decl:airdcpp/share/ShareManagerListener.h:33:TypedefDecl:RefreshCompleted",
+        "decl:airdcpp/share/ShareManagerListener.h:40:TypedefDecl:RootCreated",
+        "decl:airdcpp/share/ShareManagerListener.h:41:TypedefDecl:RootRemoved",
+        "decl:airdcpp/share/ShareManagerListener.h:42:TypedefDecl:RootUpdated",
+        "decl:airdcpp/share/ShareManagerListener.h:43:TypedefDecl:RootRefreshState",
+        "decl:airdcpp/share/ShareManagerListener.h:45:TypedefDecl:ExcludeAdded",
+        "decl:airdcpp/share/ShareManagerListener.h:46:TypedefDecl:ExcludeRemoved",
+        "decl:airdcpp/share/ShareManagerListener.h:48:CXXMethod:on(RefreshQueued, const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManagerListener.h:49:CXXMethod:on(RefreshStarted, const ShareRefreshTask &)",
+        "decl:airdcpp/share/ShareManagerListener.h:50:CXXMethod:on(RefreshCompleted, const ShareRefreshTask &, bool, const ShareRefreshStats &)",
+        "decl:airdcpp/share/ShareManagerListener.h:57:CXXMethod:on(RootCreated, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:58:CXXMethod:on(RootRemoved, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:59:CXXMethod:on(RootUpdated, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:60:CXXMethod:on(RootRefreshState, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:62:CXXMethod:on(ExcludeAdded, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:63:CXXMethod:on(ExcludeRemoved, const string &)",
+        "decl:airdcpp/share/ShareManagerListener.h:28:CXCursor_Destructor:6e140ccb6ea4"
+      ]
+    },
+    {
+      "id": "share.model.directorycontentinfo",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DirectoryContentInfo public declarations: DirectoryContentInfo (), DirectoryContentInfo (), bool () const noexcept, bool () const noexcept, int (const DirectoryContentInfo &, const DirectoryContentInfo &) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/types/DirectoryContentInfo.h",
+          "start_line": 27,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "This declaration group represents directory child/content summary value."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous value access except refresh queue and filesystem callbacks, which are represented by their owning operation records.",
+        "cancellation": "Only refresh-task values carry cancellation; individual tree/model accessors have no cancellation.",
+        "persistence": [],
+        "resources": [
+          "ShareTree uses reader/writer locking around root and TTH indexes; other concrete object lifetime is managed by share tree/profile managers."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given share tree content is queried, when the corresponding model accessors are used, then returned root/file values reflect the indexed current tree and profile metadata."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:27:StructDecl:DirectoryContentInfo",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:28:CXXMethod:uninitialized()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:32:CXXMethod:empty()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:38:FieldDecl:directories",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:39:FieldDecl:files",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:41:CXXMethod:isInitialized()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:45:CXXMethod:isEmpty()",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:49:CXXMethod:Sort(const DirectoryContentInfo &, const DirectoryContentInfo &)",
+        "decl:airdcpp/core/types/DirectoryContentInfo.h:36:CXCursor_Constructor:bb478541da4f"
+      ]
+    },
+    {
+      "id": "share.model.dupetype",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DupeType public declarations: "
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/types/DupeType.h",
+          "start_line": 24,
+          "end_line": 41
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "This declaration group represents typed directory duplicate classification."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous value access except refresh queue and filesystem callbacks, which are represented by their owning operation records.",
+        "cancellation": "Only refresh-task values carry cancellation; individual tree/model accessors have no cancellation.",
+        "persistence": [],
+        "resources": [
+          "ShareTree uses reader/writer locking around root and TTH indexes; other concrete object lifetime is managed by share tree/profile managers."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose copied value data and completion/error results; do not expose Core-owned tree pointers or callbacks.",
+      "acceptance_scenarios": [
+        "Given share tree content is queried, when the corresponding model accessors are used, then returned root/file values reflect the indexed current tree and profile metadata."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/types/DupeType.h:24:EnumDecl:DupeType",
+        "decl:airdcpp/core/types/DupeType.h:25:EnumConstantDecl:DUPE_NONE",
+        "decl:airdcpp/core/types/DupeType.h:27:EnumConstantDecl:DUPE_SHARE_PARTIAL",
+        "decl:airdcpp/core/types/DupeType.h:28:EnumConstantDecl:DUPE_SHARE_FULL",
+        "decl:airdcpp/core/types/DupeType.h:30:EnumConstantDecl:DUPE_QUEUE_PARTIAL",
+        "decl:airdcpp/core/types/DupeType.h:31:EnumConstantDecl:DUPE_QUEUE_FULL",
+        "decl:airdcpp/core/types/DupeType.h:33:EnumConstantDecl:DUPE_FINISHED_PARTIAL",
+        "decl:airdcpp/core/types/DupeType.h:34:EnumConstantDecl:DUPE_FINISHED_FULL",
+        "decl:airdcpp/core/types/DupeType.h:36:EnumConstantDecl:DUPE_SHARE_QUEUE",
+        "decl:airdcpp/core/types/DupeType.h:37:EnumConstantDecl:DUPE_SHARE_FINISHED",
+        "decl:airdcpp/core/types/DupeType.h:38:EnumConstantDecl:DUPE_QUEUE_FINISHED",
+        "decl:airdcpp/core/types/DupeType.h:40:EnumConstantDecl:DUPE_SHARE_QUEUE_FINISHED"
+      ]
+    },
+    {
+      "id": "share.filelist-streams",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::generatePartialList",
+        "ShareManager::generateTTHList",
+        "ShareManager::getTree",
+        "ShareManager::generateOwnList",
+        "generatePartialList MemoryInputStream *(const string &, bool, const OptionalProfileToken &) const noexcept @ airdcpp/share/ShareManager.h:147",
+        "generateTTHList MemoryInputStream *(const string &, bool, ProfileToken) const noexcept @ airdcpp/share/ShareManager.h:148",
+        "getTree MemoryInputStream *(const string &, ProfileToken) const noexcept @ airdcpp/share/ShareManager.h:149",
+        "generateOwnList string (ProfileToken) @ airdcpp/share/ShareManager.h:173"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 128,
+          "end_line": 157
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 515,
+          "end_line": 534
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 1024,
+          "end_line": 1129
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 140,
+          "end_line": 180
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ADC virtual path, recursion flag and optional/profile token; own-list and getTree additionally take a profile or virtual filename."
+        ],
+        "preconditions": [
+          "Tree listing generation resolves against the currently loaded share tree/profile. generateOwnList requests forced generation, which may still reuse a clean cached XML list."
+        ],
+        "defaults": [],
+        "effects": [
+          "generatePartialList writes an ADC filelist to a string stream and returns a heap-allocated MemoryInputStream, or null when the generated XML is empty. generateTTHList similarly emits TTH strings and returns null when empty. getTree accepts a TTH/<root> request or resolves a profile list file to its TTH, then returns serialized tiger-tree leaf data as a new MemoryInputStream. generateOwnList calls generateXmlList with forced=true and returns its file path; FileList::allowGenerateNew permits regeneration only when forced and XML is dirty, forceXmlRefresh is set, or XML is dirty and at least 15 minutes elapsed. A clean unforced cache is unchanged."
+        ],
+        "events": [],
+        "errors": [
+          "generateOwnList propagates ShareException when profile is unavailable, filelist is too large, or generation fails without a prior usable list. getTree catches Core Exception while resolving a profile list and returns null. Partial/TTH generators are noexcept and signal empty output with null."
+        ],
+        "completion": "Synchronous generation. The caller receives ownership of every non-null MemoryInputStream pointer and must release it. The own-list return is a path to a generated/cache file, not an owned stream.",
+        "cancellation": "No cancellation parameter; tree traversal and full-list generation run to return.",
+        "persistence": [
+          "Full list generation stores XML/BZ output and Merkle roots through the profile filelist cache; partial/TTH streams are transient."
+        ],
+        "resources": [
+          "Filelist serialization and compression; HashManager for tree reads; allocated MemoryInputStream ownership transfers to caller."
+        ]
+      },
+      "ownership_evidence": [
+        "Source implementations return copied values or explicitly allocated streams; non-null MemoryInputStream pointer ownership transfers to the caller."
+      ],
+      "threading_evidence": [
+        "These read/generation paths execute synchronously; ShareTree protects indexed traversals with its shared mutex; the returned stats/bytes are snapshots."
+      ],
+      "proposed_bridge_requirement": "Return copied snapshots and explicit owned byte-stream values; preserve null/exception behavior and make the output ownership boundary explicit.",
+      "acceptance_scenarios": [
+        "Given a virtual path that produces no partial-list bytes, when generatePartialList is called, then it returns null. Given an invalid profile list filename, when getTree resolves it, then it returns null; given generateOwnList has a valid profile, then it returns the cached/generated full-list path.",
+        "Given generateOwnList is called for a profile with clean XML and no forceXmlRefresh, when generateXmlList evaluates allowGenerateNew, then forced=true alone does not regenerate the cached list."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:147:CXXMethod:generatePartialList(const string &, bool, const OptionalProfileToken &)",
+        "decl:airdcpp/share/ShareManager.h:148:CXXMethod:generateTTHList(const string &, bool, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:149:CXXMethod:getTree(const string &, ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:173:CXXMethod:generateOwnList(ProfileToken)"
+      ]
+    },
+    {
+      "id": "share.profile-size-snapshot",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::getProfileInfo",
+        "ShareManager::getTotalShareSize",
+        "getTotalShareSize int64_t (ProfileToken) const noexcept @ airdcpp/share/ShareManager.h:156",
+        "getProfileInfo void (ProfileToken, int64_t &, size_t &) const noexcept @ airdcpp/share/ShareManager.h:159"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 137,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 418,
+          "end_line": 441
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 541,
+          "end_line": 547
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 285,
+          "end_line": 320
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ProfileToken; getProfileInfo also receives total-size and file-count output references."
+        ],
+        "preconditions": [
+          "Profile token must identify an available profile for a computed result; SP_HIDDEN is handled as an immediate no-op."
+        ],
+        "defaults": [
+          "getTotalShareSize initializes its local total and count to zero, so hidden or missing profiles yield zero. getProfileInfo itself does not initialize output references before early return."
+        ],
+        "effects": [
+          "For a valid non-hidden profile, dirty cached content statistics are recomputed from ShareTree, saved back to ShareProfile, and marked clean; then outputs receive cached size and count. getTotalShareSize returns the total-size value from that operation."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous snapshot read; profile cache may be populated as a side effect.",
+        "cancellation": "Not cancellable.",
+        "persistence": [
+          "Share size and file-count metrics are cached in memory. ShareProfileManager::saveProfile serializes only the profile token and name, so these metrics have no independent durable persistence."
+        ],
+        "resources": [
+          "ShareProfileManager and ShareTree; callers must not assume output references are overwritten for SP_HIDDEN or missing profiles."
+        ]
+      },
+      "ownership_evidence": [
+        "Source implementations return copied values or explicitly allocated streams; non-null MemoryInputStream pointer ownership transfers to the caller."
+      ],
+      "threading_evidence": [
+        "These read/generation paths execute synchronously; ShareTree protects indexed traversals with its shared mutex; the returned stats/bytes are snapshots."
+      ],
+      "proposed_bridge_requirement": "Return copied snapshots and explicit owned byte-stream values; preserve null/exception behavior and make the output ownership boundary explicit.",
+      "acceptance_scenarios": [
+        "Given getProfileInfo is called for SP_HIDDEN with outputs initialized by the caller, when it returns, then it leaves those outputs unchanged; when getTotalShareSize is called for the same token, then its own initialized local result is zero."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:156:CXXMethod:getTotalShareSize(ProfileToken)",
+        "decl:airdcpp/share/ShareManager.h:159:CXXMethod:getProfileInfo(ProfileToken, int64_t &, size_t &)"
+      ]
+    },
+    {
+      "id": "share.bloom-snapshot",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::getBloom",
+        "ShareManager::getBloomFileCount",
+        "getBloom void (ProfileToken, ByteVector &, size_t, size_t, size_t) const noexcept @ airdcpp/share/ShareManager.h:165",
+        "getBloomFileCount size_t (ProfileToken) const noexcept @ airdcpp/share/ShareManager.h:166"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 122,
+          "end_line": 123
+        },
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 139,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 442,
+          "end_line": 460
+        },
+        {
+          "path": "airdcpp/share/UploadFileProvider.h",
+          "start_line": 30,
+          "end_line": 61
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Profile token; bloom output byte vector plus k/m/h sizing parameters for getBloom; output count aggregation for getBloomFileCount."
+        ],
+        "preconditions": [
+          "Every registered UploadFileProvider contributes according to profile visibility."
+        ],
+        "defaults": [],
+        "effects": [
+          "getBloom constructs a HashBloom with the caller-provided k, m and h, asks every provider for profile entries, then copies the bloom bytes to the supplied vector. The contract comment states permanent and temporary shared TTHs are included. getBloomFileCount sums provider-reported counts for the profile."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous provider aggregation.",
+        "cancellation": "Not cancellable.",
+        "persistence": [],
+        "resources": [
+          "Registered providers include ShareTree and temporary-share provider; output bytes are copied into caller-owned vector."
+        ]
+      },
+      "ownership_evidence": [
+        "Source implementations return copied values or explicitly allocated streams; non-null MemoryInputStream pointer ownership transfers to the caller."
+      ],
+      "threading_evidence": [
+        "These read/generation paths execute synchronously; ShareTree protects indexed traversals with its shared mutex; the returned stats/bytes are snapshots."
+      ],
+      "proposed_bridge_requirement": "Return copied snapshots and explicit owned byte-stream values; preserve null/exception behavior and make the output ownership boundary explicit.",
+      "acceptance_scenarios": [
+        "Given permanent and temporary providers return TTH entries for a profile, when getBloom is called with explicit dimensions, then the output bloom contains provider contributions and getBloomFileCount aggregates their reported counts."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:165:CXXMethod:getBloom(ProfileToken, ByteVector &, size_t, size_t, size_t)",
+        "decl:airdcpp/share/ShareManager.h:166:CXXMethod:getBloomFileCount(ProfileToken)"
+      ]
+    },
+    {
+      "id": "share.statistics-snapshots",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ShareManager::getShareItemStats",
+        "ShareManager::getSearchMatchingStats",
+        "getShareItemStats optional<ShareItemStats> () const noexcept @ airdcpp/share/ShareManager.h:183",
+        "getSearchMatchingStats ShareSearchStats () const noexcept @ airdcpp/share/ShareManager.h:184"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareManager.h",
+          "start_line": 160,
+          "end_line": 168
+        },
+        {
+          "path": "airdcpp/share/ShareManager.cpp",
+          "start_line": 605,
+          "end_line": 626
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 610,
+          "end_line": 665
+        },
+        {
+          "path": "airdcpp/share/ShareTree.cpp",
+          "start_line": 788,
+          "end_line": 807
+        },
+        {
+          "path": "airdcpp/share/ShareStats.h",
+          "start_line": 25,
+          "end_line": 57
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [
+          "Statistics reflect current in-memory share tree/counters and elapsed process tick time."
+        ],
+        "defaults": [
+          "ShareItemStats fields default to zero; ShareSearchStats fields default to zero before getSearchMatchingStats computes rate/average fields."
+        ],
+        "effects": [
+          "getShareItemStats excludes the hidden profile from profileCount; counts roots/directories/files/unique TTHs, shared size, lowercase names and total name bytes; average age/name length are derived from aggregate values. It returns nullopt when uniqueFileCount or totalDirectoryCount is zero. getSearchMatchingStats returns cumulative search counts plus rates/averages derived from elapsed uptime and recorded matching work."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous value snapshot.",
+        "cancellation": "Not cancellable.",
+        "persistence": [],
+        "resources": [
+          "ShareTree read lock while enumerating share aggregates; stats are copied values, not live references."
+        ]
+      },
+      "ownership_evidence": [
+        "Source implementations return copied values or explicitly allocated streams; non-null MemoryInputStream pointer ownership transfers to the caller."
+      ],
+      "threading_evidence": [
+        "These read/generation paths execute synchronously; ShareTree protects indexed traversals with its shared mutex; the returned stats/bytes are snapshots."
+      ],
+      "proposed_bridge_requirement": "Return copied snapshots and explicit owned byte-stream values; preserve null/exception behavior and make the output ownership boundary explicit.",
+      "acceptance_scenarios": [
+        "Given the share has no unique files or directories, when getShareItemStats runs, then it returns nullopt. Given search counters have accumulated searches, when getSearchMatchingStats runs, then the returned value includes cumulative counts and uptime-derived rates."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/share/ShareManager.h:183:CXXMethod:getShareItemStats()",
+        "decl:airdcpp/share/ShareManager.h:184:CXXMethod:getSearchMatchingStats()"
+      ]
+    },
+    {
+      "id": "share.internal-debug-regions",
+      "kind": "internal",
+      "upstream_symbols": [
+        "ShareDirectory/ShareTree conditional source regions (DEBUG-only checks)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/ShareDirectory.h",
+          "start_line": 125,
+          "end_line": 137
+        },
+        {
+          "path": "airdcpp/share/ShareDirectory.h",
+          "start_line": 272,
+          "end_line": 284
+        },
+        {
+          "path": "airdcpp/share/ShareTree.h",
+          "start_line": 120,
+          "end_line": 130
+        },
+        {
+          "path": "airdcpp/share/ShareTree.h",
+          "start_line": 250,
+          "end_line": 258
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Debug build conditional compilation regions."
+        ],
+        "preconditions": [
+          "Only compiled when the source build enables the relevant debug preprocessor condition."
+        ],
+        "defaults": [],
+        "effects": [
+          "These regions add debug-only consistency assertions/diagnostics to share tree/directory operations; they are not callable bridge API or independently observable release behavior."
+        ],
+        "events": [],
+        "errors": [
+          "A debug assertion can terminate/assert on invariant violation; release configuration omits the guarded code."
+        ],
+        "completion": "Synchronous with the guarded tree/directory method.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "ShareDirectory and ShareTree internal invariants."
+        ]
+      },
+      "ownership_evidence": [
+        "Conditional source regions are compiler-guarded implementation checks, not standalone objects or public operations."
+      ],
+      "threading_evidence": [
+        "They execute in the calling share operation context."
+      ],
+      "proposed_bridge_requirement": "Do not create bridge methods for debug-only implementation regions; retain their invariant coverage in native tests where applicable.",
+      "acceptance_scenarios": [
+        "Given a debug configuration, when guarded share tree paths execute, then the checks are compiled; given release configuration, the guarded regions are absent."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/ShareDirectory.h:133-135:conditional-region",
+        "decl:airdcpp/share/ShareDirectory.h:279-281:conditional-region",
+        "decl:airdcpp/share/ShareTree.h:125-127:conditional-region",
+        "decl:airdcpp/share/ShareTree.h:256-256:conditional-region"
+      ]
+    }
+  ]
+}

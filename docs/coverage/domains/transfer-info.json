@@ -1,0 +1,2236 @@
+{
+  "schema_version": 1,
+  "domain_id": "transfer-info",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "transfer.progress-model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "Transfer progress/rate/segment metadata",
+        "Transfer::tick/getAverageSpeed/getSecondsLeft/addPos/resetPos"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/Transfer.h",
+          "start_line": 34,
+          "end_line": 94
+        },
+        {
+          "path": "airdcpp/transfer/Transfer.cpp",
+          "start_line": 39,
+          "end_line": 157
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Segment start/range; actual bytes received/sent; timer ticks in monotonic milliseconds."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Type defaults to FILE; segment starts at (0,-1); pos/actual/start initialize to 0."
+        ],
+        "effects": [
+          "Transfer tracks file/segment position separately from actual socket bytes; reset clears positions and samples. tick records (time,pos), updates timestamp without new sample when unchanged, prunes old samples only after >15 seconds while retaining at least 15 samples. Average speed is bytes-per-second from first/last sample; seconds-left uses segment remaining bytes, integer-divided by speed, and returns 0 when speed <=0. isFilelist is true only full/partial list."
+        ],
+        "events": [],
+        "errors": [
+          "Negative/untrusted positions are not validated by addPos; this is a Core-internal mutator and should not be exposed directly. getSecondsLeft(wholeFile=true) casts base Transfer to Upload, so using it on a Download is unsafe; avoid whole-file mode except verified Upload."
+        ],
+        "completion": "Progress is a mutable snapshot updated by transfer callbacks/timer ticks.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Each Transfer references its owning UserConnection and maintains a mutex-protected sample deque."
+        ]
+      },
+      "ownership_evidence": [
+        "Transfer stores UserConnection by reference and monotonically assigned TransferToken; non-copyable."
+      ],
+      "threading_evidence": [
+        "Sample deque is protected by SharedMutex for tick and average-speed reads; pos/actual updates are unguarded in Transfer.cpp:146-156 and occur on transfer connection path."
+      ],
+      "proposed_bridge_requirement": "Expose immutable progress values and documented units; bridge owns mutation only through Core transfer lifecycle, and never invokes unsafe whole-file ETA on Download.",
+      "acceptance_scenarios": [
+        "Given a transfer has samples with changed positions over time, when average speed is calculated, then the result is the delta bytes per second over retained sample endpoints.",
+        "Given a transfer has no positive average speed, when seconds-left is queried for the current segment, then it returns zero.",
+        "Given a Download object, when bridge code computes remaining time, then it never calls wholeFile=true because the implementation downcasts to Upload."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/Transfer.h:32:ClassDecl:Transfer",
+        "decl:airdcpp/transfer/Transfer.h:34:EnumDecl:Type",
+        "decl:airdcpp/transfer/Transfer.h:35:EnumConstantDecl:TYPE_FILE",
+        "decl:airdcpp/transfer/Transfer.h:36:EnumConstantDecl:TYPE_FULL_LIST",
+        "decl:airdcpp/transfer/Transfer.h:37:EnumConstantDecl:TYPE_PARTIAL_LIST",
+        "decl:airdcpp/transfer/Transfer.h:38:EnumConstantDecl:TYPE_TREE",
+        "decl:airdcpp/transfer/Transfer.h:39:EnumConstantDecl:TYPE_TTH_LIST",
+        "decl:airdcpp/transfer/Transfer.h:40:EnumConstantDecl:TYPE_LAST",
+        "decl:airdcpp/transfer/Transfer.h:43:VarDecl:names",
+        "decl:airdcpp/transfer/Transfer.h:45:VarDecl:USER_LIST_NAME_EXTRACTED",
+        "decl:airdcpp/transfer/Transfer.h:46:VarDecl:USER_LIST_NAME_BZ",
+        "decl:airdcpp/transfer/Transfer.h:51:CXXMethod:getPos()",
+        "decl:airdcpp/transfer/Transfer.h:53:CXXMethod:getStartPos()",
+        "decl:airdcpp/transfer/Transfer.h:55:CXXMethod:resetPos()",
+        "decl:airdcpp/transfer/Transfer.h:56:CXXMethod:addPos(int64_t, int64_t)",
+        "decl:airdcpp/transfer/Transfer.h:58:EnumConstantDecl:MIN_SAMPLES",
+        "decl:airdcpp/transfer/Transfer.h:58:EnumConstantDecl:MIN_SECS",
+        "decl:airdcpp/transfer/Transfer.h:58:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/Transfer.h:58:2)",
+        "decl:airdcpp/transfer/Transfer.h:61:CXXMethod:tick()",
+        "decl:airdcpp/transfer/Transfer.h:63:CXXMethod:getActual()",
+        "decl:airdcpp/transfer/Transfer.h:65:CXXMethod:getSegmentSize()",
+        "decl:airdcpp/transfer/Transfer.h:66:CXXMethod:setSegmentSize(int64_t)",
+        "decl:airdcpp/transfer/Transfer.h:68:CXXMethod:getOverlapped()",
+        "decl:airdcpp/transfer/Transfer.h:69:CXXMethod:setOverlapped(bool)",
+        "decl:airdcpp/transfer/Transfer.h:71:CXXMethod:getAverageSpeed()",
+        "decl:airdcpp/transfer/Transfer.h:73:CXXMethod:getSecondsLeft(bool)",
+        "decl:airdcpp/transfer/Transfer.h:75:CXXMethod:getParams(const UserConnection &, ParamMap &)",
+        "decl:airdcpp/transfer/Transfer.h:77:CXXMethod:getUser()",
+        "decl:airdcpp/transfer/Transfer.h:78:CXXMethod:getHintedUser()",
+        "decl:airdcpp/transfer/Transfer.h:80:CXXMethod:getTTH()",
+        "decl:airdcpp/transfer/Transfer.h:82:CXXMethod:getUserConnection()",
+        "decl:airdcpp/transfer/Transfer.h:83:CXXMethod:getUserConnection()",
+        "decl:airdcpp/transfer/Transfer.h:84:CXXMethod:getConnectionToken()",
+        "decl:airdcpp/transfer/Transfer.h:85:CXXMethod:getToken()",
+        "decl:airdcpp/transfer/Transfer.h:87:FieldDecl:path",
+        "decl:airdcpp/transfer/Transfer.h:88:FieldDecl:segment",
+        "decl:airdcpp/transfer/Transfer.h:89:FieldDecl:type",
+        "decl:airdcpp/transfer/Transfer.h:90:FieldDecl:start",
+        "decl:airdcpp/transfer/Transfer.h:92:CXXMethod:appendFlags(OrderedStringSet &)",
+        "decl:airdcpp/transfer/Transfer.h:94:CXXMethod:isFilelist()",
+        "decl:airdcpp/transfer/Transfer.h:96:TypeAliasDecl:Sample",
+        "decl:airdcpp/transfer/Transfer.h:97:TypeAliasDecl:SampleList",
+        "decl:airdcpp/transfer/Transfer.h:99:FieldDecl:samples",
+        "decl:airdcpp/transfer/Transfer.h:100:FieldDecl:cs",
+        "decl:airdcpp/transfer/Transfer.h:103:FieldDecl:tth",
+        "decl:airdcpp/transfer/Transfer.h:105:FieldDecl:actual",
+        "decl:airdcpp/transfer/Transfer.h:107:FieldDecl:pos",
+        "decl:airdcpp/transfer/Transfer.h:109:FieldDecl:userConnection",
+        "decl:airdcpp/transfer/Transfer.h:111:FieldDecl:token",
+        "decl:airdcpp/transfer/Transfer.h:113:VarDecl:idCounter",
+        "decl:airdcpp/transfer/Transfer.h:87:macro:GETSET",
+        "decl:airdcpp/transfer/Transfer.h:88:macro:GETSET",
+        "decl:airdcpp/transfer/Transfer.h:89:macro:IGETSET",
+        "decl:airdcpp/transfer/Transfer.h:90:macro:IGETSET",
+        "decl:airdcpp/transfer/Transfer.h:87:FieldDecl:path",
+        "decl:airdcpp/transfer/Transfer.h:87:macro:GETSET",
+        "decl:airdcpp/transfer/Transfer.h:88:FieldDecl:segment",
+        "decl:airdcpp/transfer/Transfer.h:88:macro:GETSET",
+        "decl:airdcpp/transfer/Transfer.h:89:FieldDecl:type",
+        "decl:airdcpp/transfer/Transfer.h:89:macro:IGETSET",
+        "decl:airdcpp/transfer/Transfer.h:90:FieldDecl:start",
+        "decl:airdcpp/transfer/Transfer.h:90:macro:IGETSET"
+      ]
+    },
+    {
+      "id": "transfer-info-snapshot-model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "TransferInfo fields and derived value accessors",
+        "TransferInfo::getPercentage/getName/isFilelist"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfo.h",
+          "start_line": 34,
+          "end_line": 124
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 118,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 276,
+          "end_line": 305
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 397,
+          "end_line": 418
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Hinted user, upload/download direction, Core connection string token; manager updates fields according to connection/transfer lifecycle."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "timeLeft=-1, size=-1, bytesTransferred=-1, speed=0, type=TYPE_LAST, started=0, state=WAITING, queueToken=0."
+        ],
+        "effects": [
+          "TransferInfo is a shared value-style current record with its own numeric uint32 ID and immutable connection string token/direction. Percentage is bytes/size \u00d7100 only if size>0, otherwise 0. Name is TTH-prefixed target basename for TREE, localized names for list/TTH-list types, otherwise target basename. isFilelist only FULL_LIST or PARTIAL_LIST."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Record lifetime is bound to connection map; shared pointers can outlive removal if retained by a consumer.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "HintedUser identity and strings/sets; contains no Transfer or UserConnection pointer."
+        ]
+      },
+      "ownership_evidence": [
+        "TransferInfo stores immutable hinted user, direction, numeric token and string token; all data exposed is value-like apart from shared ownership wrapper."
+      ],
+      "threading_evidence": [
+        "Fields are updated by TransferInfoManager event callbacks; manager map mutation is cs-locked, but individual TransferInfo fields have no per-record lock."
+      ],
+      "proposed_bridge_requirement": "Represent TransferInfo as a copied Swift-friendly record with direction, connection token, unique token, default/unknown sentinels, and update-mask semantics.",
+      "acceptance_scenarios": [
+        "Given size is unknown or nonpositive, when percentage is read, then it is zero.",
+        "Given transfer type is TREE, when name is read, then it is \u201cTTH: \u201d plus target basename; for FULL_LIST it is localized full-list text.",
+        "Given transfer info is retained after Removed, when manager erases its map entry, then an existing shared snapshot remains readable as a stale final value."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfo.h:32:TypeAliasDecl:TransferInfoToken",
+        "decl:airdcpp/transfer/TransferInfo.h:33:ClassDecl:TransferInfo",
+        "decl:airdcpp/transfer/TransferInfo.h:36:EnumDecl:UpdateFlags",
+        "decl:airdcpp/transfer/TransferInfo.h:37:EnumConstantDecl:STATE",
+        "decl:airdcpp/transfer/TransferInfo.h:38:EnumConstantDecl:TARGET",
+        "decl:airdcpp/transfer/TransferInfo.h:39:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/TransferInfo.h:40:EnumConstantDecl:SIZE",
+        "decl:airdcpp/transfer/TransferInfo.h:41:EnumConstantDecl:STATUS",
+        "decl:airdcpp/transfer/TransferInfo.h:42:EnumConstantDecl:BYTES_TRANSFERRED",
+        "decl:airdcpp/transfer/TransferInfo.h:43:EnumConstantDecl:USER",
+        "decl:airdcpp/transfer/TransferInfo.h:44:EnumConstantDecl:TIME_STARTED",
+        "decl:airdcpp/transfer/TransferInfo.h:45:EnumConstantDecl:SPEED",
+        "decl:airdcpp/transfer/TransferInfo.h:46:EnumConstantDecl:SECONDS_LEFT",
+        "decl:airdcpp/transfer/TransferInfo.h:47:EnumConstantDecl:IP",
+        "decl:airdcpp/transfer/TransferInfo.h:48:EnumConstantDecl:FLAGS",
+        "decl:airdcpp/transfer/TransferInfo.h:49:EnumConstantDecl:ENCRYPTION",
+        "decl:airdcpp/transfer/TransferInfo.h:50:EnumConstantDecl:QUEUE_ID",
+        "decl:airdcpp/transfer/TransferInfo.h:51:EnumConstantDecl:SUPPORTS",
+        "decl:airdcpp/transfer/TransferInfo.h:54:EnumDecl:ItemState",
+        "decl:airdcpp/transfer/TransferInfo.h:55:EnumConstantDecl:STATE_WAITING",
+        "decl:airdcpp/transfer/TransferInfo.h:56:EnumConstantDecl:STATE_FAILED",
+        "decl:airdcpp/transfer/TransferInfo.h:57:EnumConstantDecl:STATE_RUNNING",
+        "decl:airdcpp/transfer/TransferInfo.h:58:EnumConstantDecl:STATE_FINISHED",
+        "decl:airdcpp/transfer/TransferInfo.h:59:EnumConstantDecl:STATE_LAST",
+        "decl:airdcpp/transfer/TransferInfo.h:62:TypeAliasDecl:Ptr",
+        "decl:airdcpp/transfer/TransferInfo.h:63:TypeAliasDecl:List",
+        "decl:airdcpp/transfer/TransferInfo.h:64:TypeAliasDecl:Map",
+        "decl:airdcpp/transfer/TransferInfo.h:70:FieldDecl:timeLeft",
+        "decl:airdcpp/transfer/TransferInfo.h:71:FieldDecl:size",
+        "decl:airdcpp/transfer/TransferInfo.h:73:FieldDecl:encryption",
+        "decl:airdcpp/transfer/TransferInfo.h:74:FieldDecl:ip",
+        "decl:airdcpp/transfer/TransferInfo.h:75:FieldDecl:target",
+        "decl:airdcpp/transfer/TransferInfo.h:76:FieldDecl:statusString",
+        "decl:airdcpp/transfer/TransferInfo.h:77:FieldDecl:bundle",
+        "decl:airdcpp/transfer/TransferInfo.h:78:FieldDecl:flags",
+        "decl:airdcpp/transfer/TransferInfo.h:79:FieldDecl:supports",
+        "decl:airdcpp/transfer/TransferInfo.h:81:FieldDecl:type",
+        "decl:airdcpp/transfer/TransferInfo.h:83:FieldDecl:started",
+        "decl:airdcpp/transfer/TransferInfo.h:84:FieldDecl:bytesTransferred",
+        "decl:airdcpp/transfer/TransferInfo.h:85:FieldDecl:speed",
+        "decl:airdcpp/transfer/TransferInfo.h:86:FieldDecl:state",
+        "decl:airdcpp/transfer/TransferInfo.h:88:FieldDecl:queueToken",
+        "decl:airdcpp/transfer/TransferInfo.h:90:CXXMethod:getToken()",
+        "decl:airdcpp/transfer/TransferInfo.h:94:CXXMethod:getPercentage()",
+        "decl:airdcpp/transfer/TransferInfo.h:98:CXXMethod:getStringToken()",
+        "decl:airdcpp/transfer/TransferInfo.h:102:CXXMethod:isDownload()",
+        "decl:airdcpp/transfer/TransferInfo.h:106:CXXMethod:isFilelist()",
+        "decl:airdcpp/transfer/TransferInfo.h:110:CXXMethod:getHintedUser()",
+        "decl:airdcpp/transfer/TransferInfo.h:114:CXXMethod:setHubUrl(const string &)",
+        "decl:airdcpp/transfer/TransferInfo.h:118:CXXMethod:getName()",
+        "decl:airdcpp/transfer/TransferInfo.h:128:FieldDecl:user",
+        "decl:airdcpp/transfer/TransferInfo.h:129:FieldDecl:download",
+        "decl:airdcpp/transfer/TransferInfo.h:131:FieldDecl:token",
+        "decl:airdcpp/transfer/TransferInfo.h:132:FieldDecl:stringToken",
+        "decl:airdcpp/transfer/TransferInfo.h:134:VarDecl:idCounter",
+        "decl:airdcpp/transfer/TransferInfo.h:137:TypeAliasDecl:TransferInfoPtr",
+        "decl:airdcpp/transfer/TransferInfo.h:70:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:71:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:73:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:74:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:75:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:76:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:77:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:78:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:79:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:81:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:83:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:84:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:85:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:86:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:88:macro:IGETSET"
+      ]
+    },
+    {
+      "id": "transfer-info.connection-state-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "TransferInfoManager::ConnectionManagerListener Added/Connecting/Forced/UserUpdated/Failed/Removed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.h",
+          "start_line": 38,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.h",
+          "start_line": 59,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 37,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 118,
+          "end_line": 192
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 193,
+          "end_line": 259
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "ConnectionQueueItem events, per-connection token, hinted user, connection type/hub and QueueManager state."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Manager subscribes to connection/download/upload managers at construction and removes listeners at destruction. Added ignores PM connections; otherwise creates a TransferInfo keyed by connection token, initializes status Connecting and download queue metadata, inserts it, then emits Added. Connecting marks WAITING, updates status/hub and queue metadata, then Updated with STATUS/TARGET/TYPE/SIZE/QUEUE_ID/STATE/USER flags. Forced sets connecting-forced status and state WAITING unless currently RUNNING. UserUpdated changes hub hint and emits USER. Failed sets last bundle; OLD_CLIENT overrides error with SOURCE_TOO_OLD; marks FAILED, sets speed/bytes/timeLeft to -1, emits Updated then Failed, and avoids duplicate failure overwrite. Removed erases before Removed event."
+        ],
+        "events": [
+          "Added",
+          "Updated",
+          "Failed",
+          "Removed"
+        ],
+        "errors": [
+          "PM connections are intentionally absent from this info collection; missing map token means no event."
+        ],
+        "completion": "Connection status record lasts until ConnectionManager Removed; failed remains queryable until then.",
+        "cancellation": "Removing the connection removes record; events have no cancellation operation.",
+        "persistence": [
+          "In-memory only; no transfer-info disk persistence."
+        ],
+        "resources": [
+          "ConnectionManager, DownloadManager, UploadManager listeners; QueueManager startDownload for matching download queue metadata."
+        ]
+      },
+      "ownership_evidence": [
+        "Map keyed by ConnectionQueueItem token string; Removed erases map entry before firing Removed (TransferInfoManager.cpp:140-155)."
+      ],
+      "threading_evidence": [
+        "Manager listener callbacks synchronously mutate map/records and fire Speaker events; map operations use shared mutex but record fields do not."
+      ],
+      "proposed_bridge_requirement": "Preserve connection-scoped info lifetime and exact update masks; distinguish this observability manager from transfer execution or durable history.",
+      "acceptance_scenarios": [
+        "Given a private-message connection is added, when TransferInfoManager receives Added, then it does not create a TransferInfo or Added event.",
+        "Given a download connection matches a queued item, when Connecting fires, then info is WAITING and includes target/type/size/queue token with the corresponding update mask.",
+        "Given an OLD_CLIENT connection fails then is removed, when events arrive, then one Failed event keeps SOURCE_TOO_OLD status and Removed later erases it."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManager.h:38:ClassDecl:TransferInfoManager",
+        "decl:airdcpp/transfer/TransferInfoManager.h:43:CXXMethod:getTransfers()",
+        "decl:airdcpp/transfer/TransferInfoManager.h:44:CXXMethod:findTransfer(const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:45:CXXMethod:findTransfer(TransferInfoToken)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:47:CXXMethod:addTransfer(const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:49:CXXMethod:onFailed(TransferInfoPtr &, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:50:CXXMethod:starting(const Download *, const string &, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:51:CXXMethod:starting(TransferInfoPtr &, const Transfer *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:52:CXXMethod:onTransferCompleted(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:53:CXXMethod:onTick(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:54:CXXMethod:updateQueueInfo(const TransferInfoPtr &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:56:CXXMethod:on(DownloadManagerListener::Tick, const DownloadList &, uint64_t)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:57:CXXMethod:on(UploadManagerListener::Tick, const UploadList &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:59:CXXMethod:on(ConnectionManagerListener::Added, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:60:CXXMethod:on(ConnectionManagerListener::Removed, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:61:CXXMethod:on(ConnectionManagerListener::Failed, const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:62:CXXMethod:on(ConnectionManagerListener::Connecting, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:63:CXXMethod:on(ConnectionManagerListener::Forced, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:64:CXXMethod:on(ConnectionManagerListener::UserUpdated, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:66:CXXMethod:on(DownloadManagerListener::Starting, const Download *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:67:CXXMethod:on(DownloadManagerListener::Complete, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:68:CXXMethod:on(DownloadManagerListener::Failed, const Download *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:69:CXXMethod:on(DownloadManagerListener::Requesting, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:70:CXXMethod:on(DownloadManagerListener::Idle, const UserConnection *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:72:CXXMethod:on(UploadManagerListener::Starting, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:73:CXXMethod:on(UploadManagerListener::Complete, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:75:FieldDecl:cs",
+        "decl:airdcpp/transfer/TransferInfoManager.h:76:FieldDecl:transfers",
+        "decl:airdcpp/transfer/TransferInfoManager.h:78:CXXMethod:onTransferUpdated(const TransferInfoPtr &, int, bool)"
+      ]
+    },
+    {
+      "id": "transfer-info-running-completion",
+      "kind": "operation",
+      "upstream_symbols": [
+        "TransferInfoManager DownloadManager/UploadManager listeners and TransferInfoManager::onTick/starting/onTransferCompleted"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.h",
+          "start_line": 47,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 59,
+          "end_line": 117
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 260,
+          "end_line": 369
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 389,
+          "end_line": 418
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Download/Upload Starting, Requesting, Tick, Failed, Complete and Idle callbacks; transfer\u2019s position, target, range, speed, remote IP/encryption/supports/flags."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Requesting creates a full start update with REQUESTING status, bundle and available transfer metadata, then Starting event. Download Starting emits partial update for flags/size because initial request did not know all flags/size. Upload Starting populates full metadata. Transfer ticks set speed, bytes, timeLeft and status; before 1 second status is direction-specific starting, thereafter localized percentage-running. Failed Download appends SLOW_USER or OVERLAPPED_SLOW_SEGMENT qualifiers; Idle only fails info when error nonempty. Complete sets FINISHED, speed/timeLeft=0, bytesTransferred=segment size, direction-specific idle-finished status and emits Updated then Completed."
+        ],
+        "events": [
+          "Starting",
+          "Updated",
+          "Tick",
+          "Failed",
+          "Completed"
+        ],
+        "errors": [],
+        "completion": "Synchronous event projections from source managers; update record remains in map until connection removal.",
+        "cancellation": "Not applicable; failure and completion are terminal states for projection until connection removal.",
+        "persistence": [],
+        "resources": [
+          "Download/Upload transfer pointer only during callback; copied metadata stored in TransferInfo."
+        ]
+      },
+      "ownership_evidence": [
+        "TransferInfo stores only copied values; source transfer pointer is used synchronously to populate fields (TransferInfoManager.cpp:276-305,397-420)."
+      ],
+      "threading_evidence": [
+        "Ticks arise from manager timer callbacks; source transfer Tick fires synchronously and this manager sends its own Tick callback in that path."
+      ],
+      "proposed_bridge_requirement": "Emit stable snapshots and exact property masks; do not retain Transfer pointer past callback or infer transfer-engine completion from info updates alone.",
+      "acceptance_scenarios": [
+        "Given a download reaches Requesting then Starting, when TransferInfoManager handles both, then the first update includes requested status/full metadata and the later update adds final size/flags without duplicating unavailable initial fields.",
+        "Given an upload tick has transferred bytes, when a second timer tick arrives, then the info bytes, speed, ETA and running percentage are updated and Tick includes its update mask.",
+        "Given a transfer completes, when Complete is projected, then state becomes FINISHED, bytes equal segment size, speed and ETA are zero, and Completed follows Updated.",
+        "Given a download failure is marked slow-user, when projected, then its status appends the localized slow-user qualifier."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManager.h:38:ClassDecl:TransferInfoManager",
+        "decl:airdcpp/transfer/TransferInfoManager.h:43:CXXMethod:getTransfers()",
+        "decl:airdcpp/transfer/TransferInfoManager.h:44:CXXMethod:findTransfer(const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:45:CXXMethod:findTransfer(TransferInfoToken)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:47:CXXMethod:addTransfer(const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:49:CXXMethod:onFailed(TransferInfoPtr &, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:50:CXXMethod:starting(const Download *, const string &, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:51:CXXMethod:starting(TransferInfoPtr &, const Transfer *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:52:CXXMethod:onTransferCompleted(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:53:CXXMethod:onTick(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:54:CXXMethod:updateQueueInfo(const TransferInfoPtr &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:56:CXXMethod:on(DownloadManagerListener::Tick, const DownloadList &, uint64_t)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:57:CXXMethod:on(UploadManagerListener::Tick, const UploadList &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:59:CXXMethod:on(ConnectionManagerListener::Added, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:60:CXXMethod:on(ConnectionManagerListener::Removed, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:61:CXXMethod:on(ConnectionManagerListener::Failed, const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:62:CXXMethod:on(ConnectionManagerListener::Connecting, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:63:CXXMethod:on(ConnectionManagerListener::Forced, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:64:CXXMethod:on(ConnectionManagerListener::UserUpdated, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:66:CXXMethod:on(DownloadManagerListener::Starting, const Download *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:67:CXXMethod:on(DownloadManagerListener::Complete, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:68:CXXMethod:on(DownloadManagerListener::Failed, const Download *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:69:CXXMethod:on(DownloadManagerListener::Requesting, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:70:CXXMethod:on(DownloadManagerListener::Idle, const UserConnection *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:72:CXXMethod:on(UploadManagerListener::Starting, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:73:CXXMethod:on(UploadManagerListener::Complete, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:75:FieldDecl:cs",
+        "decl:airdcpp/transfer/TransferInfoManager.h:76:FieldDecl:transfers",
+        "decl:airdcpp/transfer/TransferInfoManager.h:78:CXXMethod:onTransferUpdated(const TransferInfoPtr &, int, bool)"
+      ]
+    },
+    {
+      "id": "transfer-info-queries",
+      "kind": "operation",
+      "upstream_symbols": [
+        "TransferInfoManager::getTransfers()",
+        "findTransfer(string)",
+        "findTransfer(TransferInfoToken)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.h",
+          "start_line": 43,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 49,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 370,
+          "end_line": 387
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Connection token string or numeric TransferInfoToken."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getTransfers copies current map shared pointers into a list; string lookup is direct map lookup; numeric lookup scans values for matching ID."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous value/pointer lookup under shared map lock.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo map; returned shared_ptr keeps value alive after manager removes it."
+        ]
+      },
+      "ownership_evidence": [
+        "getTransfers copies shared_ptr values under map lock; lookup returns shared_ptr after lock release."
+      ],
+      "threading_evidence": [
+        "Map lookup is synchronized; individual returned record fields are not separately synchronized."
+      ],
+      "proposed_bridge_requirement": "Return copied immutable snapshots instead of C++ shared pointers and make stale-after-removal semantics explicit.",
+      "acceptance_scenarios": [
+        "Given a known connection token, when findTransfer is called, then it returns the associated TransferInfo; after removal it returns null.",
+        "Given an existing TransferInfo shared value and the manager removes its key, when the caller retains the returned object, then that old value remains readable but is no longer returned by queries."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfo.h:32:TypeAliasDecl:TransferInfoToken",
+        "decl:airdcpp/transfer/TransferInfo.h:33:ClassDecl:TransferInfo",
+        "decl:airdcpp/transfer/TransferInfo.h:36:EnumDecl:UpdateFlags",
+        "decl:airdcpp/transfer/TransferInfo.h:37:EnumConstantDecl:STATE",
+        "decl:airdcpp/transfer/TransferInfo.h:38:EnumConstantDecl:TARGET",
+        "decl:airdcpp/transfer/TransferInfo.h:39:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/TransferInfo.h:40:EnumConstantDecl:SIZE",
+        "decl:airdcpp/transfer/TransferInfo.h:41:EnumConstantDecl:STATUS",
+        "decl:airdcpp/transfer/TransferInfo.h:42:EnumConstantDecl:BYTES_TRANSFERRED",
+        "decl:airdcpp/transfer/TransferInfo.h:43:EnumConstantDecl:USER",
+        "decl:airdcpp/transfer/TransferInfo.h:44:EnumConstantDecl:TIME_STARTED",
+        "decl:airdcpp/transfer/TransferInfo.h:45:EnumConstantDecl:SPEED",
+        "decl:airdcpp/transfer/TransferInfo.h:46:EnumConstantDecl:SECONDS_LEFT",
+        "decl:airdcpp/transfer/TransferInfo.h:47:EnumConstantDecl:IP",
+        "decl:airdcpp/transfer/TransferInfo.h:48:EnumConstantDecl:FLAGS",
+        "decl:airdcpp/transfer/TransferInfo.h:49:EnumConstantDecl:ENCRYPTION",
+        "decl:airdcpp/transfer/TransferInfo.h:50:EnumConstantDecl:QUEUE_ID",
+        "decl:airdcpp/transfer/TransferInfo.h:51:EnumConstantDecl:SUPPORTS",
+        "decl:airdcpp/transfer/TransferInfo.h:54:EnumDecl:ItemState",
+        "decl:airdcpp/transfer/TransferInfo.h:55:EnumConstantDecl:STATE_WAITING",
+        "decl:airdcpp/transfer/TransferInfo.h:56:EnumConstantDecl:STATE_FAILED",
+        "decl:airdcpp/transfer/TransferInfo.h:57:EnumConstantDecl:STATE_RUNNING",
+        "decl:airdcpp/transfer/TransferInfo.h:58:EnumConstantDecl:STATE_FINISHED",
+        "decl:airdcpp/transfer/TransferInfo.h:59:EnumConstantDecl:STATE_LAST",
+        "decl:airdcpp/transfer/TransferInfo.h:62:TypeAliasDecl:Ptr",
+        "decl:airdcpp/transfer/TransferInfo.h:63:TypeAliasDecl:List",
+        "decl:airdcpp/transfer/TransferInfo.h:64:TypeAliasDecl:Map",
+        "decl:airdcpp/transfer/TransferInfo.h:70:FieldDecl:timeLeft",
+        "decl:airdcpp/transfer/TransferInfo.h:71:FieldDecl:size",
+        "decl:airdcpp/transfer/TransferInfo.h:73:FieldDecl:encryption",
+        "decl:airdcpp/transfer/TransferInfo.h:74:FieldDecl:ip",
+        "decl:airdcpp/transfer/TransferInfo.h:75:FieldDecl:target",
+        "decl:airdcpp/transfer/TransferInfo.h:76:FieldDecl:statusString",
+        "decl:airdcpp/transfer/TransferInfo.h:77:FieldDecl:bundle",
+        "decl:airdcpp/transfer/TransferInfo.h:78:FieldDecl:flags",
+        "decl:airdcpp/transfer/TransferInfo.h:79:FieldDecl:supports",
+        "decl:airdcpp/transfer/TransferInfo.h:81:FieldDecl:type",
+        "decl:airdcpp/transfer/TransferInfo.h:83:FieldDecl:started",
+        "decl:airdcpp/transfer/TransferInfo.h:84:FieldDecl:bytesTransferred",
+        "decl:airdcpp/transfer/TransferInfo.h:85:FieldDecl:speed",
+        "decl:airdcpp/transfer/TransferInfo.h:86:FieldDecl:state",
+        "decl:airdcpp/transfer/TransferInfo.h:88:FieldDecl:queueToken",
+        "decl:airdcpp/transfer/TransferInfo.h:90:CXXMethod:getToken()",
+        "decl:airdcpp/transfer/TransferInfo.h:94:CXXMethod:getPercentage()",
+        "decl:airdcpp/transfer/TransferInfo.h:98:CXXMethod:getStringToken()",
+        "decl:airdcpp/transfer/TransferInfo.h:102:CXXMethod:isDownload()",
+        "decl:airdcpp/transfer/TransferInfo.h:106:CXXMethod:isFilelist()",
+        "decl:airdcpp/transfer/TransferInfo.h:110:CXXMethod:getHintedUser()",
+        "decl:airdcpp/transfer/TransferInfo.h:114:CXXMethod:setHubUrl(const string &)",
+        "decl:airdcpp/transfer/TransferInfo.h:118:CXXMethod:getName()",
+        "decl:airdcpp/transfer/TransferInfo.h:128:FieldDecl:user",
+        "decl:airdcpp/transfer/TransferInfo.h:129:FieldDecl:download",
+        "decl:airdcpp/transfer/TransferInfo.h:131:FieldDecl:token",
+        "decl:airdcpp/transfer/TransferInfo.h:132:FieldDecl:stringToken",
+        "decl:airdcpp/transfer/TransferInfo.h:134:VarDecl:idCounter",
+        "decl:airdcpp/transfer/TransferInfo.h:137:TypeAliasDecl:TransferInfoPtr",
+        "decl:airdcpp/transfer/TransferInfoManager.h:38:ClassDecl:TransferInfoManager",
+        "decl:airdcpp/transfer/TransferInfoManager.h:43:CXXMethod:getTransfers()",
+        "decl:airdcpp/transfer/TransferInfoManager.h:44:CXXMethod:findTransfer(const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:45:CXXMethod:findTransfer(TransferInfoToken)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:47:CXXMethod:addTransfer(const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:49:CXXMethod:onFailed(TransferInfoPtr &, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:50:CXXMethod:starting(const Download *, const string &, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:51:CXXMethod:starting(TransferInfoPtr &, const Transfer *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:52:CXXMethod:onTransferCompleted(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:53:CXXMethod:onTick(const Transfer *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:54:CXXMethod:updateQueueInfo(const TransferInfoPtr &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:56:CXXMethod:on(DownloadManagerListener::Tick, const DownloadList &, uint64_t)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:57:CXXMethod:on(UploadManagerListener::Tick, const UploadList &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:59:CXXMethod:on(ConnectionManagerListener::Added, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:60:CXXMethod:on(ConnectionManagerListener::Removed, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:61:CXXMethod:on(ConnectionManagerListener::Failed, const ConnectionQueueItem *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:62:CXXMethod:on(ConnectionManagerListener::Connecting, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:63:CXXMethod:on(ConnectionManagerListener::Forced, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:64:CXXMethod:on(ConnectionManagerListener::UserUpdated, const ConnectionQueueItem *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:66:CXXMethod:on(DownloadManagerListener::Starting, const Download *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:67:CXXMethod:on(DownloadManagerListener::Complete, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:68:CXXMethod:on(DownloadManagerListener::Failed, const Download *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:69:CXXMethod:on(DownloadManagerListener::Requesting, const Download *, bool)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:70:CXXMethod:on(DownloadManagerListener::Idle, const UserConnection *, const string &)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:72:CXXMethod:on(UploadManagerListener::Starting, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:73:CXXMethod:on(UploadManagerListener::Complete, const Upload *)",
+        "decl:airdcpp/transfer/TransferInfoManager.h:75:FieldDecl:cs",
+        "decl:airdcpp/transfer/TransferInfoManager.h:76:FieldDecl:transfers",
+        "decl:airdcpp/transfer/TransferInfoManager.h:78:CXXMethod:onTransferUpdated(const TransferInfoPtr &, int, bool)",
+        "decl:airdcpp/transfer/TransferInfo.h:70:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:71:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:73:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:74:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:75:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:76:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:77:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:78:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:79:macro:GETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:81:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:83:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:84:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:85:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:86:macro:IGETSET",
+        "decl:airdcpp/transfer/TransferInfo.h:88:macro:IGETSET"
+      ]
+    },
+    {
+      "id": "transfer-info.event.added",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Added(const TransferInfoPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 137,
+          "end_line": 137
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "A non-PM connection was inserted and queue-info update attempted."
+        ],
+        "events": [
+          "Added(const TransferInfoPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given an ordinary connection is enqueued, when Added is received, then the event contains its initial Connecting TransferInfo."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:34:TypedefDecl:Added",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:42:CXXMethod:on(Added, const TransferInfoPtr &)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.updated",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Updated(const TransferInfoPtr&, int propertyMask, bool tick)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 190,
+          "end_line": 190
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Emits changed-property flags and whether this is tick refresh; masks differ by transition."
+        ],
+        "events": [
+          "Updated(const TransferInfoPtr&, int propertyMask, bool tick)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given hub metadata changes, when UserUpdated is handled, then Updated carries only USER and tick=false."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:35:TypedefDecl:Updated",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:43:CXXMethod:on(Updated, const TransferInfoPtr &, int, bool)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.removed",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Removed(const TransferInfoPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 154,
+          "end_line": 154
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "The item was erased from manager map before event."
+        ],
+        "events": [
+          "Removed(const TransferInfoPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given a tracked connection is removed, when Removed is delivered, then future lookups return null while the callback still receives the final shared record."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:36:TypedefDecl:Removed",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:44:CXXMethod:on(Removed, const TransferInfoPtr &)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.failed",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Failed(const TransferInfoPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 176,
+          "end_line": 176
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Failure status fields were set and Updated emitted before Failed."
+        ],
+        "events": [
+          "Failed(const TransferInfoPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given a tracked transfer fails, when failure is projected, then Failed follows the Updated property change and record state is FAILED."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:37:TypedefDecl:Failed",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:45:CXXMethod:on(Failed, const TransferInfoPtr &)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.starting",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Starting(const TransferInfoPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 306,
+          "end_line": 306
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Indicates transfer metadata/status reached a starting projection; Requesting can trigger this before data starts."
+        ],
+        "events": [
+          "Starting(const TransferInfoPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given a download begins a request, when Requesting is projected, then Starting is emitted with status REQUESTING."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:38:TypedefDecl:Starting",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:46:CXXMethod:on(Starting, const TransferInfoPtr &)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.completed",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Completed(const TransferInfoPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 416,
+          "end_line": 416
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Indicates transfer completed and idle connection remains associated; it does not imply connection Removed."
+        ],
+        "events": [
+          "Completed(const TransferInfoPtr&)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given a segment completes, when Completed fires, then the info state is FINISHED and the connection token may remain queryable."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:39:TypedefDecl:Completed",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:47:CXXMethod:on(Completed, const TransferInfoPtr &)"
+      ]
+    },
+    {
+      "id": "transfer-info.event.tick",
+      "kind": "event",
+      "upstream_symbols": [
+        "TransferInfoManagerListener::Tick(const TransferInfo::List&, int propertyMask)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 98,
+          "end_line": 98
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Nonempty list of info records updated during upload/download timer ticks."
+        ],
+        "events": [
+          "Tick(const TransferInfo::List&, int propertyMask)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback.",
+        "cancellation": "No event cancellation; remove listener to stop delivery.",
+        "persistence": [],
+        "resources": [
+          "TransferInfoPtr values survive map erasure if callback/client retains shared reference."
+        ]
+      },
+      "ownership_evidence": [
+        "Manager holds shared TransferInfo references in records/events."
+      ],
+      "threading_evidence": [
+        "Speaker dispatch is synchronous from lifecycle/timer callbacks."
+      ],
+      "proposed_bridge_requirement": "Preserve listener payload, order, exact update mask and connection-map lifetime semantics.",
+      "acceptance_scenarios": [
+        "Given two tracked transfers progressed in the interval, when tick projection runs, then Tick carries both records and STATUS|BYTES_TRANSFERRED|SPEED|SECONDS_LEFT mask."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:40:TypedefDecl:Tick",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:48:CXXMethod:on(Tick, const TransferInfo::List &, int)"
+      ]
+    },
+    {
+      "id": "transfer-info.rate-statistics",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DownloadManager lastUpSpeed/lastDownSpeed accessors",
+        "UploadManager extra/lastGrant and TransferSlot"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 74,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.h",
+          "start_line": 77,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 115,
+          "end_line": 125
+        },
+        {
+          "path": "airdcpp/transfer/upload/UploadManager.cpp",
+          "start_line": 335,
+          "end_line": 382
+        },
+        {
+          "path": "airdcpp/transfer/TransferSlot.h",
+          "start_line": 26,
+          "end_line": 50
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [
+          "DownloadManager lastUpSpeed,lastDownSpeed=0; UploadManager extra,lastGrant=0."
+        ],
+        "effects": [
+          "Download timer updates aggregate socket upload/download rates and increments cumulative transfer settings; Upload slot transitions update extra count and grant timestamp. TransferSlot exposes NOSLOT/FILESLOT/USERSLOT with source label."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Rate updates once per second; slot state updates on slot assignment/removal.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Socket global byte counters, SettingsManager, UploadManager counters."
+        ]
+      },
+      "ownership_evidence": [
+        "Stats belong to respective transfer managers; macro getters/setters are generated declarations and manager updates are source-defined."
+      ],
+      "threading_evidence": [
+        "Download rates are refreshed in timer callback; slot accounting is serialized in UploadManager slotCS and cs."
+      ],
+      "proposed_bridge_requirement": "Expose aggregate rates and slot metadata as values, never as setters into internal counters.",
+      "acceptance_scenarios": [
+        "Given no bytes changed since the previous timer tick, when aggregate rates are updated, then the corresponding byte-per-second value is zero.",
+        "Given a slot changes type, when UploadManager updates slot accounting, then source-specific counts and lastGrant reflect the assignment."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferSlot.h:26:StructDecl:TransferSlot",
+        "decl:airdcpp/transfer/TransferSlot.h:29:EnumDecl:Type",
+        "decl:airdcpp/transfer/TransferSlot.h:30:EnumConstantDecl:NOSLOT",
+        "decl:airdcpp/transfer/TransferSlot.h:33:EnumConstantDecl:FILESLOT",
+        "decl:airdcpp/transfer/TransferSlot.h:36:EnumConstantDecl:USERSLOT",
+        "decl:airdcpp/transfer/TransferSlot.h:42:FieldDecl:type",
+        "decl:airdcpp/transfer/TransferSlot.h:43:FieldDecl:source",
+        "decl:airdcpp/transfer/TransferSlot.h:45:CXXMethod:toType(const std::optional<TransferSlot> &)",
+        "decl:airdcpp/transfer/TransferSlot.h:50:TypedefDecl:OptionalTransferSlot"
+      ]
+    },
+    {
+      "id": "transfer-info.internal.download-Download",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/download/Download.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/Download.h",
+          "start_line": 61,
+          "end_line": 103
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-upload_bundles-UploadBundleInfoReceiver",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiver.h",
+          "start_line": 48,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.TransferInfoManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/TransferInfoManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 29,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:29:ClassDecl:TransferInfoManagerListener",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:32:ClassTemplate:X<I>",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:32:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:32:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/TransferInfoManagerListener.h:32:29)"
+      ]
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadRequest",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadRequest.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadRequest.h",
+          "start_line": 30,
+          "end_line": 31
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadManagerListener.h",
+          "start_line": 32,
+          "end_line": 33
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-upload_bundles-UploadBundleInfoReceiverListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoReceiverListener.h",
+          "start_line": 31,
+          "end_line": 32
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadQueueManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadQueueManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManagerListener.h",
+          "start_line": 31,
+          "end_line": 32
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-upload_bundles-UploadBundle",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/upload_bundles/UploadBundle.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundle.h",
+          "start_line": 38,
+          "end_line": 47
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-upload_bundles-UploadBundleInfoSender",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/upload_bundles/UploadBundleInfoSender.h",
+          "start_line": 56,
+          "end_line": 85
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadQueueItem",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadQueueItem.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueItem.h",
+          "start_line": 37,
+          "end_line": 46
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.download-TrackableDownloadItem",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/download/TrackableDownloadItem.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/TrackableDownloadItem.h",
+          "start_line": 40,
+          "end_line": 87
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadQueueManager",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadQueueManager.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadQueueManager.h",
+          "start_line": 35,
+          "end_line": 64
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-UploadFileParser",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/UploadFileParser.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/UploadFileParser.h",
+          "start_line": 46,
+          "end_line": 55
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.upload-Upload",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/upload/Upload.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/upload/Upload.h",
+          "start_line": 39,
+          "end_line": 44
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.internal.download-DownloadManagerListener",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Core transfer value declarations/supporting helpers in airdcpp/transfer/download/DownloadManagerListener.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 41,
+          "end_line": 42
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations in this header are value accessors, enum constants, backing state, constructors/destructors, or private listener adapters that support the progress and TransferInfo contracts above; no independent client operation is asserted."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "TransferInfo/map or transfer/connection state per owning type."
+        ]
+      },
+      "ownership_evidence": [
+        "Source declarations are explicitly listed; operation behavior is covered by linked records."
+      ],
+      "threading_evidence": [
+        "Follows owning manager/model synchronization described above."
+      ],
+      "proposed_bridge_requirement": "Keep internal implementation and macro-generated accessors source-accounted without treating their declaration as proof of bridge/runtime availability.",
+      "acceptance_scenarios": [
+        "Given bridge clients need a transfer property, when adapting Core state, then return stable values and do not expose C++ references, pointers, or mutation hooks."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "transfer-info.value-lifecycle",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Transfer/TransferInfo/TransferInfoManager/TransferSlot value constructors and listener virtual destruction",
+        "Transfer Transfer(UserConnection &, const string &, const TTHValue &) [void (UserConnection &, const string &, const TTHValue &)] @ airdcpp/transfer/Transfer.h:48",
+        "~Transfer ~Transfer() [void () noexcept] @ airdcpp/transfer/Transfer.h:49",
+        "TransferInfo TransferInfo(const HintedUser &, bool, const std::string &) [void (const HintedUser &, bool, const std::string &)] @ airdcpp/transfer/TransferInfo.h:66",
+        "TransferInfoManager TransferInfoManager() [void ()] @ airdcpp/transfer/TransferInfoManager.h:40",
+        "~TransferInfoManager ~TransferInfoManager() [void () noexcept] @ airdcpp/transfer/TransferInfoManager.h:41",
+        "~TransferInfoManagerListener ~TransferInfoManagerListener() [void () noexcept] @ airdcpp/transfer/TransferInfoManagerListener.h:31",
+        "TransferSlot TransferSlot(Type, const string &) [void (Type, const string &)] @ airdcpp/transfer/TransferSlot.h:40"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/TransferSlot.h",
+          "start_line": 28,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/transfer/Transfer.h",
+          "start_line": 35,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/transfer/Transfer.cpp",
+          "start_line": 35,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfo.h",
+          "start_line": 55,
+          "end_line": 83
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.h",
+          "start_line": 30,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManager.cpp",
+          "start_line": 34,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/transfer/TransferInfoManagerListener.h",
+          "start_line": 25,
+          "end_line": 36
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Transfer binds a UserConnection, path and TTH; TransferInfo binds a HintedUser, download/upload direction and string token; TransferSlot contains slot type and source identity."
+        ],
+        "preconditions": [
+          "TransferInfoManager singleton dependencies (DownloadManager, UploadManager, ConnectionManager) must exist at construction."
+        ],
+        "defaults": [
+          "Transfer begins with segment (0,-1) and a new token; TransferInfo token is allocated by IncrementingIdCounter; timeLeft and size default -1; TransferSlot values have no default constructor in the shown contract."
+        ],
+        "effects": [
+          "Transfer stores the supplied connection/path/TTH and generated token. TransferInfo stores identity/direction/string token and generated TransferInfoToken. TransferInfoManager registers itself with download, upload and connection listeners in constructor and removes those registrations in destructor. TransferSlot::toType(optional) returns the contained type or NOSLOT when absent."
+        ],
+        "events": [],
+        "errors": [
+          "No constructor error result; singleton listener dependencies are assumed initialized."
+        ],
+        "completion": "Synchronous value construction and listener registration/removal.",
+        "cancellation": "Not applicable to constructors; listener teardown occurs at manager destruction.",
+        "persistence": [],
+        "resources": [
+          "Transfer holds a reference to UserConnection and owns its sample/segment values; TransferInfo is shared_ptr-managed; manager listener registrations are non-owning."
+        ]
+      },
+      "ownership_evidence": [
+        "Transfer.cpp:39-40 initializes path, segment, TTH, UserConnection reference and generated token. TransferInfoManager.cpp:37-46 adds/removes three listener registrations."
+      ],
+      "threading_evidence": [
+        "Transfer speed/sample state uses its own SharedMutex; TransferInfoManager protects transfer map operations with SharedMutex. Constructor/destructor registration is synchronous."
+      ],
+      "proposed_bridge_requirement": "Represent TransferSlot and TransferInfo as copied values; never expose Transfer connection references or native listener interfaces.",
+      "acceptance_scenarios": [
+        "Given no optional transfer slot, when TransferSlot::toType is called, then it returns NOSLOT. Given TransferInfoManager construction/destruction, when lifecycle completes, then registrations with all three managers are paired."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/Transfer.h:48:CXCursor_Constructor:4807f3e113e8",
+        "decl:airdcpp/transfer/Transfer.h:49:CXCursor_Destructor:f06b4d2cff30",
+        "decl:airdcpp/transfer/TransferInfo.h:66:CXCursor_Constructor:035cac0b656f",
+        "decl:airdcpp/transfer/TransferInfoManager.h:40:CXCursor_Constructor:704e567488bc",
+        "decl:airdcpp/transfer/TransferInfoManager.h:41:CXCursor_Destructor:a91636e3cf16",
+        "decl:airdcpp/transfer/TransferInfoManagerListener.h:31:CXCursor_Destructor:aae7535ee06c",
+        "decl:airdcpp/transfer/TransferSlot.h:40:CXCursor_Constructor:6c9513c99e59"
+      ],
+      "structural_declaration_ids": [],
+      "mapping_note": "This cohort accounts for the remaining constructor/destructor cursors and their object initialization/ownership contract; runtime linking remains unverified."
+    }
+  ]
+}
