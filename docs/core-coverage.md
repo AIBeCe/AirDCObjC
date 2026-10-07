@@ -10,9 +10,9 @@ A platform-specific implementation does not automatically justify removing its c
 
 [Header inventory](core-header-inventory.csv) lists all 263 `.h` files under the pinned `airdcpp` source tree, their SHA-256, directory domain hint, and installed-header presence. Of these, 245 are installed under the inspected distribution's `include/airdcpp`; all 245 have matching source bytes. The 18 absent headers are 17 optional-module headers and `core/io/compress/ZipFile.h`.
 
-A header's presence is not proof of an exported operation, compiled implementation, or working feature. A directory hint is not a reviewed classification. Every row intentionally starts unclassified with operation inventory pending; no framework implementation or test is claimed.
+A header's presence is not proof of an exported operation, compiled implementation, or working feature. All rows now have structural classification, rationale and domain ownership. The [declaration index](coverage/declarations.json) retains compiler-backed special members, source macro anchors and full conditional regions; [source accounting](coverage/source-accounting.json) distinguishes 146 tracked translation units from one observed generated localization unit and separately binds generated version inputs. No framework implementation or test is claimed by these inventories.
 
-Do not count this file as complete method-level coverage. Phase 0 expands it using source/API/event/settings inspection, effective build configuration, and symbols/behavior before the relevant implementation point.
+Structural accounting and accepted semantic contracts are separate. The domain ledgers below remain under review; only independently accepted, source-backed behavior may guide later API implementation. Unverified link/runtime behavior and disabled capabilities stay explicit gaps.
 
 ## Functional domains and source anchors
 
@@ -51,6 +51,42 @@ Paths below are relative to the original Core's `airdcpp` directory. Each family
 | RSS | `modules/RSSManager.h` | Optional-module gap |
 | Update-related functionality | `core/update/` | Updater implementation omitted on macOS; precise capability resolution required |
 | Utilities and platform facilities | `util/`, remaining `core/` headers | Classification required; ZIP/Windows mapper availability needs capability review |
+
+## Structured domain ledgers
+
+- [activity](coverage/domains/activity.json)
+- [common-core](coverage/domains/common-core.json)
+- [connection](coverage/domains/connection.json)
+- [connectivity](coverage/domains/connectivity.json)
+- [crypto](coverage/domains/crypto.json)
+- [download](coverage/domains/download.json)
+- [favorites](coverage/domains/favorites.json)
+- [filelist](coverage/domains/filelist.json)
+- [geo](coverage/domains/geo.json)
+- [hash](coverage/domains/hash.json)
+- [hub](coverage/domains/hub.json)
+- [ignore](coverage/domains/ignore.json)
+- [lifecycle](coverage/domains/lifecycle.json)
+- [logs](coverage/domains/logs.json)
+- [modules](coverage/domains/modules.json)
+- [platform](coverage/domains/platform.json)
+- [private-chat](coverage/domains/private-chat.json)
+- [protocol](coverage/domains/protocol.json)
+- [queue](coverage/domains/queue.json)
+- [recents](coverage/domains/recents.json)
+- [search](coverage/domains/search.json)
+- [settings](coverage/domains/settings.json)
+- [share-profiles](coverage/domains/share-profiles.json)
+- [share](coverage/domains/share.json)
+- [temp-share](coverage/domains/temp-share.json)
+- [transfer-info](coverage/domains/transfer-info.json)
+- [updater](coverage/domains/updater.json)
+- [upload](coverage/domains/upload.json)
+- [user-commands](coverage/domains/user-commands.json)
+- [util](coverage/domains/util.json)
+- [viewed-files](coverage/domains/viewed-files.json)
+
+See [ledger format](coverage/ledger-format.md), [explicit gaps](coverage/gaps.md), and [lifecycle evidence](lifecycle-and-threading.md). A structural link accounts for discoverability; it does not by itself establish an inspected behavior or an approved bridge signature.
 
 ## Operation ledger schema
 
