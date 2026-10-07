@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "domain_id": "geo",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "geo.database-lookup",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class GeoIP : public boost::noncopyable {",
+        "string getCountry(const string& ip) const;",
+        "void update();",
+        "bool decompress() const;",
+        "void open();",
+        "void close();",
+        "::MMDB_s* geo;",
+        "const string path;",
+        "const string language;",
+        "\texplicit GeoIP(string&& path);",
+        "\t~GeoIP();"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 32,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/core/geo/GeoIP.cpp",
+          "start_line": 32,
+          "end_line": 166
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Supported locale mappings fall back to English; opening is attempted only if plain DB has bytes or .gz decompression succeeds."
+        ],
+        "effects": [
+          "Constructor stores DB path and locale-derived language; if the plain DB has bytes or gzip decompression succeeds, it opens MMDB. Decompress requires non-empty `.gz`; decompression exceptions return false. MMDB open errors free/null the allocated handle. `update` closes first then decompresses and reopens, so failure leaves database closed. `getCountry` returns empty without open database, on address/MMDB errors, absent record, missing/invalid non-UTF8 fields; otherwise formats COUNTRY_FORMAT with 2code, continent, engname, name/officialname substitutions. Locale map supports listed locales and defaults to English. Destructor closes/frees handle."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "the database cannot be opened or lookup has no matching valid country entry",
+          "when": "getCountry is called",
+          "then": "it returns the empty string; a successful lookup formats COUNTRY_FORMAT with the supported country/continent substitutions."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/geo/GeoIP.h:32:ClassDecl:GeoIP",
+        "decl:airdcpp/core/geo/GeoIP.h:37:CXXMethod:getCountry(const string &)",
+        "decl:airdcpp/core/geo/GeoIP.h:38:CXXMethod:update()",
+        "decl:airdcpp/core/geo/GeoIP.h:41:CXXMethod:decompress()",
+        "decl:airdcpp/core/geo/GeoIP.h:42:CXXMethod:open()",
+        "decl:airdcpp/core/geo/GeoIP.h:43:CXXMethod:close()",
+        "decl:airdcpp/core/geo/GeoIP.h:45:FieldDecl:geo",
+        "decl:airdcpp/core/geo/GeoIP.h:47:FieldDecl:path",
+        "decl:airdcpp/core/geo/GeoIP.h:48:FieldDecl:language",
+        "decl:airdcpp/core/geo/GeoIP.h:34:CXCursor_Constructor:b736208184e6",
+        "decl:airdcpp/core/geo/GeoIP.h:35:CXCursor_Destructor:d8e06703c536"
+      ]
+    },
+    {
+      "id": "geo.lookup-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "GeoManager::init()",
+        "GeoManager::update()",
+        "GeoManager::close()",
+        "GeoManager::getCountry(const string&) const",
+        "GeoManager::getDbPath()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 37,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.cpp",
+          "start_line": 34,
+          "end_line": 61
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "IP string for lookup."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "init creates GeoIP using PATH_USER_LOCAL/country_ip_db.mmdb; update forwards only when initialized; close releases GeoIP; getCountry returns empty for empty IP or absent GeoIP."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Implementation inspected at GeoManager.cpp:34-61.",
+        "cancellation": "No cancellation contract is declared at this API; caller-level behavior remains unverified.",
+        "persistence": [],
+        "resources": [
+          "country_ip_db.mmdb in PATH_USER_LOCAL; constructor/database error behavior not inspected."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve init/update/close lifecycle and distinguish missing database from a valid lookup if source allows.",
+      "acceptance_scenarios": [
+        {
+          "given": "GeoIP is not initialized",
+          "when": "getCountry is called",
+          "then": "an empty string is returned."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "geo.manager-lifecycle",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class GeoManager : public Singleton<GeoManager>",
+        "void init();",
+        "void update();",
+        "void close();",
+        "string getCountry(const string& ip) const;",
+        "static string getDbPath();",
+        "unique_ptr<GeoIP> geo;",
+        "\tGeoManager();",
+        "\tvirtual ~GeoManager() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 35,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/core/geo/GeoManager.cpp",
+          "start_line": 26,
+          "end_line": 65
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Constructor registers GET_USER_COUNTRY setting callback: enabled calls init, disabled closes. `init` replaces the unique GeoIP with one at getDbPath; update is a no-op if uninitialized and delegates otherwise; close resets it. `getCountry` returns empty for empty IP or absent GeoIP, otherwise delegates. DB path is user-local `country_ip_db.mmdb`. No events or durable cache owned by this manager."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "GeoManager is closed or has not been initialized",
+          "when": "getCountry receives a non-empty IP",
+          "then": "it returns the empty string; update is a no-op."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/geo/GeoManager.h:35:ClassDecl:GeoManager",
+        "decl:airdcpp/core/geo/GeoManager.h:39:CXXMethod:init()",
+        "decl:airdcpp/core/geo/GeoManager.h:41:CXXMethod:update()",
+        "decl:airdcpp/core/geo/GeoManager.h:43:CXXMethod:close()",
+        "decl:airdcpp/core/geo/GeoManager.h:46:CXXMethod:getCountry(const string &)",
+        "decl:airdcpp/core/geo/GeoManager.h:48:CXXMethod:getDbPath()",
+        "decl:airdcpp/core/geo/GeoManager.h:54:FieldDecl:geo",
+        "decl:airdcpp/core/geo/GeoManager.h:56:CXCursor_Constructor:241a64515ac7",
+        "decl:airdcpp/core/geo/GeoManager.h:57:CXCursor_Destructor:77ed94a8cbfb"
+      ]
+    }
+  ]
+}

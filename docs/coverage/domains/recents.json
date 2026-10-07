@@ -1,0 +1,1001 @@
+{
+  "schema_version": 1,
+  "domain_id": "recents",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "recents.entry-model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class RecentEntry {",
+        "enum Type {",
+        "TYPE_HUB,",
+        "TYPE_PRIVATE_CHAT,",
+        "TYPE_FILELIST,",
+        "TYPE_LAST",
+        "typedef std::shared_ptr<RecentEntry> Ptr;",
+        "GETSET(string, url, Url);",
+        "GETSET(string, name, Name);",
+        "GETSET(string, description, Description);",
+        "time_t getLastOpened() const noexcept { return lastOpened; }",
+        "void updateLastOpened() noexcept { lastOpened = GET_TIME(); }",
+        "const UserPtr& getUser() const noexcept {\n\t\treturn user;\n\t}",
+        "class UrlCompare {",
+        "bool operator()(const Ptr& p) const noexcept {\n\t\t\treturn p->getUrl() == a;\n\t\t}",
+        "UrlCompare& operator=(const UrlCompare&) = delete;",
+        "const string& a;",
+        "class CidCompare {",
+        "bool operator()(const Ptr& p) const noexcept {\n\t\t\treturn p->getUser()->getCID() == a;\n\t\t}",
+        "CidCompare& operator=(const CidCompare&) = delete;",
+        "const CID& a;",
+        "struct Sort {",
+        "bool operator()(const typename RecentEntry::Ptr& a, const typename RecentEntry::Ptr& b) const noexcept { return a->getLastOpened() > b->getLastOpened(); }",
+        "const UserPtr user;",
+        "time_t lastOpened;",
+        "typedef RecentEntry::Ptr RecentEntryPtr;",
+        "typedef std::vector<RecentEntryPtr> RecentEntryList;",
+        "GETSET(string, url, Url);",
+        "GETSET(string, name, Name);",
+        "GETSET(string, description, Description);",
+        "\tRecentEntry(const string& aName, const string& aDescription, const string& aUrl, const UserPtr& aUser = nullptr, time_t aLastOpened = GET_TIME()) :\n\t\tname(aName), description(aDescription), url(aUrl), user(aUser), lastOpened(aLastOpened) {\n\n\t}",
+        "\t\tUrlCompare(const string& compareTo) : a(compareTo) { }",
+        "\t\tCidCompare(const CID& compareTo) : a(compareTo) { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 30,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 32,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 53,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 59,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 62,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 70,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 73,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 81,
+          "end_line": 83
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 82,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 85,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 91,
+          "end_line": 91
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 39,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/recents/RecentEntry.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.cpp",
+          "start_line": 123,
+          "end_line": 258
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "user defaults to nullptr; lastOpened defaults to GET_TIME()."
+        ],
+        "effects": [
+          "Recent type tags are hub/private-chat/filelist. Constructor defaults user=null and lastOpened=GET_TIME(); UrlCompare compares URL, CidCompare dereferences user to compare CID, Sort orders newest first. Name/description/URL are mutable GETSET fields; user is const after construction. Entries are shared_ptr snapshots."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "RecentEntry is constructed without optional user/time arguments",
+          "when": "its getters are read",
+          "then": "user is null and lastOpened is construction-time GET_TIME(); Sort places newer entries first."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/recents/RecentEntry.h:30:ClassDecl:RecentEntry",
+        "decl:airdcpp/recents/RecentEntry.h:32:EnumDecl:Type",
+        "decl:airdcpp/recents/RecentEntry.h:33:EnumConstantDecl:TYPE_HUB",
+        "decl:airdcpp/recents/RecentEntry.h:34:EnumConstantDecl:TYPE_PRIVATE_CHAT",
+        "decl:airdcpp/recents/RecentEntry.h:35:EnumConstantDecl:TYPE_FILELIST",
+        "decl:airdcpp/recents/RecentEntry.h:36:EnumConstantDecl:TYPE_LAST",
+        "decl:airdcpp/recents/RecentEntry.h:44:TypedefDecl:Ptr",
+        "decl:airdcpp/recents/RecentEntry.h:46:FieldDecl:url",
+        "decl:airdcpp/recents/RecentEntry.h:47:FieldDecl:name",
+        "decl:airdcpp/recents/RecentEntry.h:48:FieldDecl:description",
+        "decl:airdcpp/recents/RecentEntry.h:50:CXXMethod:getLastOpened()",
+        "decl:airdcpp/recents/RecentEntry.h:51:CXXMethod:updateLastOpened()",
+        "decl:airdcpp/recents/RecentEntry.h:53:CXXMethod:getUser()",
+        "decl:airdcpp/recents/RecentEntry.h:59:ClassDecl:UrlCompare",
+        "decl:airdcpp/recents/RecentEntry.h:62:CXXMethod:operator()(const Ptr &)",
+        "decl:airdcpp/recents/RecentEntry.h:66:CXXMethod:operator=(const UrlCompare &)",
+        "decl:airdcpp/recents/RecentEntry.h:67:FieldDecl:a",
+        "decl:airdcpp/recents/RecentEntry.h:70:ClassDecl:CidCompare",
+        "decl:airdcpp/recents/RecentEntry.h:73:CXXMethod:operator()(const Ptr &)",
+        "decl:airdcpp/recents/RecentEntry.h:77:CXXMethod:operator=(const CidCompare &)",
+        "decl:airdcpp/recents/RecentEntry.h:78:FieldDecl:a",
+        "decl:airdcpp/recents/RecentEntry.h:81:StructDecl:Sort",
+        "decl:airdcpp/recents/RecentEntry.h:82:CXXMethod:operator()(const typename RecentEntry::Ptr &, const typename RecentEntry::Ptr &)",
+        "decl:airdcpp/recents/RecentEntry.h:85:FieldDecl:user",
+        "decl:airdcpp/recents/RecentEntry.h:87:FieldDecl:lastOpened",
+        "decl:airdcpp/recents/RecentEntry.h:90:TypedefDecl:RecentEntryPtr",
+        "decl:airdcpp/recents/RecentEntry.h:91:TypedefDecl:RecentEntryList",
+        "decl:airdcpp/recents/RecentEntry.h:46:macro:GETSET",
+        "decl:airdcpp/recents/RecentEntry.h:47:macro:GETSET",
+        "decl:airdcpp/recents/RecentEntry.h:48:macro:GETSET",
+        "decl:airdcpp/recents/RecentEntry.h:39:CXCursor_Constructor:63fd41bfc2da",
+        "decl:airdcpp/recents/RecentEntry.h:61:CXCursor_Constructor:fead81c7b963",
+        "decl:airdcpp/recents/RecentEntry.h:72:CXCursor_Constructor:ed056b20757e"
+      ]
+    },
+    {
+      "id": "recents.event.recentAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "RecentManagerListener::on(RecentAdded, const RecentEntryPtr&, RecentEntry::Type) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const RecentEntryPtr&, RecentEntry::Type"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "RecentAdded"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const RecentEntryPtr&, RecentEntry::Type",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for RecentAdded",
+          "when": "the owning Core manager emits RecentAdded",
+          "then": "the callback receives the payload defined by `RecentManagerListener::on(RecentAdded, const RecentEntryPtr&, RecentEntry::Type) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "recents.event.recentRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "RecentManagerListener::on(RecentRemoved, const RecentEntryPtr&, RecentEntry::Type) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const RecentEntryPtr&, RecentEntry::Type"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "RecentRemoved"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const RecentEntryPtr&, RecentEntry::Type",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for RecentRemoved",
+          "when": "the owning Core manager emits RecentRemoved",
+          "then": "the callback receives the payload defined by `RecentManagerListener::on(RecentRemoved, const RecentEntryPtr&, RecentEntry::Type) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "recents.event.recentUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "RecentManagerListener::on(RecentUpdated, const RecentEntryPtr&, RecentEntry::Type) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const RecentEntryPtr&, RecentEntry::Type"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "RecentUpdated"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const RecentEntryPtr&, RecentEntry::Type",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for RecentUpdated",
+          "when": "the owning Core manager emits RecentUpdated",
+          "then": "the callback receives the payload defined by `RecentManagerListener::on(RecentUpdated, const RecentEntryPtr&, RecentEntry::Type) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "recents.listener-events",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class RecentManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> RecentAdded;",
+        "typedef X<1> RecentRemoved;",
+        "typedef X<2> RecentUpdated;",
+        "virtual void on(RecentAdded, const RecentEntryPtr&, RecentEntry::Type) noexcept {}",
+        "virtual void on(RecentRemoved, const RecentEntryPtr&, RecentEntry::Type) noexcept {}",
+        "virtual void on(RecentUpdated, const RecentEntryPtr&, RecentEntry::Type) noexcept {}",
+        "\t\tvirtual ~RecentManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 27,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.cpp",
+          "start_line": 123,
+          "end_line": 186
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "RecentAdded, RecentRemoved and RecentUpdated each carry RecentEntryPtr plus RecentEntry::Type; default listener methods are no-ops and Speaker dispatches listener callbacks. Fire timing is specified by manager operation record."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "a recent entry is reopened",
+          "when": "RecentManager handles it",
+          "then": "RecentRemoved for the old entry precedes RecentAdded for the new entry."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/recents/RecentManagerListener.h:27:ClassDecl:RecentManagerListener",
+        "decl:airdcpp/recents/RecentManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/recents/RecentManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/recents/RecentManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/recents/RecentManagerListener.h:30:30)",
+        "decl:airdcpp/recents/RecentManagerListener.h:32:TypedefDecl:RecentAdded",
+        "decl:airdcpp/recents/RecentManagerListener.h:33:TypedefDecl:RecentRemoved",
+        "decl:airdcpp/recents/RecentManagerListener.h:34:TypedefDecl:RecentUpdated",
+        "decl:airdcpp/recents/RecentManagerListener.h:37:CXXMethod:on(RecentAdded, const RecentEntryPtr &, RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManagerListener.h:38:CXXMethod:on(RecentRemoved, const RecentEntryPtr &, RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManagerListener.h:39:CXXMethod:on(RecentUpdated, const RecentEntryPtr &, RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManagerListener.h:29:CXCursor_Destructor:82215b1112c5"
+      ]
+    },
+    {
+      "id": "recents.manager-operations",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class RecentManager : public Speaker<RecentManagerListener>, public Singleton<RecentManager>, private TimerManagerListener,",
+        "RecentEntryList getRecents(RecentEntry::Type aType) const noexcept;",
+        "void removeRecent(RecentEntry::Type aType, const RecentEntryPtr& aEntry) noexcept;",
+        "void clearRecents(RecentEntry::Type aType) noexcept;",
+        "RecentEntryList searchRecents(RecentEntry::Type aType, const string& aPattern, size_t aMaxResults) const noexcept;",
+        "void load() noexcept;",
+        "void save() noexcept;",
+        "void checkCount(RecentEntry::Type aType) noexcept;",
+        "void onHubOpened(const ClientPtr& aClient) noexcept;",
+        "void onRecentOpened(RecentEntry::Type aType, const string& aName, const string& aDescription, const string& aUrl, const UserPtr& aUser, const RecentEntryPtr& aEntry) noexcept;",
+        "void onRecentUpdated(RecentEntry::Type aType, const RecentEntryPtr& aEntry) noexcept;",
+        "template<typename CompareT>\n\t\tRecentEntryPtr getRecent(RecentEntry::Type aType, const CompareT& aCompare) const noexcept {\n\t\t\tRLock l(cs);\n\t\t\tauto i = ranges::find_if(recents[aType], aCompare);\n\t\t\treturn i != recents[aType].end() ? *i : nullptr;\n\t\t}",
+        "RLock l(cs);",
+        "auto i = ranges::find_if(recents[aType], aCompare);",
+        "void setDirty() noexcept { xmlDirty = true; }",
+        "RecentEntryList recents[RecentEntry::TYPE_LAST];",
+        "mutable SharedMutex cs;",
+        "void on(TimerManagerListener::Minute, uint64_t aTick) noexcept override;",
+        "void on(ClientManagerListener::ClientCreated, const ClientPtr& c) noexcept override;",
+        "void on(ClientManagerListener::ClientRedirected, const ClientPtr& aOldClient, const ClientPtr& aNewClient) noexcept override;",
+        "void on(ClientManagerListener::ClientUpdated, const ClientPtr& c) noexcept override;",
+        "void on(PrivateChatManagerListener::ChatCreated, const PrivateChatPtr&, bool /* received message */) noexcept override;",
+        "void on(DirectoryListingManagerListener::ListingCreated, const DirectoryListingPtr&) noexcept override;",
+        "void loadRecents(SimpleXML& aXml, RecentEntry::Type aType);",
+        "void saveRecents(SimpleXML& aXml, RecentEntry::Type aType) const noexcept;",
+        "static string rootTags[RecentEntry::TYPE_LAST];",
+        "static string itemTags[RecentEntry::TYPE_LAST];",
+        "static SettingsManager::IntSetting maxLimits[RecentEntry::TYPE_LAST];",
+        "bool xmlDirty = false;",
+        "\t\tRecentManager();",
+        "\t\t~RecentManager();"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 35,
+          "end_line": 91
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 54,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 83,
+          "end_line": 83
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 84,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 86,
+          "end_line": 86
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 88,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 80,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 81,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/recents/RecentManager.cpp",
+          "start_line": 48,
+          "end_line": 294
+        },
+        {
+          "path": "airdcpp/recents/RecentManagerListener.h",
+          "start_line": 31,
+          "end_line": 42
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getRecents returns a shared-lock copy for the requested type; searchRecents relevance-matches entry name under lock and returns at most requested max results. clearRecents fires RecentRemoved for each current entry before clearing under write lock and marks XML dirty.",
+          "Hub client create/redirect records hub; client update changes stored name/description and emits RecentUpdated. PrivateChat creation records the user/hub; remote directory listings only are recorded (own lists and disk lists with empty hub URL excluded), with share-size description when available. Reopening removes old entry then appends a new entry and emits Removed then Added.",
+          "Count cap uses per-type MAX_RECENT_* setting; when over limit, oldest prefix is erased without individual RecentRemoved events in checkCount. Timer Minute calls save. save is no-op unless xmlDirty; writes Recents.xml with Hubs/PrivateChats/Filelists tags and Name/Description/Server/LastOpened plus CID for user entries. Load skips empty/* names and users that cannot be resolved, then enforces current setting limits. Manager uses SharedMutex for list access; callbacks/events are emitted around mutation as implementation specifies."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "a DirectoryListing is own-list or has empty hub URL",
+          "when": "ListingCreated is handled",
+          "then": "no recent filelist entry is added."
+        },
+        {
+          "given": "a type exceeds its configured MAX_RECENT_* count",
+          "when": "checkCount trims it",
+          "then": "oldest entries are erased without RecentRemoved notifications."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/recents/RecentManager.h:35:ClassDecl:RecentManager",
+        "decl:airdcpp/recents/RecentManager.h:39:CXXMethod:getRecents(RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManager.h:41:CXXMethod:removeRecent(RecentEntry::Type, const RecentEntryPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:42:CXXMethod:clearRecents(RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManager.h:44:CXXMethod:searchRecents(RecentEntry::Type, const string &, size_t)",
+        "decl:airdcpp/recents/RecentManager.h:46:CXXMethod:load()",
+        "decl:airdcpp/recents/RecentManager.h:47:CXXMethod:save()",
+        "decl:airdcpp/recents/RecentManager.h:49:CXXMethod:checkCount(RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManager.h:50:CXXMethod:onHubOpened(const ClientPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:51:CXXMethod:onRecentOpened(RecentEntry::Type, const string &, const string &, const string &, const UserPtr &, const RecentEntryPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:52:CXXMethod:onRecentUpdated(RecentEntry::Type, const RecentEntryPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:54:FunctionTemplate:getRecent(RecentEntry::Type, const CompareT &)",
+        "decl:airdcpp/recents/RecentManager.h:56:VarDecl:l",
+        "decl:airdcpp/recents/RecentManager.h:57:VarDecl:i",
+        "decl:airdcpp/recents/RecentManager.h:61:CXXMethod:setDirty()",
+        "decl:airdcpp/recents/RecentManager.h:63:FieldDecl:recents",
+        "decl:airdcpp/recents/RecentManager.h:67:FieldDecl:cs",
+        "decl:airdcpp/recents/RecentManager.h:69:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/recents/RecentManager.h:71:CXXMethod:on(ClientManagerListener::ClientCreated, const ClientPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:72:CXXMethod:on(ClientManagerListener::ClientRedirected, const ClientPtr &, const ClientPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:73:CXXMethod:on(ClientManagerListener::ClientUpdated, const ClientPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:75:CXXMethod:on(PrivateChatManagerListener::ChatCreated, const PrivateChatPtr &, bool)",
+        "decl:airdcpp/recents/RecentManager.h:77:CXXMethod:on(DirectoryListingManagerListener::ListingCreated, const DirectoryListingPtr &)",
+        "decl:airdcpp/recents/RecentManager.h:83:CXXMethod:loadRecents(SimpleXML &, RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManager.h:84:CXXMethod:saveRecents(SimpleXML &, RecentEntry::Type)",
+        "decl:airdcpp/recents/RecentManager.h:86:VarDecl:rootTags",
+        "decl:airdcpp/recents/RecentManager.h:87:VarDecl:itemTags",
+        "decl:airdcpp/recents/RecentManager.h:88:VarDecl:maxLimits",
+        "decl:airdcpp/recents/RecentManager.h:90:FieldDecl:xmlDirty",
+        "decl:airdcpp/recents/RecentManager.h:80:CXCursor_Constructor:6d38e1786f3b",
+        "decl:airdcpp/recents/RecentManager.h:81:CXCursor_Destructor:32d55a836214"
+      ]
+    },
+    {
+      "id": "recents.query-maintain",
+      "kind": "operation",
+      "upstream_symbols": [
+        "RecentManager::getRecents(RecentEntry::Type) const noexcept",
+        "RecentManager::removeRecent(RecentEntry::Type, const RecentEntryPtr&) noexcept",
+        "RecentManager::clearRecents(RecentEntry::Type) noexcept",
+        "RecentManager::searchRecents(RecentEntry::Type, const string&, size_t) const noexcept",
+        "RecentManager::load() noexcept",
+        "RecentManager::save() noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/recents/RecentManager.h",
+          "start_line": 39,
+          "end_line": 47
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Recent category; search pattern and maximum result count."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getRecents returns a locked copy. removeRecent ignores null, otherwise erases all matching shared pointers, fires RecentRemoved and marks dirty. clearRecents emits RecentRemoved for current entries before clearing, then marks dirty. searchRecents relevance-matches names and caps returned results. save is a no-op unless dirty; dirty is reset before writing Recents.xml. load reads each category, rejects empty or * names and unresolved users, then checkCount enforces current MAX_RECENT_* limit; trimming oldest entries does not emit removal callbacks."
+        ],
+        "events": [
+          "RecentAdded/Removed/Updated carry (RecentEntryPtr, Type); automatic event causes and ordering are specified in recents.manager-operations."
+        ],
+        "errors": [],
+        "completion": "Synchronous copy/search/mutation; XML load/save are synchronous file operations through SettingsManager.",
+        "cancellation": "No cancellation API.",
+        "persistence": [
+          "Recents.xml stores type-specific name, description, server, last-opened and optional CID. A minute timer calls save; only dirty state is serialized. Retention limits use MAX_RECENT_HUBS, MAX_RECENT_PRIVATE_CHATS and MAX_RECENT_FILELISTS."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose category and immutable snapshots; preserve category retention limits.",
+      "acceptance_scenarios": [
+        {
+          "given": "A category contains matching entries",
+          "when": "searchRecents(type, pattern, limit) is called",
+          "then": "results match the category/pattern and do not exceed limit."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    }
+  ]
+}
