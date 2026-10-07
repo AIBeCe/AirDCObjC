@@ -13,16 +13,22 @@
 		41D3781BD156F077900C088F /* BuildInfoSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */; };
 		4478B2940C00861D737C1AC8 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		51CBA2E78B42BBD7205FFF48 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5E095990D6EDE2656CD64A21 /* ADCErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */; };
+		5F4653032ABB952E2CA7482D /* ADCRuntimeConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */; };
+		63D86B51AC9EEFD3F21165AA /* ADCError.h in Headers */ = {isa = PBXBuildFile; fileRef = 6ED9D0B94496E2009F627471 /* ADCError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		69A7ADEFDC05DF614157DD61 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6A8EF19C51CBAE9240127049 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
 		80E664E44F0B5C79165A10F6 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		82A7ED4615F023AC32CA3457 /* ADCRuntimeConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		96F2406C97E77F607FF196E2 /* ADCBuildInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F77699BB643119E1D2AE8EDB /* ADCBuildInfo.mm */; };
 		995177DB7C3197205455CFA4 /* ADCBuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1C482CB6963884CA927E23 /* ADCBuildInfoTests.swift */; };
 		AA79198BC02D4A7FDFE6BE6D /* BuildInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0E495CD395293DF40D4B66 /* BuildInfoView.swift */; };
 		AF066123DB97FD6116967DFB /* ADCBuildInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE093E6B8647D1E571960AC6 /* ADCBuildInfoTests.m */; };
 		B564129CD6592062B4B6F00A /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		C7A3F0F5E612DC634770939E /* ADCRuntimeConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */; };
 		D0706C0572F3B3650BD84E42 /* AirDCObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEA318C46CD216658EB97D15 /* BuildInfoSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */; };
+		E052F50B2D416520E7DC7BA3 /* ADCError.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F64F2D2100FDB2B0F7ED81B /* ADCError.m */; };
 		EA42369FE1A7B2FDAD6C55F3 /* BuildInfoSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21D9301C494E6C87A6FE25 /* BuildInfoSnapshotTests.swift */; };
 		F3D25B2D1D9A2F98C8359339 /* AirDCExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF0CEF5B0EC4C6733777D68 /* AirDCExampleApp.swift */; };
 /* End PBXBuildFile section */
@@ -107,15 +113,21 @@
 
 /* Begin PBXFileReference section */
 		0B74CCEE6A20C08791B68F40 /* AirDCExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AirDCExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCRuntimeConfiguration.m; sourceTree = "<group>"; };
+		1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCRuntimeConfiguration.h; sourceTree = "<group>"; };
 		1D0E495CD395293DF40D4B66 /* BuildInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoView.swift; sourceTree = "<group>"; };
+		4F64F2D2100FDB2B0F7ED81B /* ADCError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCError.m; sourceTree = "<group>"; };
 		5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoSnapshot.swift; sourceTree = "<group>"; };
 		6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AirDCObjC.h; sourceTree = "<group>"; };
+		6ED9D0B94496E2009F627471 /* ADCError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCError.h; sourceTree = "<group>"; };
 		8E721167FCA3BFEB45F8379F /* AirDCExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		913319955E998146BF8B890D /* ADCBuildInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCBuildInfo.h; sourceTree = "<group>"; };
 		91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AirDCObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FFED5A7BDF8B4079AA9E833 /* AirDCObjCPublicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCObjCPublicTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCRuntimeConfigurationTests.swift; sourceTree = "<group>"; };
 		BB89E7E46EC8072AE2BE1A72 /* AirDCObjCPrivateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCObjCPrivateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEF0CEF5B0EC4C6733777D68 /* AirDCExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirDCExampleApp.swift; sourceTree = "<group>"; };
+		D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCErrorTests.swift; sourceTree = "<group>"; };
 		DE093E6B8647D1E571960AC6 /* ADCBuildInfoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCBuildInfoTests.m; sourceTree = "<group>"; };
 		EE1C482CB6963884CA927E23 /* ADCBuildInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCBuildInfoTests.swift; sourceTree = "<group>"; };
 		F77699BB643119E1D2AE8EDB /* ADCBuildInfo.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ADCBuildInfo.mm; sourceTree = "<group>"; };
@@ -158,6 +170,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0827DA107C3FA52D5FD49CE4 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				4F64F2D2100FDB2B0F7ED81B /* ADCError.m */,
+				1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */,
+			);
+			path = Runtime;
+			sourceTree = "<group>";
+		};
 		16B7C7F73C1691E44659644D /* AirDCObjC */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,6 +202,15 @@
 				FB941E7A71F78AA126BE4F66 /* AirDCObjC */,
 				CD6CFFA15401F4531BAF340B /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		3CD26C1E53EEB88015F73D27 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				6ED9D0B94496E2009F627471 /* ADCError.h */,
+				1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */,
+			);
+			path = Runtime;
 			sourceTree = "<group>";
 		};
 		43BB6DCD53AF96D550ECA6F4 /* BuildInfo */ = {
@@ -218,9 +248,19 @@
 			path = AirDCObjC;
 			sourceTree = "<group>";
 		};
+		53FDED94956DCC8C8752A9C5 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */,
+				B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */,
+			);
+			path = Runtime;
+			sourceTree = "<group>";
+		};
 		646C7CD37BC28B80CDAEC64E /* Private */ = {
 			isa = PBXGroup;
 			children = (
+				0827DA107C3FA52D5FD49CE4 /* Runtime */,
 				F77699BB643119E1D2AE8EDB /* ADCBuildInfo.mm */,
 			);
 			path = Private;
@@ -253,6 +293,7 @@
 		BB5D5F777664FC511F12F12A /* Private */ = {
 			isa = PBXGroup;
 			children = (
+				53FDED94956DCC8C8752A9C5 /* Runtime */,
 				EE1C482CB6963884CA927E23 /* ADCBuildInfoTests.swift */,
 			);
 			path = Private;
@@ -290,6 +331,7 @@
 		E705CB4298C8F0EE275902AB /* Public */ = {
 			isa = PBXGroup;
 			children = (
+				3CD26C1E53EEB88015F73D27 /* Runtime */,
 				913319955E998146BF8B890D /* ADCBuildInfo.h */,
 				6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */,
 			);
@@ -315,6 +357,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				08B61732A16F990B118DEF49 /* ADCBuildInfo.h in Headers */,
+				63D86B51AC9EEFD3F21165AA /* ADCError.h in Headers */,
+				82A7ED4615F023AC32CA3457 /* ADCRuntimeConfiguration.h in Headers */,
 				D0706C0572F3B3650BD84E42 /* AirDCObjC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +502,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				995177DB7C3197205455CFA4 /* ADCBuildInfoTests.swift in Sources */,
+				5E095990D6EDE2656CD64A21 /* ADCErrorTests.swift in Sources */,
+				5F4653032ABB952E2CA7482D /* ADCRuntimeConfigurationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,6 +531,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				96F2406C97E77F607FF196E2 /* ADCBuildInfo.mm in Sources */,
+				E052F50B2D416520E7DC7BA3 /* ADCError.m in Sources */,
+				C7A3F0F5E612DC634770939E /* ADCRuntimeConfiguration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

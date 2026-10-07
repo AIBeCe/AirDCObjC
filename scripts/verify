@@ -97,7 +97,12 @@ if not re.search(r"(?m)^\s*minos 14\.0\s*$", build_version):
     raise SystemExit("framework minimum OS is not 14.0")
 print("Framework load commands and MACOS/minOS 14.0 assertions passed")
 PY
-EXPECTED="$(printf '%s\n' '_OBJC_CLASS_$_ADCBuildInfo' '_OBJC_METACLASS_$_ADCBuildInfo' | sort)"
+EXPECTED="$(printf '%s\n' \
+  '_ADCErrorDomain' \
+  '_OBJC_CLASS_$_ADCBuildInfo' \
+  '_OBJC_CLASS_$_ADCRuntimeConfiguration' \
+  '_OBJC_METACLASS_$_ADCBuildInfo' \
+  '_OBJC_METACLASS_$_ADCRuntimeConfiguration' | sort)"
 ACTUAL="$(sort "$ROOT/Build/Logs/framework-exported-symbols.txt")"
 [[ "$ACTUAL" == "$EXPECTED" ]] || { echo "Unexpected framework exports:" >&2; cat "$ROOT/Build/Logs/framework-exported-symbols.txt" >&2; exit 1; }
 echo "Phase 1 verification passed; framework architecture and metadata evidence are in Build/Logs"

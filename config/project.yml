@@ -27,6 +27,12 @@ targets:
       - path: ../Source/AirDCObjC/Public/ADCBuildInfo.h
         buildPhase: headers
         headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCError.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCRuntimeConfiguration.h
+        buildPhase: headers
+        headerVisibility: public
       - path: ../Source/AirDCObjC/Private
     settings:
       base:
