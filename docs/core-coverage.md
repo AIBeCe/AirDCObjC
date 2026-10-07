@@ -12,7 +12,7 @@ A platform-specific implementation does not automatically justify removing its c
 
 A header's presence is not proof of an exported operation, compiled implementation, or working feature. All rows now have structural classification, rationale and domain ownership. The [declaration index](coverage/declarations.json) retains compiler-backed special members, source macro anchors and full conditional regions; [source accounting](coverage/source-accounting.json) distinguishes 146 tracked translation units from one observed generated localization unit and separately binds generated version inputs. No framework implementation or test is claimed by these inventories.
 
-Structural accounting and accepted semantic contracts are separate. The domain ledgers below remain under review; only independently accepted, source-backed behavior may guide later API implementation. Unverified link/runtime behavior and disabled capabilities stay explicit gaps.
+Structural accounting and accepted semantic contracts are separate. Phase 0 domain contracts have passed independent review; only accepted, source-backed behavior may guide later API implementation. Unverified link/runtime behavior and disabled capabilities stay explicit gaps.
 
 ## Functional domains and source anchors
 
@@ -115,3 +115,16 @@ Do not use blank rows, an umbrella manager wrapper, or a successful demo connect
 6. Review cross-domain workflows and upstream diff at final acceptance.
 
 Snapshot/command/event representations may differ from C++ signatures, but their capabilities and meanings must not be lost. API availability and runtime verification are separate evidence fields.
+
+## Phase 1 implemented metadata
+
+The common-core ledger splits four verified operations from the five remaining version getters. The current ledgers contain 1,877 records across 31 domains and retain all 11,728 declaration mappings. Phase 0's historical inventory count was 1,873; splitting implementation status adds four records without adding upstream declarations.
+
+| Original getter | Public Objective-C/Swift API | Real evidence |
+|---|---|---|
+| getGitCommit | ADCBuildInfo.coreCommit | Framework Swift/Objective-C tests and example snapshot |
+| getVersionTag | ADCBuildInfo.coreVersion | Framework Swift/Objective-C tests and example snapshot |
+| getBuildNumber | ADCBuildInfo.coreBuildNumber | Framework Swift/Objective-C tests and example snapshot |
+| getAppName | ADCBuildInfo.coreName | Framework Swift/Objective-C tests and example snapshot |
+
+Only these four operations are marked verified. Full archive containment does not imply every contained operation is bridged or runtime-verified. Remaining version getters and all lifecycle/network/domain capabilities retain their explicit future requirements and gaps. See the [Phase 1 report](reports/phase-1-framework-spm-proof.md).
