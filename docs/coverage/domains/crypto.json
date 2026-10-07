@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "domain_id": "crypto",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "crypto.certificates-and-tls",
+      "kind": "operation",
+      "upstream_symbols": [
+        "CryptoManager::makeKey(const string&)",
+        "CryptoManager::getSSLContext(SSLContext)",
+        "CryptoManager::loadCertificates() noexcept",
+        "CryptoManager::generateCertificate()",
+        "CryptoManager::checkCertificate(int) noexcept",
+        "CryptoManager::getKeyprint() const noexcept",
+        "CryptoManager::TLSOk() const noexcept",
+        "CryptoManager::setCertPaths()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.h",
+          "start_line": 51,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 151,
+          "end_line": 152
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 155,
+          "end_line": 243
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 269,
+          "end_line": 330
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 332,
+          "end_line": 360
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 374,
+          "end_line": 380
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 382,
+          "end_line": 391
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 44,
+          "end_line": 142
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 393,
+          "end_line": 511
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 563,
+          "end_line": 618
+        },
+        {
+          "path": "airdcpp/connection/socket/SSLSocket.cpp",
+          "start_line": 270,
+          "end_line": 325
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.cpp",
+          "start_line": 31,
+          "end_line": 75
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Lock string, SSL context role, minimum validity days."
+        ],
+        "preconditions": [
+          "getSSLContext requires an initialized singleton/context; generateCertificate requires nonempty certificate/private-key paths; loadCertificates sets readiness only after both contexts, key/cert and keyprint steps succeed.",
+          "keyprintToString requires a nonempty digest vector under its source implementation."
+        ],
+        "defaults": [
+          "TLS minimum 1.2; 90-day minimum certificate validity during load; generated self-signed certificate validity 360 days; generated key size 2048 bits; default cert paths are under user-local Certificates only when USE_DEFAULT_CERT_PATHS."
+        ],
+        "effects": [
+          "Construction allocates client/server contexts, seeds/checks RNG, configures each for TLS minimum 1.2 and disables SSLv2/v3/compression. Both contexts use peer verification and verify_callback. TLS 1.2 ciphers and P-256 are configured; server TLS 1.3 cipher suites/groups are added when supported by OpenSSL. Client/server verification contexts are also kept separately for peer validation (CryptoManager.cpp:44-69).",
+          "Default lock is `EXTENDEDPROTOCOLABCABCABCABCABCABC`; default PK string is `DCPLUSPLUS` plus VERSIONSTRING. isExtended tests the first 16 bytes for `EXTENDEDPROTOCOL`; makeKey returns empty for lock lengths under 3, otherwise applies XOR/nibble-swap transform and substitutes ADC-forbidden bytes as `%DCNnnn` (header inline methods; CryptoManager.cpp:563-618).",
+          "loadCertificates first applies default paths if USE_DEFAULT_CERT_PATHS, then clears old keyprint/certsLoaded. It requires configured cert/key and usable contexts; missing file/invalid cert triggers a generation attempt after 90-day validity check. It loads certificate and key into both client and server contexts; trusted *.pem and *.crt files are loaded into both verification stores (per-file failures log warnings); finally computes SHA256 keyprint and sets certsLoaded. Early failures leave TLS readiness false (CryptoManager.cpp:269-330).",
+          "generateCertificate requires both paths and creates 2048-bit RSA key material and a self-signed 360-day X509 certificate with local CID as CN and fixed organization; crypto/file failures throw CryptoException. If certificate output cannot be opened after private key write, it deletes the private key (CryptoManager.cpp:155-243). checkCertificate verifies nonzero serial, local-CID CN and min validity when notAfter exists (lines 332-360).",
+          "TLSOk is exactly TLS_MODE>0 && certsLoaded && nonempty keyprint. getSSLContext returns client/server pointer by enum and null for invalid enum; keyprintToString is `SHA256/` + Base32 digest (lines 147-153,374-380).",
+          "verify_callback returns OpenSSL preverify result when no per-SSL verification data or SSL shutdown has started. `trusted_keyp` bypasses only incomplete-chain/untrusted-leaf errors. SHA256 pin compares full digest string; a mismatch at depth zero is fatal even if allowUntrusted, while non-leaf chain errors may pass. Matching pins may add cert to store/reverify; self-signed/issuer-missing/expired/not-yet-valid errors are overridden for the pinned cert and subsequent incomplete-chain callbacks. allowUntrusted can accept other verification failures except pin mismatch; verification failures are formatted/logged per source (CryptoManager.cpp:393-511; SSLSocket.cpp:270-325).",
+          "Keyprint verification data is attached to individual SSL instances by SSLSocket; the callback clears it after a matching pin then may install a static trusted_keyp marker for follow-up incomplete-chain checks. Certificates/keyprints remain OpenSSL-owned or copied digest values; raw SSL_CTX pointers returned by getSSLContext are manager-owned.",
+          "SSL file helpers open PEM files with dcpp_fopen (path-aware), return false/null on file or PEM parse failure, and return empty digest bytes if OpenSSL X509_digest fails. keyprintToString indexes the first digest byte without an empty-vector guard; normal loadKeyprint obtains SHA256 digest from a successfully parsed X509."
+        ],
+        "events": [],
+        "errors": [
+          "loadCertificates is noexcept and logs then returns on missing paths, absent contexts, certificate/key load failures; per-file trusted-cert failures log and continue. Certificate-generation CryptoException is caught/logged by loadCertificates. generateCertificate throws CryptoException on missing paths, crypto allocation/operation failures, or file-open failure. checkCertificate returns false for unreadable X509, invalid serial, missing subject/CN mismatch, or insufficient validity. verify_callback returns false/error to OpenSSL for keyprint mismatch and may log verification errors; no bridge-level exception is reported."
+        ],
+        "completion": "Certificate load/generation is synchronous. TLS handshake verification is synchronous inside OpenSSL callback; no runtime handshake claim is made.",
+        "cancellation": "No cancellation API for certificate setup or verification callback.",
+        "persistence": [
+          "Generated private key and certificate are written to configured paths; trusted certs are read from configured trust directory. TLS setting values are held by SettingsManager."
+        ],
+        "resources": [
+          "OpenSSL client/server SSL_CTX and verification contexts; configured PEM certificate/private-key files; trust-directory PEM/CRT files; user-local certificate directory when defaults enabled. Accepted build binds OpenSSL 3.5.8 (verify dependency/runtime separately)."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "OpenSSL verification callback runs in the SSL operation thread; SSLVerifyData belongs to an SSL instance and SSLSocket supplies it. No independent CryptoManager locking is shown in these paths."
+      ],
+      "proposed_bridge_requirement": "Expose TLS readiness and keyprint as copied values; never expose private key or SSL_CTX ownership. Preserve pin mismatch fatality, allowUntrusted exceptions, certificate defaults/thresholds, callback behavior and resource paths.",
+      "acceptance_scenarios": [
+        {
+          "given": "loadCertificates sees valid configured certificate/key files matching local CID and at least 90 days validity",
+          "when": "it loads both SSL contexts and the certificate digest",
+          "then": "certsLoaded becomes true, keyprint is nonempty, and TLSOk is true only when TLS_MODE is greater than zero."
+        },
+        {
+          "given": "a peer certificate at depth zero has a SHA256 keyprint that differs from the expected pin",
+          "when": "verify_callback runs with allowUntrusted true",
+          "then": "the mismatch remains fatal and is reported as application verification failure."
+        },
+        {
+          "given": "makeKey receives a lock shorter than three bytes",
+          "when": "it returns",
+          "then": "the result is empty."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced",
+      "declaration_ids": [
+        "decl:airdcpp/core/crypto/CryptoManager.h:33:ClassDecl:CryptoManager",
+        "decl:airdcpp/core/crypto/CryptoManager.h:36:TypeAliasDecl:SSLVerifyData",
+        "decl:airdcpp/core/crypto/CryptoManager.h:38:EnumDecl:TLSTmpKeys",
+        "decl:airdcpp/core/crypto/CryptoManager.h:39:EnumConstantDecl:KEY_FIRST",
+        "decl:airdcpp/core/crypto/CryptoManager.h:40:EnumConstantDecl:KEY_DH_2048",
+        "decl:airdcpp/core/crypto/CryptoManager.h:41:EnumConstantDecl:KEY_DH_4096",
+        "decl:airdcpp/core/crypto/CryptoManager.h:42:EnumConstantDecl:KEY_RSA_2048",
+        "decl:airdcpp/core/crypto/CryptoManager.h:43:EnumConstantDecl:KEY_LAST",
+        "decl:airdcpp/core/crypto/CryptoManager.h:46:EnumDecl:SSLContext",
+        "decl:airdcpp/core/crypto/CryptoManager.h:47:EnumConstantDecl:SSL_CLIENT",
+        "decl:airdcpp/core/crypto/CryptoManager.h:48:EnumConstantDecl:SSL_SERVER",
+        "decl:airdcpp/core/crypto/CryptoManager.h:51:CXXMethod:makeKey(const string &)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:52:CXXMethod:getLock()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:53:CXXMethod:getPk()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:54:CXXMethod:isExtended(const string &)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:56:CXXMethod:getSSLContext(SSLContext)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:58:CXXMethod:loadCertificates()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:59:CXXMethod:generateCertificate()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:60:CXXMethod:checkCertificate(int)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:61:CXXMethod:getKeyprint()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:63:CXXMethod:TLSOk()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:65:CXXMethod:verify_callback(int, X509_STORE_CTX *)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:67:CXXMethod:setCertPaths()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:69:VarDecl:idxVerifyData",
+        "decl:airdcpp/core/crypto/CryptoManager.h:72:CXXMethod:setContextOptions(SSL_CTX *, bool)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:73:CXXMethod:keyprintToString(const ByteVector &)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:80:FieldDecl:clientContext",
+        "decl:airdcpp/core/crypto/CryptoManager.h:81:FieldDecl:clientVerContext",
+        "decl:airdcpp/core/crypto/CryptoManager.h:82:FieldDecl:serverContext",
+        "decl:airdcpp/core/crypto/CryptoManager.h:83:FieldDecl:serverVerContext",
+        "decl:airdcpp/core/crypto/CryptoManager.h:85:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:86:CXXMethod:sslRandCheck()",
+        "decl:airdcpp/core/crypto/CryptoManager.h:88:CXXMethod:getKeyLength(TLSTmpKeys)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:90:FieldDecl:certsLoaded",
+        "decl:airdcpp/core/crypto/CryptoManager.h:92:VarDecl:idxVerifyDataName",
+        "decl:airdcpp/core/crypto/CryptoManager.h:93:VarDecl:trustedKeyprint",
+        "decl:airdcpp/core/crypto/CryptoManager.h:95:FieldDecl:keyprint",
+        "decl:airdcpp/core/crypto/CryptoManager.h:96:FieldDecl:lock",
+        "decl:airdcpp/core/crypto/CryptoManager.h:97:FieldDecl:pk",
+        "decl:airdcpp/core/crypto/CryptoManager.h:99:CXXMethod:keySubst(const uint8_t *, size_t, size_t)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:100:CXXMethod:isExtra(uint8_t)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:104:CXXMethod:formatError(const X509_STORE_CTX *, const string &)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:105:CXXMethod:getNameEntryByNID(X509_NAME *, int)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:107:CXXMethod:loadKeyprint(const string &)",
+        "decl:airdcpp/core/crypto/CryptoManager.h:77:CXCursor_Constructor:9d651b7fff37",
+        "decl:airdcpp/core/crypto/CryptoManager.h:78:CXCursor_Destructor:0b72df394a94",
+        "decl:airdcpp/core/crypto/CryptoManager.h:28-28:conditional-region"
+      ]
+    },
+    {
+      "id": "crypto.generated-update-public-key-data",
+      "kind": "internal",
+      "upstream_symbols": [
+        "uint8_t dcpp::UpdateManager::publicKey[270] = { \n\t0x30, 0x82, 0x01, 0x0A, 0x02, 0x82, 0x01, 0x01, 0x00, 0xB6, 0xCA, 0x26, 0x1D, 0xCD, 0x89, \n\t0x6F, 0xD3, 0x7F, 0xA0, 0x13, 0xA3, 0x3C, 0xBF, 0xF8, 0x46, 0x39, 0x0E, 0x04, 0x94, 0x8A, \n\t0x06, 0xE1, 0xA5, 0x6E, 0x0C, 0x33, 0x46, 0xD4, 0x13, 0x09, 0x2B, 0xB2, 0x71, 0xF4, 0x93, \n\t0x96, 0x9F, 0xAA, 0x78, 0xB3, 0x65, 0xF3, 0x3B, 0xB0, 0xAF, 0x6A, 0x88, 0x33, 0x31, 0x9E, \n\t0xBB, 0x25, 0xA3, 0xD9, 0x49, 0x1E, 0x78, 0x2E, 0x34, 0xAB, 0x93, 0x88, 0xCD, 0xA7, 0x79, \n\t0x9E, 0x1A, 0x02, 0x77, 0x23, 0x94, 0x2C, 0x7B, 0xD5, 0xC5, 0x8B, 0x50, 0xF0, 0x0F, 0xE5, \n\t0xA2, 0xB0, 0xB4, 0x59, 0x52, 0xD2, 0x1C, 0x7D, 0x7E, 0x51, 0xDB, 0x3E, 0x31, 0xFF, 0x18, \n\t0x3D, 0x7F, 0x43, 0xAA, 0x43, 0x08, 0x4E, 0x3D, 0x5C, 0x5C, 0xE8, 0xCE, 0x15, 0x2F, 0x44, \n\t0x4E, 0x85, 0xFC, 0x37, 0x58, 0x32, 0x1F, 0xE8, 0x40, 0x30, 0x42, 0x19, 0xD7, 0xE7, 0xD1, \n\t0xF6, 0x14, 0xB2, 0xC0, 0x6F, 0x38, 0x89, 0x45, 0xF5, 0x12, 0x06, 0x8C, 0xFB, 0xE6, 0x95, \n\t0xCA, 0xFE, 0x47, 0x3C, 0xD0, 0x43, 0x3D, 0xF5, 0x2B, 0xAE, 0x21, 0x7B, 0x54, 0x09, 0x1B, \n\t0x99, 0xAC, 0x92, 0xD2, 0x28, 0xBE, 0xA7, 0x65, 0x86, 0x79, 0xD3, 0xF0, 0x7C, 0xAE, 0x42, \n\t0xBC, 0x0E, 0xFB, 0xD7, 0x9D, 0x3A, 0xCE, 0x79, 0xB6, 0xBC, 0x94, 0x99, 0xD3, 0x1E, 0x60, \n\t0x3B, 0x2C, 0xF1, 0x88, 0x47, 0xBD, 0x27, 0x0C, 0xAD, 0x45, 0xA5, 0x27, 0x2D, 0x7F, 0xC9, \n\t0xEF, 0x83, 0xC4, 0xD2, 0xB4, 0x99, 0x3C, 0xE8, 0x05, 0x68, 0xA8, 0x8B, 0xBD, 0xA1, 0xBB, \n\t0x82, 0x99, 0xB0, 0xE8, 0x98, 0xA7, 0x16, 0xE4, 0xED, 0x59, 0x0A, 0xC1, 0x6F, 0x65, 0xF6, \n\t0x0D, 0x5F, 0x59, 0xD5, 0x13, 0xEC, 0x60, 0x7A, 0xC7, 0x48, 0x8B, 0x99, 0xF0, 0xD7, 0x9F, \n\t0x8C, 0xD4, 0x92, 0x93, 0xF0, 0x3B, 0x0F, 0xF2, 0x03, 0x29, 0x02, 0x03, 0x01, 0x00, 0x01 \n};"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/crypto/pubkey.h",
+          "start_line": 6,
+          "end_line": 25
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Generated 270-byte RSA public-key constant is declared as UpdateManager::publicKey in pubkey.h; this is data consumed by updater verification, not a crypto manager operation."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Static data.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Static generated byte array has program lifetime."
+      ],
+      "threading_evidence": [
+        "Immutable static data."
+      ],
+      "proposed_bridge_requirement": "Account as a shared updater dependency; do not expose mutable key bytes as a crypto operation.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/crypto/pubkey.h:6:VarDecl:publicKey"
+      ],
+      "surface_classification": "dependency_detail",
+      "surface_rationale": "Generated update-verification key is static dependency data, not public CryptoManager behavior."
+    },
+    {
+      "id": "crypto.scoped-handle-internals",
+      "kind": "internal",
+      "upstream_symbols": [
+        "template<typename T, void (*Release)(T*)>",
+        "T* operator->() { return t; }",
+        "const T* operator->() const { return t; }",
+        "void reset(T* t_ = nullptr) { Release(t); t = t_; }",
+        "scoped_handle& operator=(scoped_handle&& rhs) noexcept { if(&rhs != this) { t = rhs.t; rhs.t = nullptr; } return *this; }",
+        "scoped_handle<T, Release>& operator=(const scoped_handle<T, Release>&) = delete;",
+        "T* t;",
+        "using X509 = scoped_handle< ::X509, X509_free>;",
+        "using ASN1_INTEGER = scoped_handle< ::ASN1_INTEGER, ASN1_INTEGER_free>;",
+        "using BIGNUM = scoped_handle< ::BIGNUM, BN_free>;",
+        "using EVP_PKEY = scoped_handle< ::EVP_PKEY, EVP_PKEY_free>;",
+        "using SSL = scoped_handle< ::SSL, SSL_free>;",
+        "using SSL_CTX = scoped_handle< ::SSL_CTX, SSL_CTX_free>;",
+        "using X509 = scoped_handle< ::X509, X509_free>;",
+        "using X509_NAME = scoped_handle< ::X509_NAME, X509_NAME_free>;",
+        "bool SSL_CTX_use_certificate_file(::SSL_CTX* ctx, const char* file, int type);",
+        "bool SSL_CTX_use_PrivateKey_file(::SSL_CTX* ctx, const char* file, int type);",
+        "X509 getX509(const char* file);",
+        "ByteVector X509_digest(::X509* x509, const ::EVP_MD* md);",
+        "\texplicit scoped_handle(T* t_ = nullptr) : t(t_) { }",
+        "\t~scoped_handle() { if(t) { Release(t); } }",
+        "\toperator T*() { return t; }",
+        "\toperator const T*() const { return t; }",
+        "\texplicit operator bool() const { return t ? true : false; }",
+        "\tscoped_handle(scoped_handle&& rhs) noexcept : t(rhs.t) { rhs.t = nullptr; }",
+        "\tscoped_handle(const scoped_handle<T, Release>&) = delete;",
+        "#define SSL_SUCCESS 1",
+        "typedef scoped_handle<::DH, DH_free> DH;\ntypedef scoped_handle<::DSA, DSA_free> DSA;\ntypedef scoped_handle<::RSA, RSA_free> RSA;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 37,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 81,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 82,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/core/crypto/SSL.h",
+          "start_line": 63,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 155,
+          "end_line": 243
+        },
+        {
+          "path": "airdcpp/core/crypto/CryptoManager.cpp",
+          "start_line": 269,
+          "end_line": 330
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Template pointer and matching OpenSSL release function; free functions operate on OpenSSL X509/EVP types and file paths."
+        ],
+        "preconditions": [
+          "Handle template Release must be the release function for T."
+        ],
+        "defaults": [
+          "scoped_handle pointer defaults null; reset defaults null."
+        ],
+        "effects": [
+          "scoped_handle destructor releases non-null T. Move construction transfers pointer and nulls source. Copy construction/assignment are deleted. `operator->`, conversions and bool expose held pointer. reset calls Release(t) then replaces the pointer. Move assignment transfers and nulls source but does not release an existing destination pointer before overwrite, an observed ownership hazard in this helper. SSL_CTX certificate/key wrappers convert Windows paths before OpenSSL file loading; getX509 returns owned X509; X509_digest returns copied digest bytes."
+        ],
+        "events": [],
+        "errors": [
+          "No wrapper-level error status beyond null/false return conventions of individual OpenSSL helpers."
+        ],
+        "completion": "Synchronous inline ownership operations and OpenSSL helper calls.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "OpenSSL allocated objects released by corresponding Release function."
+        ]
+      },
+      "ownership_evidence": [
+        "RAII release is tied to template function parameter; move assignment overwrites destination pointer without releasing it."
+      ],
+      "threading_evidence": [
+        "No synchronization in scoped_handle; callers own thread safety."
+      ],
+      "proposed_bridge_requirement": "Treat these as internal OpenSSL ownership helpers, not public wrapper objects; preserve exact ownership behavior only for internal Core use.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/core/crypto/SSL.h:37:ClassTemplate:scoped_handle<T, Release>",
+        "decl:airdcpp/core/crypto/SSL.h:48:CXXMethod:operator->()",
+        "decl:airdcpp/core/crypto/SSL.h:49:CXXMethod:operator->()",
+        "decl:airdcpp/core/crypto/SSL.h:51:CXXMethod:reset(T *)",
+        "decl:airdcpp/core/crypto/SSL.h:54:CXXMethod:operator=(scoped_handle<T, Release> &&)",
+        "decl:airdcpp/core/crypto/SSL.h:57:CXXMethod:operator=(const scoped_handle<T, Release> &)",
+        "decl:airdcpp/core/crypto/SSL.h:59:FieldDecl:t",
+        "decl:airdcpp/core/crypto/SSL.h:68:TypeAliasDecl:X509",
+        "decl:airdcpp/core/crypto/SSL.h:69:TypeAliasDecl:ASN1_INTEGER",
+        "decl:airdcpp/core/crypto/SSL.h:70:TypeAliasDecl:BIGNUM",
+        "decl:airdcpp/core/crypto/SSL.h:71:TypeAliasDecl:EVP_PKEY",
+        "decl:airdcpp/core/crypto/SSL.h:72:TypeAliasDecl:SSL",
+        "decl:airdcpp/core/crypto/SSL.h:73:TypeAliasDecl:SSL_CTX",
+        "decl:airdcpp/core/crypto/SSL.h:74:TypeAliasDecl:X509",
+        "decl:airdcpp/core/crypto/SSL.h:75:TypeAliasDecl:X509_NAME",
+        "decl:airdcpp/core/crypto/SSL.h:78:FunctionDecl:SSL_CTX_use_certificate_file(::SSL_CTX *, const char *, int)",
+        "decl:airdcpp/core/crypto/SSL.h:79:FunctionDecl:SSL_CTX_use_PrivateKey_file(::SSL_CTX *, const char *, int)",
+        "decl:airdcpp/core/crypto/SSL.h:81:FunctionDecl:getX509(const char *)",
+        "decl:airdcpp/core/crypto/SSL.h:82:FunctionDecl:X509_digest(::X509 *, const ::EVP_MD *)",
+        "decl:airdcpp/core/crypto/SSL.h:40:CXCursor_Constructor:432218547497",
+        "decl:airdcpp/core/crypto/SSL.h:41:CXCursor_Destructor:161e9554f9d0",
+        "decl:airdcpp/core/crypto/SSL.h:43:CXCursor_ConversionFunction:aff1a58afc95",
+        "decl:airdcpp/core/crypto/SSL.h:44:CXCursor_ConversionFunction:67bd25822df0",
+        "decl:airdcpp/core/crypto/SSL.h:46:CXCursor_ConversionFunction:8105bd73c06e",
+        "decl:airdcpp/core/crypto/SSL.h:53:CXCursor_Constructor:d2495bad7500",
+        "decl:airdcpp/core/crypto/SSL.h:56:CXCursor_Constructor:4cdce939b5c6",
+        "decl:airdcpp/core/crypto/SSL.h:30-30:conditional-region",
+        "decl:airdcpp/core/crypto/SSL.h:63-65:conditional-region"
+      ],
+      "surface_classification": "internal_helper",
+      "surface_rationale": "OpenSSL RAII templates and file-path adapter helpers; not an independent user-facing bridge surface."
+    }
+  ]
+}
