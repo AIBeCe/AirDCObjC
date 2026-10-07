@@ -1,0 +1,1496 @@
+{
+  "schema_version": 1,
+  "domain_id": "protocol",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "protocol.adc-command-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class AdcCommand {",
+        "template<uint32_t T>",
+        "enum { CMD = T };",
+        "enum { CMD = T };",
+        "using ParamMap = multimap<string, string>;",
+        "using ParamList = StringList;",
+        "enum Error {",
+        "SUCCESS = 0,",
+        "ERROR_GENERIC = 0,",
+        "ERROR_HUB_GENERIC = 10,",
+        "ERROR_HUB_FULL = 11,",
+        "ERROR_HUB_DISABLED = 12,",
+        "ERROR_LOGIN_GENERIC = 20,",
+        "ERROR_NICK_INVALID = 21,",
+        "ERROR_NICK_TAKEN = 22,",
+        "ERROR_BAD_PASSWORD = 23,",
+        "ERROR_CID_TAKEN = 24,",
+        "ERROR_COMMAND_ACCESS = 25,",
+        "ERROR_REGGED_ONLY = 26,",
+        "ERROR_INVALID_PID = 27,",
+        "ERROR_BANNED_GENERIC = 30,",
+        "ERROR_PERM_BANNED = 31,",
+        "ERROR_TEMP_BANNED = 32,",
+        "ERROR_PROTOCOL_GENERIC = 40,",
+        "ERROR_PROTOCOL_UNSUPPORTED = 41,",
+        "ERROR_CONNECT_FAILED = 42,",
+        "ERROR_INF_MISSING = 43,",
+        "ERROR_BAD_STATE = 44,",
+        "ERROR_FEATURE_MISSING = 45,",
+        "ERROR_BAD_IP = 46,",
+        "ERROR_NO_HUB_HASH = 47,",
+        "ERROR_TRANSFER_GENERIC = 50,",
+        "ERROR_FILE_NOT_AVAILABLE = 51,",
+        "ERROR_FILE_PART_NOT_AVAILABLE = 52,",
+        "ERROR_SLOTS_FULL = 53,",
+        "ERROR_NO_CLIENT_HASH = 54,",
+        "ERROR_HBRI_TIMEOUT = 55,",
+        "ERROR_FILE_ACCESS_DENIED = 60,",
+        "ERROR_UNKNOWN_USER = 61,",
+        "ERROR_TLS_REQUIRED = 62",
+        "enum Severity {",
+        "SEV_SUCCESS = 0,",
+        "SEV_RECOVERABLE = 1,",
+        "SEV_FATAL = 2",
+        "static const char TYPE_BROADCAST = 'B';",
+        "static const char TYPE_CLIENT = 'C';",
+        "static const char TYPE_DIRECT = 'D';",
+        "static const char TYPE_ECHO = 'E';",
+        "static const char TYPE_FEATURE = 'F';",
+        "static const char TYPE_INFO = 'I';",
+        "static const char TYPE_HUB = 'H';",
+        "static const char TYPE_UDP = 'U';",
+        "ADC_CMD(SUP, 'S','U','P');",
+        "ADC_CMD(STA, 'S','T','A');",
+        "ADC_CMD(INF, 'I','N','F');",
+        "ADC_CMD(MSG, 'M','S','G');",
+        "ADC_CMD(SCH, 'S','C','H');",
+        "ADC_CMD(RES, 'R','E','S');",
+        "ADC_CMD(CTM, 'C','T','M');",
+        "ADC_CMD(RCM, 'R','C','M');",
+        "ADC_CMD(GPA, 'G','P','A');",
+        "ADC_CMD(PAS, 'P','A','S');",
+        "ADC_CMD(QUI, 'Q','U','I');",
+        "ADC_CMD(GET, 'G','E','T');",
+        "ADC_CMD(GFI, 'G','F','I');",
+        "ADC_CMD(SND, 'S','N','D');",
+        "ADC_CMD(SID, 'S','I','D');",
+        "ADC_CMD(CMD, 'C','M','D');",
+        "ADC_CMD(NAT, 'N','A','T');",
+        "ADC_CMD(RNT, 'R','N','T');",
+        "ADC_CMD(ZON, 'Z','O','N');",
+        "ADC_CMD(ZOF, 'Z','O','F');",
+        "ADC_CMD(TCP, 'T','C','P');",
+        "ADC_CMD(PMI, 'P', 'M', 'I');",
+        "using CommandType = uint32_t;",
+        "static const dcpp::SID HUB_SID = 0xffffffff;\t\t// No client will have this sid",
+        "static uint32_t toFourCC(const char* x) noexcept { return *reinterpret_cast<const uint32_t*>(x); }",
+        "static std::string fromFourCC(uint32_t x) noexcept { return std::string(reinterpret_cast<const char*>(&x), sizeof(x)); }",
+        "void parse(const string& aLine, bool nmdc = false);",
+        "uint32_t getCommand() const noexcept { return cmdInt; }",
+        "char getType() const noexcept { return type; }",
+        "void setType(char t) noexcept { type = t; }",
+        "string getFourCC() const noexcept { string tmp(4, 0); tmp[0] = type; tmp[1] = cmd[0]; tmp[2] = cmd[1]; tmp[3] = cmd[2]; return tmp; }",
+        "string getFourCC() const noexcept { string tmp(4, 0); tmp[0] = type; tmp[1] = cmd[0]; tmp[2] = cmd[1]; tmp[3] = cmd[2]; return tmp; }",
+        "const string& getFeatures() const noexcept { return features; }",
+        "AdcCommand& setFeatures(const string& feat) noexcept { features = feat; return *this; }",
+        "enum class FeatureType {",
+        "REQUIRED,",
+        "EXCLUDED,",
+        "AdcCommand& addFeature(const string& feat, FeatureType aType) noexcept;",
+        "ParamList& getParameters() noexcept { return parameters; }",
+        "const ParamList& getParameters() const noexcept { return parameters; }",
+        "AdcCommand& setParams(const ParamList& aParams) noexcept {\n\t\tparameters = aParams; \n\t\treturn *this; \n\t}",
+        "string toString() const noexcept;",
+        "string toString(const CID& aCID) const noexcept;",
+        "string toString(dcpp::SID sid, bool nmdc = false) const noexcept;",
+        "AdcCommand& addParam(const string& name, const string& value) noexcept {\n\t\tparameters.push_back(name);\n\t\tparameters.back() += value;\n\t\treturn *this;\n\t}",
+        "AdcCommand& addParam(const string& str) noexcept {\n\t\tparameters.push_back(str);\n\t\treturn *this;\n\t}",
+        "AdcCommand& addParams(const ParamMap& aParams) noexcept;",
+        "const string& getParam(size_t n) const noexcept;",
+        "bool getParam(const char* name, size_t start, string& ret) const noexcept;",
+        "bool getParam(const char* name, size_t start, StringList& ret) const noexcept;",
+        "bool hasFlag(const char* name, size_t start) const noexcept;",
+        "static uint16_t toCode(const char* x) noexcept { return *((uint16_t*)x); }",
+        "static CommandType toCommand(const string& aCmd) noexcept;",
+        "static string fromCommand(CommandType x) noexcept;",
+        "bool operator==(uint32_t aCmd) const noexcept { return cmdInt == aCmd; }",
+        "static string escape(const string& str, bool old) noexcept;",
+        "dcpp::SID getTo() const noexcept { return to; }",
+        "AdcCommand& setTo(const dcpp::SID sid) noexcept { to = sid; return *this; }",
+        "dcpp::SID getFrom() const noexcept { return from; }",
+        "void setFrom(const dcpp::SID sid) noexcept { from = sid; }",
+        "static bool isValidType(char aType) noexcept;",
+        "static dcpp::SID toSID(const string& aSID) noexcept { return *reinterpret_cast<const dcpp::SID*>(aSID.data()); }",
+        "static string fromSID(dcpp::SID aSID) noexcept { return string(reinterpret_cast<const char*>(&aSID), sizeof(aSID)); }",
+        "string getHeaderString(const CID& cid) const noexcept;",
+        "string getHeaderString() const noexcept;",
+        "string getHeaderString(dcpp::SID sid, bool nmdc) const noexcept;",
+        "string getParamString(bool nmdc) const noexcept;",
+        "ParamList parameters;",
+        "string features;",
+        "union {",
+        "char cmdChar[4];",
+        "uint8_t cmd[4];",
+        "uint32_t cmdInt;",
+        "dcpp::SID from = 0;",
+        "dcpp::SID to = 0;",
+        "char type;",
+        "template<class T>",
+        "using OnCommandParsedF = std::function<void (const AdcCommand &)>;",
+        "inline void dispatch(const string& aLine, OnCommandParsedF&& aOnCommandParsedF) noexcept {\n\t\tdispatch(aLine, false, std::move(aOnCommandParsedF));\n\t}",
+        "template<typename... ArgT>\n\tvoid dispatch(const string& aLine, bool aNmdc, const OnCommandParsedF& aOnCommandParsedF, ArgT&&... args) noexcept {\n\t\ttry {\n\t\t\tAdcCommand c(aLine, aNmdc);\n\t\t\tif (!aNmdc && aOnCommandParsedF) {\n\t\t\t\taOnCommandParsedF(c);\n\t\t\t}\n\n\t\t\tdispatch(c, std::forward<ArgT>(args)...);\n\t\t} catch (const ParseException&) {\n\t\t\tdcdebug(\"Invalid ADC command: %.50s\\n\", aLine.c_str());\n\t\t\treturn;\n\t\t}\n\t}",
+        "AdcCommand c(aLine, aNmdc);",
+        "template<typename... ArgT>\n\tvoid dispatch(AdcCommand& aCmd, ArgT&&... args) noexcept {\n#define C(n) case AdcCommand::CMD_##n: ((T*)this)->handle(AdcCommand::n(), aCmd, std::forward<ArgT>(args)...); break\n\t\tswitch(aCmd.getCommand()) {\n\t\t\tC(SUP);\n\t\t\tC(STA);\n\t\t\tC(INF);\n\t\t\tC(MSG);\n\t\t\tC(SCH);\n\t\t\tC(RES);\n\t\t\tC(CTM);\n\t\t\tC(RCM);\n\t\t\tC(GPA);\n\t\t\tC(PAS);\n\t\t\tC(QUI);\n\t\t\tC(GET);\n\t\t\tC(GFI);\n\t\t\tC(SND);\n\t\t\tC(SID);\n\t\t\tC(CMD);\n\t\t\tC(NAT);\n\t\t\tC(RNT);\n\t\t\tC(ZON);\n\t\t\tC(ZOF);\n\t\t\tC(TCP);\n\t\t\tC(PMI);\n\t\tdefault: \n\t\t\t// dcdebug(\"Unknown ADC command: %.50s\\n\", aCmd.toString().c_str());\n\t\t\tbreak;\n#undef C\n\t\t}\n\t}",
+        "\texplicit AdcCommand(uint32_t aCmd, char aType = TYPE_CLIENT) noexcept;",
+        "\texplicit AdcCommand(uint32_t aCmd, dcpp::SID aTarget, char aType) noexcept;",
+        "\texplicit AdcCommand(Severity sev, Error err, const string& desc, char aType = TYPE_CLIENT) noexcept;",
+        "\texplicit AdcCommand(const string& aLine, bool nmdc = false);"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 30,
+          "end_line": 211
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 32,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 40,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 76,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 82,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 83,
+          "end_line": 83
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 84,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 85,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 86,
+          "end_line": 86
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 88,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 89,
+          "end_line": 89
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 93,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 94,
+          "end_line": 94
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 96,
+          "end_line": 96
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 97,
+          "end_line": 97
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 98,
+          "end_line": 98
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 99,
+          "end_line": 99
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 100,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 101,
+          "end_line": 101
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 102,
+          "end_line": 102
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 103,
+          "end_line": 103
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 104,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 105,
+          "end_line": 105
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 106,
+          "end_line": 106
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 107,
+          "end_line": 107
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 110,
+          "end_line": 110
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 112,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 113,
+          "end_line": 113
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 115,
+          "end_line": 115
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 116,
+          "end_line": 116
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 118,
+          "end_line": 118
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 120,
+          "end_line": 120
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 122,
+          "end_line": 122
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 124,
+          "end_line": 124
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 126,
+          "end_line": 126
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 127,
+          "end_line": 127
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 137,
+          "end_line": 137
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 139,
+          "end_line": 139
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 140,
+          "end_line": 140
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 141,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 142,
+          "end_line": 142
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 144,
+          "end_line": 144
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 145,
+          "end_line": 145
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 147,
+          "end_line": 150
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 148,
+          "end_line": 148
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 149,
+          "end_line": 149
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 151,
+          "end_line": 151
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 153,
+          "end_line": 153
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 154,
+          "end_line": 154
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 155,
+          "end_line": 158
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 160,
+          "end_line": 160
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 161,
+          "end_line": 161
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 162,
+          "end_line": 162
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 164,
+          "end_line": 168
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 169,
+          "end_line": 172
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 173,
+          "end_line": 173
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 174,
+          "end_line": 174
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 176,
+          "end_line": 176
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 177,
+          "end_line": 177
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 178,
+          "end_line": 178
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 179,
+          "end_line": 179
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 181,
+          "end_line": 181
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 182,
+          "end_line": 182
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 184,
+          "end_line": 184
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 186,
+          "end_line": 186
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 187,
+          "end_line": 187
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 188,
+          "end_line": 188
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 189,
+          "end_line": 189
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 190,
+          "end_line": 190
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 191,
+          "end_line": 191
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 193,
+          "end_line": 193
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 194,
+          "end_line": 194
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 196,
+          "end_line": 196
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 197,
+          "end_line": 197
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 198,
+          "end_line": 198
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 199,
+          "end_line": 199
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 200,
+          "end_line": 200
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 201,
+          "end_line": 201
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 202,
+          "end_line": 206
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 203,
+          "end_line": 203
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 204,
+          "end_line": 204
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 205,
+          "end_line": 205
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 207,
+          "end_line": 207
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 208,
+          "end_line": 208
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 209,
+          "end_line": 209
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 213,
+          "end_line": 268
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 216,
+          "end_line": 216
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 217,
+          "end_line": 219
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 221,
+          "end_line": 234
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 224,
+          "end_line": 224
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 236,
+          "end_line": 267
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 129,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 130,
+          "end_line": 130
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 131,
+          "end_line": 131
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.h",
+          "start_line": 134,
+          "end_line": 134
+        },
+        {
+          "path": "airdcpp/protocol/AdcCommand.cpp",
+          "start_line": 27,
+          "end_line": 324
+        },
+        {
+          "path": "airdcpp/util/text/StringTokenizer.h",
+          "start_line": 28,
+          "end_line": 60
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "NMDC=false for ADC command parse/constructor; `getParam(index)` returns empty when out-of-range."
+        ],
+        "effects": [
+          "AdcCommand stores 3-byte command integer, type, from/to SIDs, ordered parameter strings and feature string. Constructors make regular commands, addressed commands, status commands (status parameter is 000 for success/SUCCESS else severity*100+error), or parse a line. Command FourCC constants encode three chars by shifts; toFourCC/toSID reinterpret source bytes, so bridge should preserve source byte representation.",
+          "parse defaults NMDC false. It accepts `yxxx` style ADC or `$ADCxxx` NMDC form, validates length/type, assigns hub SID to INFO commands, and parses sender/recipient/feature fields for B/D/E/F types. Required sender, recipient and feature fields are checked; feature parameter bytes are validated and skipped rather than copied into `features`. Invalid lengths/missing fields, unknown escapes, trailing backslash throw ParseException. Recognized escapes are \\s, \\n, \\\\ and legacy NMDC \\space. Feature field length must be divisible by five.",
+          "toString emits command header plus escaped ordered params with newline for ADC or pipe for NMDC. Header includes from/to/features according to type; CID overload is for UDP and serializes CID base32. escape replaces space/newline/backslash with ADC escapes or prefixes backslash in legacy mode. addParam(name,value) concatenates name+value as one parameter; map addition appends all map entries in its multimap iteration order.",
+          "getParam(index) returns emptyString when out of range. Named getParam searches from start for two-byte parameter code, returns the first value substring after two-byte code; list overload appends all matching values and returns whether output list is nonempty. hasFlag requires matching two-byte code and exact 3-byte parameter ending in `1`. addFeature appends + or - then feature text.",
+          "CommandHandler parses input inside catch(ParseException), logs invalid line and returns. Parsed callback runs only for non-NMDC. Typed dispatch invokes handler for listed known command IDs; unknown commands have no handler call and return silently."
+        ],
+        "events": [],
+        "errors": [
+          "AdcCommand parsing throws ParseException for malformed lines; CommandHandler catches only ParseException and returns after logging."
+        ],
+        "completion": "Synchronous parsing, formatting, lookup and event dispatch.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Command parameters/features are owned values; manager events reference source Client/UserConnection objects, while UDP OnlineUserPtr is shared."
+      ],
+      "threading_evidence": [
+        "AdcSupports operations use SharedMutex; command objects have no internal synchronization; diagnostic events fire on emitter threads."
+      ],
+      "proposed_bridge_requirement": "Preserve parse failures, field validation, serialization, typed dispatch and synchronous diagnostic payload/lifetime contracts.",
+      "acceptance_scenarios": [
+        {
+          "given": "an ADC command line has a terminal backslash or invalid escape",
+          "when": "the parser consumes it",
+          "then": "it throws ParseException; CommandHandler catches it, logs the invalid command, and does not call the parsed callback/handler."
+        },
+        {
+          "given": "the parameter vector contains `NIalice` and `NIbob`",
+          "when": "the list getParam overload searches NI from index zero",
+          "then": "it appends both values and returns true; the scalar overload returns `alice` from the first match."
+        },
+        {
+          "given": "a parsed feature command lacks a sender or has feature length not divisible by five",
+          "when": "parse completes field validation",
+          "then": "it throws ParseException for the required field/feature length."
+        },
+        {
+          "given": "a valid type-F input line includes a five-byte feature token",
+          "when": "parse validates and consumes the feature field",
+          "then": "it accepts the field length but leaves the parsed features string empty because source parser skips feature contents."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/protocol/AdcCommand.h:30:ClassDecl:AdcCommand",
+        "decl:airdcpp/protocol/AdcCommand.h:32:ClassTemplate:Type<T>",
+        "decl:airdcpp/protocol/AdcCommand.h:34:EnumConstantDecl:CMD",
+        "decl:airdcpp/protocol/AdcCommand.h:34:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/protocol/AdcCommand.h:34:3)",
+        "decl:airdcpp/protocol/AdcCommand.h:37:TypeAliasDecl:ParamMap",
+        "decl:airdcpp/protocol/AdcCommand.h:38:TypeAliasDecl:ParamList",
+        "decl:airdcpp/protocol/AdcCommand.h:40:EnumDecl:Error",
+        "decl:airdcpp/protocol/AdcCommand.h:41:EnumConstantDecl:SUCCESS",
+        "decl:airdcpp/protocol/AdcCommand.h:42:EnumConstantDecl:ERROR_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:43:EnumConstantDecl:ERROR_HUB_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:44:EnumConstantDecl:ERROR_HUB_FULL",
+        "decl:airdcpp/protocol/AdcCommand.h:45:EnumConstantDecl:ERROR_HUB_DISABLED",
+        "decl:airdcpp/protocol/AdcCommand.h:46:EnumConstantDecl:ERROR_LOGIN_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:47:EnumConstantDecl:ERROR_NICK_INVALID",
+        "decl:airdcpp/protocol/AdcCommand.h:48:EnumConstantDecl:ERROR_NICK_TAKEN",
+        "decl:airdcpp/protocol/AdcCommand.h:49:EnumConstantDecl:ERROR_BAD_PASSWORD",
+        "decl:airdcpp/protocol/AdcCommand.h:50:EnumConstantDecl:ERROR_CID_TAKEN",
+        "decl:airdcpp/protocol/AdcCommand.h:51:EnumConstantDecl:ERROR_COMMAND_ACCESS",
+        "decl:airdcpp/protocol/AdcCommand.h:52:EnumConstantDecl:ERROR_REGGED_ONLY",
+        "decl:airdcpp/protocol/AdcCommand.h:53:EnumConstantDecl:ERROR_INVALID_PID",
+        "decl:airdcpp/protocol/AdcCommand.h:54:EnumConstantDecl:ERROR_BANNED_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:55:EnumConstantDecl:ERROR_PERM_BANNED",
+        "decl:airdcpp/protocol/AdcCommand.h:56:EnumConstantDecl:ERROR_TEMP_BANNED",
+        "decl:airdcpp/protocol/AdcCommand.h:57:EnumConstantDecl:ERROR_PROTOCOL_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:58:EnumConstantDecl:ERROR_PROTOCOL_UNSUPPORTED",
+        "decl:airdcpp/protocol/AdcCommand.h:59:EnumConstantDecl:ERROR_CONNECT_FAILED",
+        "decl:airdcpp/protocol/AdcCommand.h:60:EnumConstantDecl:ERROR_INF_MISSING",
+        "decl:airdcpp/protocol/AdcCommand.h:61:EnumConstantDecl:ERROR_BAD_STATE",
+        "decl:airdcpp/protocol/AdcCommand.h:62:EnumConstantDecl:ERROR_FEATURE_MISSING",
+        "decl:airdcpp/protocol/AdcCommand.h:63:EnumConstantDecl:ERROR_BAD_IP",
+        "decl:airdcpp/protocol/AdcCommand.h:64:EnumConstantDecl:ERROR_NO_HUB_HASH",
+        "decl:airdcpp/protocol/AdcCommand.h:65:EnumConstantDecl:ERROR_TRANSFER_GENERIC",
+        "decl:airdcpp/protocol/AdcCommand.h:66:EnumConstantDecl:ERROR_FILE_NOT_AVAILABLE",
+        "decl:airdcpp/protocol/AdcCommand.h:67:EnumConstantDecl:ERROR_FILE_PART_NOT_AVAILABLE",
+        "decl:airdcpp/protocol/AdcCommand.h:68:EnumConstantDecl:ERROR_SLOTS_FULL",
+        "decl:airdcpp/protocol/AdcCommand.h:69:EnumConstantDecl:ERROR_NO_CLIENT_HASH",
+        "decl:airdcpp/protocol/AdcCommand.h:70:EnumConstantDecl:ERROR_HBRI_TIMEOUT",
+        "decl:airdcpp/protocol/AdcCommand.h:71:EnumConstantDecl:ERROR_FILE_ACCESS_DENIED",
+        "decl:airdcpp/protocol/AdcCommand.h:72:EnumConstantDecl:ERROR_UNKNOWN_USER",
+        "decl:airdcpp/protocol/AdcCommand.h:73:EnumConstantDecl:ERROR_TLS_REQUIRED",
+        "decl:airdcpp/protocol/AdcCommand.h:76:EnumDecl:Severity",
+        "decl:airdcpp/protocol/AdcCommand.h:77:EnumConstantDecl:SEV_SUCCESS",
+        "decl:airdcpp/protocol/AdcCommand.h:78:EnumConstantDecl:SEV_RECOVERABLE",
+        "decl:airdcpp/protocol/AdcCommand.h:79:EnumConstantDecl:SEV_FATAL",
+        "decl:airdcpp/protocol/AdcCommand.h:82:VarDecl:TYPE_BROADCAST",
+        "decl:airdcpp/protocol/AdcCommand.h:83:VarDecl:TYPE_CLIENT",
+        "decl:airdcpp/protocol/AdcCommand.h:84:VarDecl:TYPE_DIRECT",
+        "decl:airdcpp/protocol/AdcCommand.h:85:VarDecl:TYPE_ECHO",
+        "decl:airdcpp/protocol/AdcCommand.h:86:VarDecl:TYPE_FEATURE",
+        "decl:airdcpp/protocol/AdcCommand.h:87:VarDecl:TYPE_INFO",
+        "decl:airdcpp/protocol/AdcCommand.h:88:VarDecl:TYPE_HUB",
+        "decl:airdcpp/protocol/AdcCommand.h:89:VarDecl:TYPE_UDP",
+        "decl:airdcpp/protocol/AdcCommand.h:93:TypeAliasDecl:SUP",
+        "decl:airdcpp/protocol/AdcCommand.h:94:TypeAliasDecl:STA",
+        "decl:airdcpp/protocol/AdcCommand.h:95:TypeAliasDecl:INF",
+        "decl:airdcpp/protocol/AdcCommand.h:96:TypeAliasDecl:MSG",
+        "decl:airdcpp/protocol/AdcCommand.h:97:TypeAliasDecl:SCH",
+        "decl:airdcpp/protocol/AdcCommand.h:98:TypeAliasDecl:RES",
+        "decl:airdcpp/protocol/AdcCommand.h:99:TypeAliasDecl:CTM",
+        "decl:airdcpp/protocol/AdcCommand.h:100:TypeAliasDecl:RCM",
+        "decl:airdcpp/protocol/AdcCommand.h:101:TypeAliasDecl:GPA",
+        "decl:airdcpp/protocol/AdcCommand.h:102:TypeAliasDecl:PAS",
+        "decl:airdcpp/protocol/AdcCommand.h:103:TypeAliasDecl:QUI",
+        "decl:airdcpp/protocol/AdcCommand.h:104:TypeAliasDecl:GET",
+        "decl:airdcpp/protocol/AdcCommand.h:105:TypeAliasDecl:GFI",
+        "decl:airdcpp/protocol/AdcCommand.h:106:TypeAliasDecl:SND",
+        "decl:airdcpp/protocol/AdcCommand.h:107:TypeAliasDecl:SID",
+        "decl:airdcpp/protocol/AdcCommand.h:110:TypeAliasDecl:CMD",
+        "decl:airdcpp/protocol/AdcCommand.h:112:TypeAliasDecl:NAT",
+        "decl:airdcpp/protocol/AdcCommand.h:113:TypeAliasDecl:RNT",
+        "decl:airdcpp/protocol/AdcCommand.h:115:TypeAliasDecl:ZON",
+        "decl:airdcpp/protocol/AdcCommand.h:116:TypeAliasDecl:ZOF",
+        "decl:airdcpp/protocol/AdcCommand.h:118:TypeAliasDecl:TCP",
+        "decl:airdcpp/protocol/AdcCommand.h:120:TypeAliasDecl:PMI",
+        "decl:airdcpp/protocol/AdcCommand.h:122:TypeAliasDecl:CommandType",
+        "decl:airdcpp/protocol/AdcCommand.h:124:VarDecl:HUB_SID",
+        "decl:airdcpp/protocol/AdcCommand.h:126:CXXMethod:toFourCC(const char *)",
+        "decl:airdcpp/protocol/AdcCommand.h:127:CXXMethod:fromFourCC(uint32_t)",
+        "decl:airdcpp/protocol/AdcCommand.h:137:CXXMethod:parse(const string &, bool)",
+        "decl:airdcpp/protocol/AdcCommand.h:139:CXXMethod:getCommand()",
+        "decl:airdcpp/protocol/AdcCommand.h:140:CXXMethod:getType()",
+        "decl:airdcpp/protocol/AdcCommand.h:141:CXXMethod:setType(char)",
+        "decl:airdcpp/protocol/AdcCommand.h:142:CXXMethod:getFourCC()",
+        "decl:airdcpp/protocol/AdcCommand.h:142:VarDecl:tmp",
+        "decl:airdcpp/protocol/AdcCommand.h:144:CXXMethod:getFeatures()",
+        "decl:airdcpp/protocol/AdcCommand.h:145:CXXMethod:setFeatures(const string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:147:EnumDecl:FeatureType",
+        "decl:airdcpp/protocol/AdcCommand.h:148:EnumConstantDecl:REQUIRED",
+        "decl:airdcpp/protocol/AdcCommand.h:149:EnumConstantDecl:EXCLUDED",
+        "decl:airdcpp/protocol/AdcCommand.h:151:CXXMethod:addFeature(const string &, FeatureType)",
+        "decl:airdcpp/protocol/AdcCommand.h:153:CXXMethod:getParameters()",
+        "decl:airdcpp/protocol/AdcCommand.h:154:CXXMethod:getParameters()",
+        "decl:airdcpp/protocol/AdcCommand.h:155:CXXMethod:setParams(const ParamList &)",
+        "decl:airdcpp/protocol/AdcCommand.h:160:CXXMethod:toString()",
+        "decl:airdcpp/protocol/AdcCommand.h:161:CXXMethod:toString(const CID &)",
+        "decl:airdcpp/protocol/AdcCommand.h:162:CXXMethod:toString(dcpp::SID, bool)",
+        "decl:airdcpp/protocol/AdcCommand.h:164:CXXMethod:addParam(const string &, const string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:169:CXXMethod:addParam(const string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:173:CXXMethod:addParams(const ParamMap &)",
+        "decl:airdcpp/protocol/AdcCommand.h:174:CXXMethod:getParam(size_t)",
+        "decl:airdcpp/protocol/AdcCommand.h:176:CXXMethod:getParam(const char *, size_t, string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:177:CXXMethod:getParam(const char *, size_t, StringList &)",
+        "decl:airdcpp/protocol/AdcCommand.h:178:CXXMethod:hasFlag(const char *, size_t)",
+        "decl:airdcpp/protocol/AdcCommand.h:179:CXXMethod:toCode(const char *)",
+        "decl:airdcpp/protocol/AdcCommand.h:181:CXXMethod:toCommand(const string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:182:CXXMethod:fromCommand(CommandType)",
+        "decl:airdcpp/protocol/AdcCommand.h:184:CXXMethod:operator==(uint32_t)",
+        "decl:airdcpp/protocol/AdcCommand.h:186:CXXMethod:escape(const string &, bool)",
+        "decl:airdcpp/protocol/AdcCommand.h:187:CXXMethod:getTo()",
+        "decl:airdcpp/protocol/AdcCommand.h:188:CXXMethod:setTo(const dcpp::SID)",
+        "decl:airdcpp/protocol/AdcCommand.h:189:CXXMethod:getFrom()",
+        "decl:airdcpp/protocol/AdcCommand.h:190:CXXMethod:setFrom(const dcpp::SID)",
+        "decl:airdcpp/protocol/AdcCommand.h:191:CXXMethod:isValidType(char)",
+        "decl:airdcpp/protocol/AdcCommand.h:193:CXXMethod:toSID(const string &)",
+        "decl:airdcpp/protocol/AdcCommand.h:194:CXXMethod:fromSID(dcpp::SID)",
+        "decl:airdcpp/protocol/AdcCommand.h:196:CXXMethod:getHeaderString(const CID &)",
+        "decl:airdcpp/protocol/AdcCommand.h:197:CXXMethod:getHeaderString()",
+        "decl:airdcpp/protocol/AdcCommand.h:198:CXXMethod:getHeaderString(dcpp::SID, bool)",
+        "decl:airdcpp/protocol/AdcCommand.h:199:CXXMethod:getParamString(bool)",
+        "decl:airdcpp/protocol/AdcCommand.h:200:FieldDecl:parameters",
+        "decl:airdcpp/protocol/AdcCommand.h:201:FieldDecl:features",
+        "decl:airdcpp/protocol/AdcCommand.h:202:UnionDecl:(anonymous union at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/protocol/AdcCommand.h:202:2)",
+        "decl:airdcpp/protocol/AdcCommand.h:203:FieldDecl:cmdChar",
+        "decl:airdcpp/protocol/AdcCommand.h:204:FieldDecl:cmd",
+        "decl:airdcpp/protocol/AdcCommand.h:205:FieldDecl:cmdInt",
+        "decl:airdcpp/protocol/AdcCommand.h:207:FieldDecl:from",
+        "decl:airdcpp/protocol/AdcCommand.h:208:FieldDecl:to",
+        "decl:airdcpp/protocol/AdcCommand.h:209:FieldDecl:type",
+        "decl:airdcpp/protocol/AdcCommand.h:213:ClassTemplate:CommandHandler<T>",
+        "decl:airdcpp/protocol/AdcCommand.h:216:TypeAliasDecl:OnCommandParsedF",
+        "decl:airdcpp/protocol/AdcCommand.h:217:CXXMethod:dispatch(const string &, OnCommandParsedF &&)",
+        "decl:airdcpp/protocol/AdcCommand.h:221:FunctionTemplate:dispatch(const string &, bool, const OnCommandParsedF &, ArgT &&...)",
+        "decl:airdcpp/protocol/AdcCommand.h:224:VarDecl:c",
+        "decl:airdcpp/protocol/AdcCommand.h:236:FunctionTemplate:dispatch(AdcCommand &, ArgT &&...)",
+        "decl:airdcpp/protocol/AdcCommand.h:129:CXCursor_Constructor:bcc6d0f887db",
+        "decl:airdcpp/protocol/AdcCommand.h:130:CXCursor_Constructor:60f245969e6f",
+        "decl:airdcpp/protocol/AdcCommand.h:131:CXCursor_Constructor:e249f92f36d9",
+        "decl:airdcpp/protocol/AdcCommand.h:134:CXCursor_Constructor:5ca612adf23c"
+      ]
+    },
+    {
+      "id": "protocol.adc-supports-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class AdcSupports {",
+        "bool add(const string& aSupport) noexcept {\n\t\tdcassert(aSupport.length() == 4);\n\n\t\tWLock l(cs);\n\t\tif (ranges::find(supports, aSupport) != supports.end()) {\n\t\t\treturn false;\n\t\t}\n\n\t\tsupports.push_back(aSupport);\n\t\treturn true;\n\t}",
+        "WLock l(cs);",
+        "bool remove(const string& aSupport) noexcept {\n\t\tdcassert(aSupport.length() == 4);\n\n\t\tWLock l(cs);\n\t\tauto i = ranges::find(supports, aSupport);\n\t\tif (i != supports.end()) {\n\t\t\tsupports.erase(i);\n\t\t\treturn true;\n\t\t}\n\n\t\treturn false;\n\t}",
+        "WLock l(cs);",
+        "auto i = ranges::find(supports, aSupport);",
+        "bool includes(const string& aSupport) const noexcept {\n\t\tdcassert(aSupport.length() == 4);\n\n\t\tRLock l(cs);\n\t\treturn ranges::find(supports, aSupport) != supports.end();\n\t}",
+        "RLock l(cs);",
+        "StringList getAll() const noexcept {\n\t\tRLock l(cs);\n\t\treturn supports;\n\t}",
+        "RLock l(cs);",
+        "void clear() noexcept {\n\t\tWLock l(cs);\n\t\tsupports.clear();\n\t}",
+        "WLock l(cs);",
+        "void replace(const StringList& aSupports) noexcept {\n\t\tdcassert(ranges::all_of(aSupports, [](const string& aSupport) { return aSupport.length() == 4; }));\n\t\tWLock l(cs);\n\t\tsupports = aSupports;\n\t}",
+        "WLock l(cs);",
+        "mutable SharedMutex cs;",
+        "StringList supports;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 29,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 31,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 43,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 56,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 63,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 68,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 73,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/protocol/AdcSupports.h",
+          "start_line": 80,
+          "end_line": 80
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "add/remove/includes assert a four-character feature code in debug builds and lock the support list. add returns false for an existing code, otherwise appends and returns true. remove deletes one matching entry or returns false. includes tests membership. getAll returns a locked copy. clear removes all entries. replace assigns the provided list as-is after a debug assertion that every entry has four chars; it does not deduplicate."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous parsing, formatting, lookup and event dispatch.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Command parameters/features are owned values; manager events reference source Client/UserConnection objects, while UDP OnlineUserPtr is shared."
+      ],
+      "threading_evidence": [
+        "AdcSupports operations use SharedMutex; command objects have no internal synchronization; diagnostic events fire on emitter threads."
+      ],
+      "proposed_bridge_requirement": "Preserve parse failures, field validation, serialization, typed dispatch and synchronous diagnostic payload/lifetime contracts.",
+      "acceptance_scenarios": [
+        {
+          "given": "support `ADCS` already exists",
+          "when": "add(`ADCS`) is called",
+          "then": "it returns false and does not append a duplicate; replace may still install duplicate values because it assigns the input list as-is."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/protocol/AdcSupports.h:29:ClassDecl:AdcSupports",
+        "decl:airdcpp/protocol/AdcSupports.h:31:CXXMethod:add(const string &)",
+        "decl:airdcpp/protocol/AdcSupports.h:34:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:43:CXXMethod:remove(const string &)",
+        "decl:airdcpp/protocol/AdcSupports.h:46:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:47:VarDecl:i",
+        "decl:airdcpp/protocol/AdcSupports.h:56:CXXMethod:includes(const string &)",
+        "decl:airdcpp/protocol/AdcSupports.h:59:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:63:CXXMethod:getAll()",
+        "decl:airdcpp/protocol/AdcSupports.h:64:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:68:CXXMethod:clear()",
+        "decl:airdcpp/protocol/AdcSupports.h:69:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:73:CXXMethod:replace(const StringList &)",
+        "decl:airdcpp/protocol/AdcSupports.h:75:VarDecl:l",
+        "decl:airdcpp/protocol/AdcSupports.h:79:FieldDecl:cs",
+        "decl:airdcpp/protocol/AdcSupports.h:80:FieldDecl:supports"
+      ]
+    },
+    {
+      "id": "protocol.command-diagnostics",
+      "kind": "event",
+      "upstream_symbols": [
+        "class ProtocolCommandManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "typedef X<0> DebugCommand;",
+        "typedef X<1> IncomingHubCommand;",
+        "typedef X<2> IncomingUDPCommand;",
+        "typedef X<3> IncomingTCPCommand;",
+        "typedef X<4> OutgoingHubCommand;",
+        "typedef X<5> OutgoingUDPCommand;",
+        "typedef X<6> OutgoingTCPCommand;",
+        "virtual void on(DebugCommand, const string&, uint8_t, uint8_t, const string&) noexcept { }",
+        "virtual void on(IncomingHubCommand, const AdcCommand&, const Client&) noexcept { }",
+        "virtual void on(IncomingUDPCommand, const AdcCommand&, const string&) noexcept { }",
+        "virtual void on(IncomingTCPCommand, const AdcCommand&, const string&, const HintedUser&) noexcept { }",
+        "virtual void on(OutgoingHubCommand, const AdcCommand&, const Client&) noexcept { }",
+        "virtual void on(OutgoingUDPCommand, const AdcCommand&, const string&, const OnlineUserPtr&) noexcept { }",
+        "virtual void on(OutgoingTCPCommand, const AdcCommand&, const UserConnection&) noexcept { }",
+        "class ProtocolCommandManager : public Singleton<ProtocolCommandManager>, public Speaker<ProtocolCommandManagerListener>",
+        "void SendCommandMessage(const string& aMess, uint8_t aType, uint8_t aDirection, const string& aIP) {\n\t\tfire(ProtocolCommandManagerListener::DebugCommand(), aMess, aType, aDirection, aIP);\n\t}",
+        "enum Type {",
+        "TYPE_HUB, TYPE_CLIENT, TYPE_CLIENT_UDP",
+        "TYPE_HUB, TYPE_CLIENT, TYPE_CLIENT_UDP",
+        "TYPE_HUB, TYPE_CLIENT, TYPE_CLIENT_UDP",
+        "enum Direction {",
+        "INCOMING, OUTGOING",
+        "INCOMING, OUTGOING",
+        "\tProtocolCommandManager() { };",
+        "\t~ProtocolCommandManager() { };"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 28,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 53,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 58,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 63,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 67,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/protocol/ProtocolCommandManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/hub/ClientManager.cpp",
+          "start_line": 695,
+          "end_line": 707
+        },
+        {
+          "path": "airdcpp/hub/AdcHub.cpp",
+          "start_line": 1487,
+          "end_line": 1498
+        },
+        {
+          "path": "airdcpp/hub/AdcHub.cpp",
+          "start_line": 1548,
+          "end_line": 1558
+        },
+        {
+          "path": "airdcpp/connection/UDPServer.cpp",
+          "start_line": 157,
+          "end_line": 166
+        },
+        {
+          "path": "airdcpp/connection/UserConnection.cpp",
+          "start_line": 67,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/connection/UserConnection.cpp",
+          "start_line": 300,
+          "end_line": 310
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "SendCommandMessage fires DebugCommand(message,type,direction,IP) synchronously. Protocol events include incoming/outgoing hub (AdcCommand, Client reference), UDP (command, remote IP), TCP (command, remote IP plus HintedUser for incoming or UserConnection for outgoing). Outgoing UDP additionally carries OnlineUserPtr.",
+          "Source emitters: AdcHub fires outgoing hub and incoming hub commands at its send/receive paths; ClientManager fires outgoing UDP; UDPServer fires incoming UDP; UserConnection fires incoming/outgoing TCP. Speaker callback dispatch is synchronous on emitting thread; callbacks must not retain borrowed Client/UserConnection references beyond their owner lifetime."
+        ],
+        "events": [
+          "DebugCommand, incoming/outgoing Hub/UDP/TCP command events with signatures described in effects."
+        ],
+        "errors": [],
+        "completion": "Synchronous parsing, formatting, lookup and event dispatch.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "ProtocolCommandManager callbacks receive borrowed source references for Client/UserConnection; data values can be copied."
+        ]
+      },
+      "ownership_evidence": [
+        "Command parameters/features are owned values; manager events reference source Client/UserConnection objects, while UDP OnlineUserPtr is shared."
+      ],
+      "threading_evidence": [
+        "AdcSupports operations use SharedMutex; command objects have no internal synchronization; diagnostic events fire on emitter threads."
+      ],
+      "proposed_bridge_requirement": "Preserve parse failures, field validation, serialization, typed dispatch and synchronous diagnostic payload/lifetime contracts.",
+      "acceptance_scenarios": [
+        {
+          "given": "AdcHub receives or sends a command",
+          "when": "the diagnostic event is enabled through a listener",
+          "then": "the corresponding incoming/outgoing hub callback carries the command and borrowed Client reference synchronously."
+        },
+        {
+          "given": "an invalid parsed line reaches CommandHandler",
+          "when": "ParseException is thrown",
+          "then": "no ProtocolCommandManager event is inferred from that failed parse."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:28:ClassDecl:ProtocolCommandManagerListener",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/protocol/ProtocolCommandManager.h:30:28)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:32:TypedefDecl:DebugCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:34:TypedefDecl:IncomingHubCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:35:TypedefDecl:IncomingUDPCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:36:TypedefDecl:IncomingTCPCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:38:TypedefDecl:OutgoingHubCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:39:TypedefDecl:OutgoingUDPCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:40:TypedefDecl:OutgoingTCPCommand",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:42:CXXMethod:on(DebugCommand, const string &, uint8_t, uint8_t, const string &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:44:CXXMethod:on(IncomingHubCommand, const AdcCommand &, const Client &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:45:CXXMethod:on(IncomingUDPCommand, const AdcCommand &, const string &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:46:CXXMethod:on(IncomingTCPCommand, const AdcCommand &, const string &, const HintedUser &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:48:CXXMethod:on(OutgoingHubCommand, const AdcCommand &, const Client &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:49:CXXMethod:on(OutgoingUDPCommand, const AdcCommand &, const string &, const OnlineUserPtr &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:50:CXXMethod:on(OutgoingTCPCommand, const AdcCommand &, const UserConnection &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:53:ClassDecl:ProtocolCommandManager",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:58:CXXMethod:SendCommandMessage(const string &, uint8_t, uint8_t, const string &)",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:63:EnumDecl:Type",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:64:EnumConstantDecl:TYPE_CLIENT",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:64:EnumConstantDecl:TYPE_CLIENT_UDP",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:64:EnumConstantDecl:TYPE_HUB",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:67:EnumDecl:Direction",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:68:EnumConstantDecl:INCOMING",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:68:EnumConstantDecl:OUTGOING",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:56:CXCursor_Constructor:6f75e00c9c34",
+        "decl:airdcpp/protocol/ProtocolCommandManager.h:62:CXCursor_Destructor:c4e795c7151d"
+      ]
+    }
+  ]
+}

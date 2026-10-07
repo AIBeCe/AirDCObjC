@@ -1,0 +1,1263 @@
+{
+  "schema_version": 1,
+  "domain_id": "logs",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "logs.area-path",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::getPath(Area, ParamMap&) const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 141,
+          "end_line": 144
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Log area and formatting parameter map."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Formats the configured area filename using parameters and cleanPathSeparators, prefixes LOG_DIRECTORY, and validates the resulting path."
+        ],
+        "events": [],
+        "errors": [
+          "No error reporting; validation behavior belongs to PathUtil and is not expanded here."
+        ],
+        "completion": "Pure path computation with settings lookup; does not create or write the file.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": [
+          "LOG_DIRECTORY and area file settings"
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "A configured area filename contains a format token and parameters,",
+          "when": "getPath is called,",
+          "then": "the returned path is the validated formatted path under LOG_DIRECTORY."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.clear-cache",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::clearCache() noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 85,
+          "end_line": 90
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Clears the message cache."
+        ],
+        "events": [],
+        "errors": [
+          "No explicit error path in implementation."
+        ],
+        "completion": "Fires Cleared only when MessageCache::clear reports one or more removed messages.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "The cache is non-empty,",
+          "when": "clearCache is called,",
+          "then": "the cache becomes empty and Cleared is emitted."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.event.cleared",
+      "kind": "event",
+      "upstream_symbols": [
+        "LogManagerListener::on(Cleared) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 85,
+          "end_line": 90
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No payload."
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "clearCache clears cached messages and fires Cleared only when at least one message was removed."
+        ],
+        "events": [
+          "Cleared"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "Emitted synchronously in the clearCache caller after cache clear.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "No payload; listener object is registered by raw pointer in Speaker.",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker invokes listener inline under listenerCS; emitter thread is caller of clearCache."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "A listener is registered and the cache is non-empty",
+          "when": "clearCache is called",
+          "then": "Cleared fires after cache removal; with an empty cache no event fires."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.event.message",
+      "kind": "event",
+      "upstream_symbols": [
+        "LogManagerListener::on(Message, const LogMessagePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 126,
+          "end_line": 139
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const LogMessagePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "`message` creates a SYSTEM LogMessage and fires Message for every severity; before firing, non-SEV_NOTIFY messages are optionally queued for file logging when LOG_SYSTEM is true and are added to the message cache."
+        ],
+        "events": [
+          "Message"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "Message is emitted synchronously after conditional cache insertion and async file enqueue. The shared pointer keeps the message alive during the callback; Core does not wait for file I/O.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const LogMessagePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker invokes listeners inline under listenerCS; the emitter thread is the caller of LogManager::message. File writes use DispatcherQueue separately."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "A listener is registered and a message is supplied with any severity",
+          "when": "LogManager::message is called",
+          "then": "Message is emitted inline; SEV_NOTIFY is not cached or file-logged, while other severities are cached and file-enqueued only if LOG_SYSTEM is enabled."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.event.messagesRead",
+      "kind": "event",
+      "upstream_symbols": [
+        "LogManagerListener::on(MessagesRead) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 78,
+          "end_line": 83
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No payload."
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "setRead marks cached messages read and fires MessagesRead only when the cache reports unread messages."
+        ],
+        "events": [
+          "MessagesRead"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "Emitted synchronously in the setRead caller after the cache state change.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "No payload; listener object is registered by raw pointer in Speaker.",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker invokes listener inline under listenerCS; emitter thread is caller of setRead."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "A listener is registered and the cache contains unread messages",
+          "when": "setRead is called",
+          "then": "MessagesRead fires once after messages are marked read; with no unread messages, no event fires."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.file-write-async",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::log(const string&, const string&) noexcept (private helper)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 190,
+          "end_line": 204
+        },
+        {
+          "path": "airdcpp/core/io/File.cpp",
+          "start_line": 179,
+          "end_line": 182
+        },
+        {
+          "path": "airdcpp/core/io/File.cpp",
+          "start_line": 478,
+          "end_line": 480
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Resolved file path and formatted message."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Queues a task; task validates the path and ensures its parent directory, opens or creates the existing file, seeks to end-of-file with File::setEndPos(0), then appends message plus CRLF. Existing content is retained."
+        ],
+        "events": [],
+        "errors": [
+          "FileException is converted into a SEV_NOTIFY message; failed write is not returned to caller."
+        ],
+        "completion": "Public log calls enqueue work and return before file I/O completes.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": [
+          "DispatcherQueue, log directory"
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "an existing writable log ends with `prior`",
+          "when": "the queued writer writes message `next`",
+          "then": "the file retains `prior` and appends `next` followed by CRLF."
+        },
+        {
+          "given": "the log file does not exist but its directory is writable",
+          "when": "the queued writer runs",
+          "then": "it creates the file and writes the message followed by CRLF."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.listener-events",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class LogManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> Message;",
+        "typedef X<1> MessagesRead;",
+        "typedef X<2> Cleared;",
+        "virtual void on(Message, const LogMessagePtr&) noexcept { }",
+        "virtual void on(MessagesRead) noexcept {}",
+        "virtual void on(Cleared) noexcept {}",
+        "\tvirtual ~LogManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 26,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/events/LogManagerListener.h",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 37,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Message callback carries shared LogMessagePtr; MessagesRead and Cleared are parameterless tags. Speaker::fire dispatches synchronously through listener snapshot; default listener overloads are no-ops. Message order follows cache/write logic above; clear/read tags fire only on state change."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "clearCache removes zero cached messages",
+          "when": "clearCache returns",
+          "then": "Cleared is not fired; MessagesRead is likewise fired only when setRead reports unread cached messages."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/events/LogManagerListener.h:26:ClassDecl:LogManagerListener",
+        "decl:airdcpp/events/LogManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/events/LogManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/events/LogManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/events/LogManagerListener.h:29:29)",
+        "decl:airdcpp/events/LogManagerListener.h:31:TypedefDecl:Message",
+        "decl:airdcpp/events/LogManagerListener.h:32:TypedefDecl:MessagesRead",
+        "decl:airdcpp/events/LogManagerListener.h:33:TypedefDecl:Cleared",
+        "decl:airdcpp/events/LogManagerListener.h:35:CXXMethod:on(Message, const LogMessagePtr &)",
+        "decl:airdcpp/events/LogManagerListener.h:36:CXXMethod:on(MessagesRead)",
+        "decl:airdcpp/events/LogManagerListener.h:37:CXXMethod:on(Cleared)",
+        "decl:airdcpp/events/LogManagerListener.h:28:CXCursor_Destructor:4ca888cfa555"
+      ]
+    },
+    {
+      "id": "logs.manager-operations",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class LogManager : public Singleton<LogManager>, public Speaker<LogManagerListener>",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum Area: uint8_t { CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS, LAST };",
+        "enum: uint8_t { FILE, FORMAT };",
+        "enum: uint8_t { FILE, FORMAT };",
+        "enum: uint8_t { FILE, FORMAT };",
+        "void log(Area area, ParamMap& params) noexcept;",
+        "void message(const string& aMsg, LogMessage::Severity aSeverity, const string& aLabel) noexcept;",
+        "string getPath(Area area, ParamMap& params) const noexcept;",
+        "string getPath(Area area) const noexcept;",
+        "string getPath(const UserPtr& aUser, ParamMap& params, bool addCache = false) noexcept;",
+        "void log(const UserPtr& aUser, ParamMap& params) noexcept;",
+        "void removePmCache(const UserPtr& aUser) noexcept;",
+        "const string& getSetting(int area, int sel) const noexcept;",
+        "void saveSetting(int area, int sel, const string& setting) const noexcept;",
+        "const MessageCache& getCache() const noexcept {\n\t\treturn cache;\n\t}",
+        "void clearCache() noexcept;",
+        "void setRead() noexcept;",
+        "static string readFromEnd(const string& aPath, int aMaxLines, int64_t aBufferSize) noexcept;",
+        "MessageCache cache;",
+        "void log(const string& area, const string& msg) noexcept;",
+        "int options[LAST][2];",
+        "unordered_map<CID, string> pmPaths;",
+        "static void ensureParam(const string& aParam, string& aFile) noexcept;",
+        "DispatcherQueue tasks;",
+        "\tLogManager();",
+        "\t~LogManager() override;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 37,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 57,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 80,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 24,
+          "end_line": 204
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Area selects one of CHAT, PM, DOWNLOAD, UPLOAD, SYSTEM, STATUS; FILE/FORMAT index the manager option table backed by SettingsManager string settings. `getPath(area, params)` formats the configured file pattern and validates it under LOG_DIRECTORY; no-params overload uses an empty map. `log(area, params)` formats FORMAT and queues a write.",
+          "`message` creates SYSTEM LogMessage and always fires Message. SEV_NOTIFY bypasses system file logging and cache; other severities enter cache and write file only when LOG_SYSTEM. `clearCache` fires Cleared only if removal count >0; `setRead` fires MessagesRead only when cache transitioned with messages.",
+          "PM grouping is conditional: NMDC or disabled PM_LOG_GROUP_CID uses ordinary PM path. Grouped paths add %[userCID] if absent, search matching files by CID and cache optionally; cached path is reused only while directory matches. `removePmCache` erases CID entry. Cache map is documented GUI-thread-only, without lock.",
+          "Writes run through idle DispatcherQueue; directories are ensured, file is opened/created, truncated, then `msg + CRLF` written. FileException is converted to SEV_NOTIFY application message. `readFromEnd` returns empty when maxLines=0; read exceptions are swallowed; BOM stripped and returned lines CRLF terminated."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "LogManager::message is called with SEV_NOTIFY",
+          "when": "LOG_SYSTEM is enabled or disabled",
+          "then": "it emits Message but neither writes SYSTEM log nor adds the message to MessageCache."
+        },
+        {
+          "given": "a queued log-file write fails with FileException",
+          "when": "the idle dispatcher runs it",
+          "then": "it calls message with a SEV_NOTIFY write-failed application message rather than recursively attempting to log the error."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/events/LogManager.h:37:ClassDecl:LogManager",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:CHAT",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:DOWNLOAD",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:LAST",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:PM",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:STATUS",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:SYSTEM",
+        "decl:airdcpp/events/LogManager.h:40:EnumConstantDecl:UPLOAD",
+        "decl:airdcpp/events/LogManager.h:40:EnumDecl:Area",
+        "decl:airdcpp/events/LogManager.h:41:EnumConstantDecl:FILE",
+        "decl:airdcpp/events/LogManager.h:41:EnumConstantDecl:FORMAT",
+        "decl:airdcpp/events/LogManager.h:41:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/events/LogManager.h:41:2)",
+        "decl:airdcpp/events/LogManager.h:43:CXXMethod:log(Area, ParamMap &)",
+        "decl:airdcpp/events/LogManager.h:44:CXXMethod:message(const string &, LogMessage::Severity, const string &)",
+        "decl:airdcpp/events/LogManager.h:46:CXXMethod:getPath(Area, ParamMap &)",
+        "decl:airdcpp/events/LogManager.h:47:CXXMethod:getPath(Area)",
+        "decl:airdcpp/events/LogManager.h:50:CXXMethod:getPath(const UserPtr &, ParamMap &, bool)",
+        "decl:airdcpp/events/LogManager.h:51:CXXMethod:log(const UserPtr &, ParamMap &)",
+        "decl:airdcpp/events/LogManager.h:52:CXXMethod:removePmCache(const UserPtr &)",
+        "decl:airdcpp/events/LogManager.h:54:CXXMethod:getSetting(int, int)",
+        "decl:airdcpp/events/LogManager.h:55:CXXMethod:saveSetting(int, int, const string &)",
+        "decl:airdcpp/events/LogManager.h:57:CXXMethod:getCache()",
+        "decl:airdcpp/events/LogManager.h:61:CXXMethod:clearCache()",
+        "decl:airdcpp/events/LogManager.h:62:CXXMethod:setRead()",
+        "decl:airdcpp/events/LogManager.h:64:CXXMethod:readFromEnd(const string &, int, int64_t)",
+        "decl:airdcpp/events/LogManager.h:66:FieldDecl:cache",
+        "decl:airdcpp/events/LogManager.h:68:CXXMethod:log(const string &, const string &)",
+        "decl:airdcpp/events/LogManager.h:72:FieldDecl:options",
+        "decl:airdcpp/events/LogManager.h:77:FieldDecl:pmPaths",
+        "decl:airdcpp/events/LogManager.h:78:CXXMethod:ensureParam(const string &, string &)",
+        "decl:airdcpp/events/LogManager.h:80:FieldDecl:tasks",
+        "decl:airdcpp/events/LogManager.h:74:CXCursor_Constructor:88f7a82556ac",
+        "decl:airdcpp/events/LogManager.h:75:CXCursor_Destructor:ea2ff2dfb607"
+      ]
+    },
+    {
+      "id": "logs.message",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::message(const string&, LogMessage::Severity, const string&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 126,
+          "end_line": 139
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Message text, severity and label."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Creates a shared LogMessage of type SYSTEM. For severity other than SEV_NOTIFY, writes to the SYSTEM log only when LOG_SYSTEM is enabled and adds the message to MessageCache. Fires Message for every severity."
+        ],
+        "events": [],
+        "errors": [
+          "Underlying file-write failure is converted to a SEV_NOTIFY message through the async writer; no exception escapes this noexcept API."
+        ],
+        "completion": "The callback event is fired after conditional cache/file enqueue. Log writes are enqueued to DispatcherQueue, not completed synchronously.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": [
+          "LOG_SYSTEM setting and log-directory resources"
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "A message and severity are provided,",
+          "when": "message is called,",
+          "then": "Message is fired; only non-SEV_NOTIFY messages enter cache, and file logging is additionally gated by LOG_SYSTEM."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.private-path",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::getPath(const UserPtr&, ParamMap&, bool) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 96,
+          "end_line": 124
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User, formatting parameter map, optional addCache flag (default false)."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "For NMDC users or when PM_LOG_GROUP_CID is false, delegates to generic PM path. Otherwise reuses cached CID path when its directory matches current PM path; ensures `%[userCID]` in configured filename; searches same directory for an existing CID-named log and returns first match; caches computed path only when requested."
+        ],
+        "events": [],
+        "errors": [
+          "Requires non-null user in implementation. No locking: source comment says GUI-thread-only."
+        ],
+        "completion": "Caching is optional and keyed by CID. Existing file selection takes `files.front()` from findFiles.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": [
+          "LOG_DIRECTORY, PM log filename setting, existing log files"
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "A non-NMDC user and PM_LOG_GROUP_CID enabled,",
+          "when": "getPath is called with addCache true,",
+          "then": "the CID-specific validated path is returned and cached; callers must serialize access on the GUI thread."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.read-from-end",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::readFromEnd(const string&, int, int64_t) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 159,
+          "end_line": 188
+        },
+        {
+          "path": "airdcpp/util/text/StringTokenizer.h",
+          "start_line": 28,
+          "end_line": 60
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Path, maximum line count, and maximum tail-buffer byte count."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "For maxLines=0 returns empty immediately. Otherwise opens the file and reads at most the caller-provided tail buffer size. It strips a leading UTF-8 BOM, then StringTokenizer uses the exact CRLF sequence as delimiter and retains empty tokens; bare CR or LF alone is not a delimiter. It computes `i=max(linesCount-maxLines-1,0)` and emits every token from i through the last, appending CRLF per token. Thus it can emit maxLines+1 nonempty tokens for an unterminated tail, or include an additional blank CRLF token when the file ends in CRLF."
+        ],
+        "events": [],
+        "errors": [
+          "FileException from open/read is swallowed and the accumulated result is returned; failures before tokenization return empty."
+        ],
+        "completion": "Synchronous; selected content is determined by the caller-provided tail-buffer byte count and the source index formula above. The API does not report truncation or read failure.",
+        "cancellation": "No cancellation parameter; synchronous file read.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve maxLines=0, buffer-limited reads, BOM stripping, exact CRLF tokenization with empty tokens, source index formula, CRLF emission, and swallowed FileException semantics; do not add a separate I/O-status result.",
+      "acceptance_scenarios": [
+        {
+          "given": "the supplied tail buffer contains `older\\r\\nnewer` without a final CRLF and maxLines is 1",
+          "when": "readFromEnd tokenizes and applies its source index formula",
+          "then": "it emits `older\\r\\nnewer\\r\\n` because both nonempty tokens are selected."
+        },
+        {
+          "given": "the supplied tail buffer contains `older\\r\\nnewer\\r\\n` and maxLines is 1",
+          "when": "readFromEnd tokenizes with empty tokens retained",
+          "then": "it emits `newer\\r\\n\\r\\n`, including the trailing empty token."
+        },
+        {
+          "given": "the path cannot be opened",
+          "when": "readFromEnd is called with maxLines greater than zero",
+          "then": "it swallows FileException and returns the accumulated result, which is empty if no tokens were processed."
+        },
+        {
+          "given": "maxLines is zero",
+          "when": "readFromEnd is called",
+          "then": "it returns empty without opening or reading the file."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.read-tail",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::readFromEnd(const string&, int, int64_t) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 159,
+          "end_line": 188
+        },
+        {
+          "path": "airdcpp/util/text/StringTokenizer.h",
+          "start_line": 28,
+          "end_line": 60
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Path, maximum line count, and maximum tail-buffer byte count."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "For maxLines=0 returns empty immediately. Otherwise opens the file and reads at most the caller-provided tail buffer size. It strips a leading UTF-8 BOM, then StringTokenizer uses the exact CRLF sequence as delimiter and retains empty tokens; bare CR or LF alone is not a delimiter. It computes `i=max(linesCount-maxLines-1,0)` and emits every token from i through the last, appending CRLF per token. Thus it can emit maxLines+1 nonempty tokens for an unterminated tail, or include an additional blank CRLF token when the file ends in CRLF."
+        ],
+        "events": [],
+        "errors": [
+          "FileException from open/read is swallowed and the accumulated result is returned; failures before tokenization return empty."
+        ],
+        "completion": "Synchronous; selected content is determined by the caller-provided tail-buffer byte count and the source index formula above. The API does not report truncation or read failure.",
+        "cancellation": "No cancellation parameter; synchronous file read.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve maxLines=0, buffer-limited reads, BOM stripping, exact CRLF tokenization with empty tokens, source index formula, CRLF emission, and swallowed FileException semantics; do not add a separate I/O-status result.",
+      "acceptance_scenarios": [
+        {
+          "given": "the supplied tail buffer contains `older\\r\\nnewer` without a final CRLF and maxLines is 1",
+          "when": "readFromEnd tokenizes and applies its source index formula",
+          "then": "it emits `older\\r\\nnewer\\r\\n` because both nonempty tokens are selected."
+        },
+        {
+          "given": "the supplied tail buffer contains `older\\r\\nnewer\\r\\n` and maxLines is 1",
+          "when": "readFromEnd tokenizes with empty tokens retained",
+          "then": "it emits `newer\\r\\n\\r\\n`, including the trailing empty token."
+        },
+        {
+          "given": "the path cannot be opened",
+          "when": "readFromEnd is called with maxLines greater than zero",
+          "then": "it swallows FileException and returns the accumulated result, which is empty if no tokens were processed."
+        },
+        {
+          "given": "maxLines is zero",
+          "when": "readFromEnd is called",
+          "then": "it returns empty without opening or reading the file."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "logs.set-read",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::setRead() noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/events/LogManager.cpp",
+          "start_line": 78,
+          "end_line": 83
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Header and implementation traced; distribution symbol/runtime behavior not verified."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Marks cached messages read."
+        ],
+        "events": [],
+        "errors": [
+          "No explicit error path in implementation."
+        ],
+        "completion": "Fires MessagesRead only if MessageCache::setRead reports unread messages; event has no payload.",
+        "cancellation": "Synchronous method; no cancellation parameter or cancellation behavior is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-backed behavior and translate file errors/log events without blocking a Core listener callback.",
+      "acceptance_scenarios": [
+        {
+          "given": "The cache contains unread messages,",
+          "when": "setRead is called,",
+          "then": "the cache marks them read and emits MessagesRead once."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "logs.write",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogManager::log(Area, ParamMap&) noexcept",
+        "LogManager::message(const string&, LogMessage::Severity, const string&) noexcept",
+        "LogManager::getPath(Area, ParamMap&) const noexcept",
+        "LogManager::getPath(Area) const noexcept",
+        "LogManager::getPath(const UserPtr&, ParamMap&, bool = false) noexcept",
+        "LogManager::log(const UserPtr&, ParamMap&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/events/LogManager.h",
+          "start_line": 39,
+          "end_line": 52
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Area/user, parameters or message/severity/label."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Writes area or user-scoped logs and resolves configured paths."
+        ],
+        "events": [
+          "Log listener declares Message, MessagesRead and Cleared; exact firing conditions are not traced."
+        ],
+        "errors": [],
+        "completion": "Source declaration inspected; implementation/runtime behavior requires further evidence.",
+        "cancellation": "No cancellation contract is declared at this API; caller-level behavior remains unverified.",
+        "persistence": [],
+        "resources": [
+          "Log directory, filename and format settings; PM path cache."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve area, user, severity, label and path semantics; expose copied log values.",
+      "acceptance_scenarios": [
+        {
+          "given": "A log area and valid parameters are supplied",
+          "when": "log is invoked",
+          "then": "the corresponding configured sink receives a formatted entry."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1822 @@
+{
+  "schema_version": 1,
+  "domain_id": "private-chat",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "private-chat.event.chatCreated",
+      "kind": "event",
+      "upstream_symbols": [
+        "PrivateChatManagerListener::on(ChatCreated, const PrivateChatPtr&, bool /* received message */) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 54,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManagerListener.h",
+          "start_line": 30,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "PrivateChatPtr of the inserted or already-existing chat and the `aReceivedMessage` argument supplied to addChat."
+        ],
+        "preconditions": [
+          "A PrivateChatManagerListener is registered with the manager Speaker."
+        ],
+        "defaults": [
+          "No ChatCreated event is emitted when try_emplace finds an existing chat."
+        ],
+        "effects": [
+          "addChat resolves the current online HintedUser when available, inserts a new PrivateChat under WLock(cs), releases cs, then fires ChatCreated(chat,aReceivedMessage). The bool payload preserves the caller argument; it is not recomputed from chat state. Existing-chat addChat returns the stored chat with added=false and does not fire. Speaker dispatch is synchronous on the emitter thread."
+        ],
+        "events": [
+          "ChatCreated(chat, receivedMessage) exactly after successful new insertion."
+        ],
+        "errors": [
+          "Callback is noexcept and has no delivery/error return channel. addChat reuse is reported by its returned bool, not an event."
+        ],
+        "completion": "Insertion and callback dispatch are synchronous; ChatCreated listeners run after the manager map lock is released.",
+        "cancellation": "No event cancellation result is exposed.",
+        "persistence": [],
+        "resources": [
+          "Callback receives a const reference to manager-owned PrivateChatPtr; copy the shared_ptr to retain the chat beyond callback."
+        ]
+      },
+      "ownership_evidence": [
+        "Callback receives: const PrivateChatPtr&, bool /* received message */",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "PrivateChatManager::addChat releases WLock(cs) before fire (PrivateChatManager.cpp:60-74); Speaker::fire calls listeners synchronously under listenerCS (Speaker.h:42-49)."
+      ],
+      "proposed_bridge_requirement": "Preserve the caller-supplied receivedMessage flag and emit only for newly inserted chats, after releasing the manager map lock; copy the shared_ptr if retaining the chat.",
+      "acceptance_scenarios": [
+        {
+          "given": "No chat exists and addChat is called with receivedMessage=true",
+          "when": "try_emplace inserts the new chat",
+          "then": "ChatCreated fires once after the map write lock is released with that chat and true; addChat returns added=true."
+        },
+        {
+          "given": "A chat already exists and addChat is called with receivedMessage=false",
+          "when": "try_emplace reports no insertion",
+          "then": "the existing chat is returned with added=false and ChatCreated does not fire."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "private-chat.event.chatRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "PrivateChatManagerListener::on(ChatRemoved, const PrivateChatPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 88,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManagerListener.h",
+          "start_line": 30,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "PrivateChatPtr retained locally by removeChat for the notification."
+        ],
+        "preconditions": [
+          "The target user has an existing chat and a listener is registered with the manager Speaker."
+        ],
+        "defaults": [
+          "No ChatRemoved event is emitted when the user has no chat; removeChat returns false."
+        ],
+        "effects": [
+          "removeChat takes WLock(cs), calls chat->close() before map erasure, and if a CCPM UserConnection remains, stores its raw pointer in ccpms and registers the manager listener. It erases the chat map entry, releases cs, then fires ChatRemoved(chat) and returns true. Thus the chat is closed and absent from getChat before the event, while the callback payload shared_ptr keeps the object alive. Speaker dispatch is synchronous."
+        ],
+        "events": [
+          "ChatRemoved(chat) once after close/optional CCPM retention and map erasure."
+        ],
+        "errors": [
+          "Callback is noexcept with no delivery/error return channel; absent-chat removal is false with no event."
+        ],
+        "completion": "Close, optional CCPM retention, erase, and callback dispatch occur synchronously in removeChat; later connection shutdown is asynchronous.",
+        "cancellation": "No event cancellation result is exposed.",
+        "persistence": [],
+        "resources": [
+          "The manager retains chat in a local shared_ptr through callback; a CCPM connection may remain in ccpms as a raw listener pointer after chat removal."
+        ]
+      },
+      "ownership_evidence": [
+        "Callback receives: const PrivateChatPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "removeChat calls close while WLock(cs) is held, erases under that lock, then releases it before firing ChatRemoved (PrivateChatManager.cpp:91-112). Speaker invokes callback inline under listenerCS (Speaker.h:42-49). The nested PrivateChat Close event occurs while the manager write lock is held; ChatRemoved does not."
+      ],
+      "proposed_bridge_requirement": "Keep Close (nested under manager write lock) distinct from ChatRemoved (after unlock and erasure); preserve object lifetime by retaining the supplied shared_ptr when needed.",
+      "acceptance_scenarios": [
+        {
+          "given": "A chat exists and has an active CCPM UserConnection",
+          "when": "removeChat is called",
+          "then": "Close fires during locked close, the connection is retained/listened to, the map entry is erased, and ChatRemoved fires afterward with the closed chat; removeChat returns true."
+        },
+        {
+          "given": "No chat exists for the user",
+          "when": "removeChat is called",
+          "then": "it returns false and does not fire ChatRemoved."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "private-chat.manage",
+      "kind": "operation",
+      "upstream_symbols": [
+        "PrivateChatManager::addChat(const HintedUser&, bool) noexcept",
+        "PrivateChatManager::getChat(const UserPtr&) const noexcept",
+        "PrivateChatManager::getChats() const noexcept",
+        "PrivateChatManager::removeChat(const UserPtr&)",
+        "PrivateChatManager::closeAll(bool)",
+        "PrivateChatManager::DisconnectCCPM(const UserPtr&)",
+        "PrivateChatManager::onPrivateMessage(const ChatMessagePtr&)",
+        "PrivateChatManager::on(ConnectionManagerListener::Connected, const ConnectionQueueItem*, UserConnection*) noexcept",
+        "PrivateChatManager::on(ConnectionManagerListener::Removed, const ConnectionQueueItem*) noexcept",
+        "PrivateChatManager::on(ClientManagerListener::PrivateMessage, const ChatMessagePtr&) noexcept",
+        "PrivateChatManager::on(UserConnectionListener::PrivateMessage, UserConnection*, const ChatMessagePtr&) noexcept",
+        "PrivateChatManager::on(AdcCommand::PMI, UserConnection*, const AdcCommand&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 31,
+          "end_line": 242
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.h",
+          "start_line": 46,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/thread/CriticalSection.h",
+          "start_line": 34,
+          "end_line": 36
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "HintedUser and received-message flag for addChat; UserPtr for lookup/removal/disconnect; offlineOnly for closeAll; inbound ChatMessagePtr and connection/PMI callbacks."
+        ],
+        "preconditions": [
+          "Manager construction registers as ClientManager and ConnectionManager listener (PrivateChatManager.cpp:31-34)."
+        ],
+        "defaults": [
+          "An existing chat is reused and addChat returns added=false."
+        ],
+        "effects": [
+          "addChat resolves the current online hint when available, inserts one chat per UserPtr under write lock, and emits ChatCreated only for a new entry. removeChat closes the chat, retains its CCPM connection in ccpms with a listener when present, erases it, then emits ChatRemoved. closeAll snapshots matching user keys before removal. Inbound messages are dispatched to an existing chat; otherwise bot/hub popup preferences can route a status message, or a chat is created and receives the message; an away response may be sent for received PMs, subject to away/bot settings. When a PM connection is accepted with no open chat, it is retained until a message arrives."
+        ],
+        "events": [
+          "ChatCreated(chat, receivedMessage) after insertion; ChatRemoved(chat) after erasure; inbound listener callbacks dispatch to onPrivateMessage."
+        ],
+        "errors": [
+          "addChat reports reuse via its bool; getChat returns null when absent; removeChat returns false when absent. No explicit errors are returned by message handling."
+        ],
+        "completion": "Synchronous map updates and listener firing are visible in the implementation; UserConnection and network completion occur asynchronously outside this manager method.",
+        "cancellation": "No cancellation API is declared. closeAll(false) requests removal of every chat; closeAll(true) skips users currently online.",
+        "persistence": [],
+        "resources": [
+          "Manager registers/removes ClientManager and ConnectionManager listeners. Destructor clears chats under write lock and disconnects ConnectionManager. removeChat may keep a UserConnection in ccpms until a QUIT PMI callback."
+        ]
+      },
+      "ownership_evidence": [
+        "PrivateChatManager.cpp:52-69 creates/stores shared_ptr<PrivateChat>; getChats returns a ChatMap copy; removeChat removes manager ownership after close.",
+        "PrivateChatManager.cpp:78-83 stores a retained raw UserConnection* in ccpms and attaches this as listener."
+      ],
+      "threading_evidence": [
+        "Chat-map insert/remove uses WLock and lookup/snapshot uses RLock. ChatCreated and ChatRemoved manager events fire after releasing the map lock.",
+        "For an existing-chat inbound PM, onPrivateMessage holds WLock(cs) while calling handleMessage (PrivateChatManager.cpp:168-174); handleMessage adds to cache then synchronously fires PrivateMessage (PrivateChat.cpp:195-210). Speaker::fire invokes listeners inline while holding listenerCS (Speaker.h:42-49).",
+        "removeChat also holds WLock(cs) while calling chat->close() (PrivateChatManager.cpp:91-109); close synchronously fires Close before CCPM handling (PrivateChat.cpp:244-255). SharedMutex is std::shared_mutex and WLock/RLock are unique/shared locks (CriticalSection.h:34-36). PrivateMessage/Close listeners on these paths must not synchronously call getChat/getChats or otherwise reacquire the same manager mutex; defer manager access until callback return."
+      ],
+      "proposed_bridge_requirement": "Preserve created/received-message results and callback payloads. For existing-chat PrivateMessage and removeChat Close callbacks, copy the payload and defer any manager lookup/re-entry until after the callback returns; the source invokes these synchronously while holding the manager write lock.",
+      "acceptance_scenarios": [
+        {
+          "given": "No chat exists for a user and the user can be resolved through ClientManager",
+          "when": "addChat(hintedUser, true) is called",
+          "then": "the manager inserts one chat using the resolved hint, returns added=true, and fires ChatCreated with receivedMessage=true."
+        },
+        {
+          "given": "A chat already exists for a user",
+          "when": "addChat is called again",
+          "then": "the same stored chat is returned, added=false, and ChatCreated is not fired."
+        },
+        {
+          "given": "A chat exists and owns a CCPM connection",
+          "when": "removeChat(user) is called",
+          "then": "the chat is closed, the connection is retained/listened to pending its QUIT handling, the map entry is erased, and ChatRemoved fires."
+        },
+        {
+          "given": "No chat exists for the message sender and popup preferences suppress bot PMs",
+          "when": "onPrivateMessage receives that message",
+          "then": "a status message is posted on the source client and no chat window is created."
+        },
+        {
+          "given": "An existing chat receives a PM and a listener is registered for PrivateMessage",
+          "when": "PrivateChatManager::onPrivateMessage dispatches it",
+          "then": "the manager write lock remains held through synchronous handleMessage/cache insertion and Speaker callback dispatch; the listener copies payload and defers any getChat/getChats call until after the callback returns."
+        },
+        {
+          "given": "removeChat is called for a chat with a registered Close listener",
+          "when": "the manager calls chat->close() before erasing the chat",
+          "then": "Close fires synchronously while the manager write lock is held; the callback must not synchronously re-enter manager lookup and may defer it until callback return."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/private_chat/PrivateChatManager.h:46:CXXMethod:addChat(const HintedUser &, bool)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:47:CXXMethod:getChat(const UserPtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:49:CXXMethod:DisconnectCCPM(const UserPtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:50:CXXMethod:onPrivateMessage(const ChatMessagePtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:51:CXXMethod:removeChat(const UserPtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:52:CXXMethod:closeAll(bool)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:54:CXXMethod:getChats()",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:60:CXXMethod:getPMConn(const UserPtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:63:CXXMethod:on(ConnectionManagerListener::Connected, const ConnectionQueueItem *, UserConnection *)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:64:CXXMethod:on(ConnectionManagerListener::Removed, const ConnectionQueueItem *)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:67:CXXMethod:on(UserConnectionListener::PrivateMessage, UserConnection *, const ChatMessagePtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:68:CXXMethod:on(AdcCommand::PMI, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:70:CXXMethod:on(ClientManagerListener::PrivateMessage, const ChatMessagePtr &)"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.message-and-ccpm-contract",
+      "kind": "operation",
+      "upstream_symbols": [
+        "PrivateChat::sendMessageHooked(const OutgoingChatMessage&, string&)",
+        "PrivateChat::handleMessage(const ChatMessagePtr&) noexcept",
+        "PrivateChat::setRead() noexcept",
+        "PrivateChat::clearCache() noexcept",
+        "PrivateChat::startCC()",
+        "PrivateChat::closeCC(bool,bool)",
+        "PrivateChat::setTypingState(bool) noexcept",
+        "PrivateChat::setHubUrl(const string&) noexcept",
+        "PrivateChat::CCPMConnected(UserConnection*)",
+        "PrivateChat::CCPMDisconnected()",
+        "PrivateChat::allowCCPM() const noexcept",
+        "PrivateChat::getLastCCPMError() const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 29,
+          "end_line": 224
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 227,
+          "end_line": 405
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.h",
+          "start_line": 52,
+          "end_line": 158
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 412,
+          "end_line": 466
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "OutgoingChatMessage plus mutable error string; inbound ChatMessagePtr; CCPM status/control flags; typing/read/cache state."
+        ],
+        "preconditions": [
+          "CCPM is allowed only when TLS is globally usable and the user advertises both CCPM and TLS (PrivateChat.cpp:69-76)."
+        ],
+        "defaults": [
+          "When a chat has no active UserConnection, outgoing messages route through ClientManager::privateMessageHooked; when connected they route through UserConnection::sendPrivateMessageHooked."
+        ],
+        "effects": [
+          "handleMessage updates the hub hint when the reply user is observed through another hub, optionally logs the formatted message under LOG_PRIVATE_CHAT, inserts it into MessageCache and emits PrivateMessage. setRead emits MessagesRead only if cache unread data exists and asynchronously sends CPMI SN1 when unread chat messages exist. clearCache emits MessagesCleared only when cache.clear() removes entries. startCC returns unless user is online and state is DISCONNECTED; otherwise marks CONNECTING, creates a PM token, requests a CCPM connection, updates hint, and either resets DISCONNECTED with any returned error status or emits establishing/status and schedules a 30-second timeout. closeCC posts work to the active connection; noAutoConnect sends AC0 and disables auto connect; now disconnects and clears local connection/state. Typing state is sent asynchronously through CPMI only when connected."
+        ],
+        "events": [
+          "PrivateMessage after cache insertion; MessagesRead on non-empty unread cache; MessagesCleared on positive clear count; CCPMStatusUpdated on successful connection, disconnection and successful start; UserUpdated when hub hint changes."
+        ],
+        "errors": [
+          "startCC exposes no return value; a failed ConnectResult resets state and posts its non-empty error. getLastCCPMError returns a reason only when allowCCPM is false, prioritizing offline, NMDC, missing TLS, globally disabled TLS, then unsupported CCPM."
+        ],
+        "completion": "State/cache mutations are synchronous; connection calls and CPMI writes are posted/handled asynchronously through UserConnection. Timeout is scheduled at 30,000 ms after accepted connection request.",
+        "cancellation": "No operation cancellation token is exposed. A user going offline removes pending update/timeout events and closes CCPM.",
+        "persistence": [
+          "When LOG_PRIVATE_CHAT is enabled, received formatted messages are appended through LogManager; constructor reads up to MAX_PM_HISTORY_LINES with a 16 KiB read cap."
+        ],
+        "resources": [
+          "PrivateChat registers as ClientManagerListener for its lifetime; when connected, it registers as UserConnectionListener. Destructor removes listeners."
+        ]
+      },
+      "ownership_evidence": [
+        "PrivateChat owns MessageCache by value. UserConnection is a borrowed raw pointer set from manager callbacks; callAsyncCCPM captures this and is executed by the connection."
+      ],
+      "threading_evidence": [
+        "ccpmState is atomic; DelayedEvents schedules delayed tasks. Most chat fields and cache operations do not show an internal lock in this class; caller-thread guarantees are unresolved."
+      ],
+      "proposed_bridge_requirement": "Preserve route selection, CCPM eligibility/retry/timeout state, cache-driven events and async control-message behavior; expose safe value snapshots rather than the raw UserConnection pointer.",
+      "acceptance_scenarios": [
+        {
+          "given": "CCPM is disconnected and the user is offline",
+          "when": "startCC is called",
+          "then": "state remains unchanged and no connection request is issued."
+        },
+        {
+          "given": "An incoming message belongs to a different hub hint",
+          "when": "handleMessage runs",
+          "then": "the hint and displayed hub name are updated before the message is cached and PrivateMessage fires."
+        },
+        {
+          "given": "The cache has no unread messages",
+          "when": "setRead is called",
+          "then": "MessagesRead does not fire and no SN1 message is sent."
+        },
+        {
+          "given": "The cache contains messages and at least one unread chat message",
+          "when": "setRead is called",
+          "then": "MessagesRead fires and SN1 is queued only when chatMessages is positive."
+        },
+        {
+          "given": "An accepted CCPM connect request is pending",
+          "when": "30 seconds elapse without connection",
+          "then": "the timeout callback posts a timeout warning, resets CONNECTING to DISCONNECTED, and fires CCPMStatusUpdated."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/private_chat/PrivateChat.h:52:CXXMethod:ccpmStateToString(CCPMState)",
+        "decl:airdcpp/private_chat/PrivateChat.h:57:CXXMethod:getToken()",
+        "decl:airdcpp/private_chat/PrivateChat.h:61:CXXMethod:sendMessageHooked(const OutgoingChatMessage &, string &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:62:CXXMethod:handleMessage(const ChatMessagePtr &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:63:CXXMethod:statusMessage(const string &, LogMessage::Severity, LogMessage::Type, const string &, const string &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:65:CXXMethod:close()",
+        "decl:airdcpp/private_chat/PrivateChat.h:67:CXXMethod:closeCC(bool, bool)",
+        "decl:airdcpp/private_chat/PrivateChat.h:68:CXXMethod:startCC()",
+        "decl:airdcpp/private_chat/PrivateChat.h:69:CXXMethod:ccReady()",
+        "decl:airdcpp/private_chat/PrivateChat.h:70:CXXMethod:getUc()",
+        "decl:airdcpp/private_chat/PrivateChat.h:72:CXXMethod:CCPMConnected(UserConnection *)",
+        "decl:airdcpp/private_chat/PrivateChat.h:73:CXXMethod:CCPMDisconnected()",
+        "decl:airdcpp/private_chat/PrivateChat.h:75:CXXMethod:setHubUrl(const string &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:76:CXXMethod:getUser()",
+        "decl:airdcpp/private_chat/PrivateChat.h:77:CXXMethod:getHubUrl()",
+        "decl:airdcpp/private_chat/PrivateChat.h:78:CXXMethod:getHintedUser()",
+        "decl:airdcpp/private_chat/PrivateChat.h:80:CXXMethod:getClient()",
+        "decl:airdcpp/private_chat/PrivateChat.h:82:CXXMethod:getLastCCPMError()",
+        "decl:airdcpp/private_chat/PrivateChat.h:84:CXXMethod:getLogPath()",
+        "decl:airdcpp/private_chat/PrivateChat.h:85:CXXMethod:isOnline()",
+        "decl:airdcpp/private_chat/PrivateChat.h:87:CXXMethod:allowCCPM()",
+        "decl:airdcpp/private_chat/PrivateChat.h:89:CXXMethod:getCCPMState()",
+        "decl:airdcpp/private_chat/PrivateChat.h:93:CXXMethod:getCache()",
+        "decl:airdcpp/private_chat/PrivateChat.h:97:CXXMethod:setRead()",
+        "decl:airdcpp/private_chat/PrivateChat.h:98:CXXMethod:clearCache()",
+        "decl:airdcpp/private_chat/PrivateChat.h:101:CXXMethod:checkIgnored()",
+        "decl:airdcpp/private_chat/PrivateChat.h:103:CXXMethod:setTypingState(bool)",
+        "decl:airdcpp/private_chat/PrivateChat.h:105:FunctionTemplate:callAsyncCCPM(F)",
+        "decl:airdcpp/private_chat/PrivateChat.h:108:CXXMethod:sendPMInfoHooked(uint8_t)",
+        "decl:airdcpp/private_chat/PrivateChat.h:110:CXXMethod:readLastLog()",
+        "decl:airdcpp/private_chat/PrivateChat.h:111:CXXMethod:initConnectState()",
+        "decl:airdcpp/private_chat/PrivateChat.h:113:CXXMethod:logMessage(const string &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:114:CXXMethod:fillLogParams(ParamMap &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:123:CXXMethod:checkAlwaysCCPM()",
+        "decl:airdcpp/private_chat/PrivateChat.h:124:CXXMethod:checkCCPMTimeout()",
+        "decl:airdcpp/private_chat/PrivateChat.h:125:CXXMethod:checkCCPMHubBlocked()",
+        "decl:airdcpp/private_chat/PrivateChat.h:126:CXXMethod:setUc(UserConnection *)",
+        "decl:airdcpp/private_chat/PrivateChat.h:140:CXXMethod:on(UserConnectionListener::PrivateMessage, UserConnection *, const ChatMessagePtr &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:143:CXXMethod:on(AdcCommand::PMI, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:146:CXXMethod:on(ClientManagerListener::UserConnected, const OnlineUser &, bool)",
+        "decl:airdcpp/private_chat/PrivateChat.h:147:CXXMethod:on(ClientManagerListener::UserUpdated, const OnlineUser &)",
+        "decl:airdcpp/private_chat/PrivateChat.h:148:CXXMethod:on(ClientManagerListener::UserDisconnected, const UserPtr &, bool)",
+        "decl:airdcpp/private_chat/PrivateChat.h:156:CXXMethod:checkUserHub(bool)",
+        "decl:airdcpp/private_chat/PrivateChat.h:158:CXXMethod:onUserUpdated(const OnlineUser &)"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.message-cache-normalization",
+      "kind": "operation",
+      "upstream_symbols": [
+        "MessageCache::MessageCache(SettingsManager::IntSetting)",
+        "MessageCache::MessageCache(const MessageCache&)",
+        "MessageCache::addMessage(const T&) noexcept",
+        "MessageCache::add(Message&&) noexcept",
+        "MessageCache::getMessages/getMessagesUnsafe/getHighlights/getLogMessages/getChatMessages",
+        "MessageCache::size/clear/countUnreadLogMessages/countUnreadChatMessages/setRead/findMessageHighlight/getCS"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/MessageCache.h:37:CXXMethod:hasMessages()",
+        "decl:airdcpp/message/MessageCache.h:51:FunctionTemplate:addMessage(const T &)",
+        "decl:airdcpp/message/MessageCache.h:56:CXXMethod:getMessages()",
+        "decl:airdcpp/message/MessageCache.h:57:CXXMethod:getMessagesUnsafe()",
+        "decl:airdcpp/message/MessageCache.h:61:CXXMethod:getHighlights()",
+        "decl:airdcpp/message/MessageCache.h:63:CXXMethod:getLogMessages()",
+        "decl:airdcpp/message/MessageCache.h:64:CXXMethod:getChatMessages()",
+        "decl:airdcpp/message/MessageCache.h:66:CXXMethod:size()",
+        "decl:airdcpp/message/MessageCache.h:67:CXXMethod:clear()",
+        "decl:airdcpp/message/MessageCache.h:70:CXXMethod:countUnreadLogMessages(LogMessage::Severity)",
+        "decl:airdcpp/message/MessageCache.h:71:CXXMethod:countUnreadChatMessages(const ChatMessageFilterF &)",
+        "decl:airdcpp/message/MessageCache.h:72:CXXMethod:setRead()",
+        "decl:airdcpp/message/MessageCache.h:74:CXXMethod:getCS()",
+        "decl:airdcpp/message/MessageCache.h:75:CXXMethod:findMessageHighlight(MessageHighlightToken)",
+        "decl:airdcpp/message/MessageCache.h:77:CXXMethod:add(Message &&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/MessageCache.h",
+          "start_line": 31,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/message/MessageCache.cpp",
+          "start_line": 23,
+          "end_line": 157
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "The cache capacity setting, incoming Message or chat/log message value, unread severity, and optional chat-message predicate."
+        ],
+        "preconditions": [
+          "SettingsManager singleton must be available when an inserted item checks the configured capacity."
+        ],
+        "defaults": [
+          "The configured IntSetting is supplied at construction; a null chat filter means count every unread chat message."
+        ],
+        "effects": [
+          "MessageCache::addMessage converts a supported ChatMessage/LogMessage pointer to a Message value, then add() appends it under write lock, indexes all highlight tokens, and when size exceeds the configured setting removes exactly one oldest entry and its highlight map entries. Copy construction copies the setting and obtains separate locked copies of messages/highlights. getMessages/getHighlights return snapshots; typed getters filter by TYPE_LOG/TYPE_CHAT. getMessagesUnsafe returns an unguarded borrowed reference. setRead marks unread messages under write lock and returns separate log/chat counts. Unread log count for SEV_LAST includes every severity except VERBOSE; specific severities match exactly. Unread chat count applies optional predicate. clear captures size before acquiring write lock, then clears both containers. findMessageHighlight returns the shared pointer or null, and getCS exposes the internal mutex."
+        ],
+        "events": [],
+        "errors": [
+          "No operation returns an error. Because clear() reads size before its write lock, concurrent insertion/removal can cause returned count to differ from items actually cleared."
+        ],
+        "completion": "All cache operations are synchronous.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "Deque owns Message values; highlight map owns shared_ptr entries. Snapshot methods copy; getMessagesUnsafe and getCS return borrowed internal state."
+        ]
+      },
+      "ownership_evidence": [
+        "MessageCache::addMessage copies/converts input into Message; add moves into owned deque. getMessagesUnsafe exposes cache-owned storage."
+      ],
+      "threading_evidence": [
+        "MessageCache::add protects deque/highlight changes with write lock; Message normalization is local."
+      ],
+      "proposed_bridge_requirement": "Preserve newline normalization and bounded FIFO eviction, including highlight cleanup; never expose the unsafe borrowed deque across async boundary.",
+      "acceptance_scenarios": [
+        {
+          "given": "Cache setting is 2 and cache contains two messages with highlight tokens",
+          "when": "a third message is added",
+          "then": "the new message is retained and exactly the oldest message and its highlight tokens are removed."
+        },
+        {
+          "given": "Cache has unread verbose and info logs plus unread chat messages",
+          "when": "countUnreadLogMessages(SEV_LAST), countUnreadChatMessages(), and setRead are called",
+          "then": "SEV_LAST excludes verbose, chat count includes all matching unread chats, and setRead marks each unread entry and returns per-kind counts."
+        },
+        {
+          "given": "A client holds getMessagesUnsafe while another thread mutates the cache",
+          "when": "the cache changes",
+          "then": "the borrowed reference has no snapshot/locking guarantee and must not cross asynchronous or concurrent use."
+        },
+        {
+          "given": "A caller invokes clear while another thread may add an item",
+          "when": "clear returns",
+          "then": "its returned pre-lock size is not guaranteed to equal the number of items that the locked clear removed."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat-chatmessage-format-highlights",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ChatMessage::format() const noexcept",
+        "ChatMessage::formatAuthor() const noexcept",
+        "ChatMessage::parseMention(const Identity&) noexcept",
+        "ChatMessage::parseHighlights(const Identity&,const MessageHighlightList&) noexcept",
+        "ChatMessage::getText/getId/getMentionedNick/getHighlights",
+        "ChatMessage::cleanText(const string&) noexcept"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/Message.h:50:CXXMethod:format()",
+        "decl:airdcpp/message/Message.h:51:CXXMethod:formatAuthor()",
+        "decl:airdcpp/message/Message.h:52:CXXMethod:parseMention(const Identity &)",
+        "decl:airdcpp/message/Message.h:53:CXXMethod:parseHighlights(const Identity &, const MessageHighlightList &)",
+        "decl:airdcpp/message/Message.h:55:CXXMethod:getText()",
+        "decl:airdcpp/message/Message.h:59:CXXMethod:getId()",
+        "decl:airdcpp/message/Message.h:63:CXXMethod:getMentionedNick()",
+        "decl:airdcpp/message/Message.h:67:CXXMethod:getHighlights()",
+        "decl:airdcpp/message/Message.h:71:CXXMethod:cleanText(const string &)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/Message.h",
+          "start_line": 50,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/message/Message.cpp",
+          "start_line": 50,
+          "end_line": 103
+        },
+        {
+          "path": "airdcpp/core/types/GetSet.h",
+          "start_line": 29,
+          "end_line": 37
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Original message text and source/destination/reply OnlineUser pointers at construction; local Identity and hook-provided highlight list for parsing."
+        ],
+        "preconditions": [
+          "formatAuthor and parseMention dereference the source OnlineUser; source must be populated."
+        ],
+        "defaults": [
+          "Message read state is initialized true when sender is local user; otherwise false."
+        ],
+        "effects": [
+          "GETSET/IGETSET declarations expose generated getters and forwarding setters for supplied fields; macro expansion declares the field protected and accessors public. The macro does not add validation around pointer values."
+        ],
+        "events": [],
+        "errors": [
+          "No error result is exposed; methods are noexcept."
+        ],
+        "completion": "Text normalization, formatting and highlight parsing are synchronous.",
+        "cancellation": "No cancellation surface.",
+        "persistence": [],
+        "resources": [
+          "ChatMessage retains shared_ptr source/to/replyTo values; formatting reads current sender Identity nick. Highlight list is owned by message and returned by const reference in its getter."
+        ]
+      },
+      "ownership_evidence": [
+        "OnlineUserPtr arguments are retained as shared_ptr members; identity and highlight list references are borrowed from message/user objects."
+      ],
+      "threading_evidence": [
+        "No lock is used by these ChatMessage methods; caller must serialize mutation of parse/read/highlight state."
+      ],
+      "proposed_bridge_requirement": "Preserve text normalization, author formatting, mention guard conditions, hook-before-default highlight insertion and owned message snapshots.",
+      "acceptance_scenarios": [
+        {
+          "given": "Message text has CRLF or bare CR line endings",
+          "when": "ChatMessage is constructed",
+          "then": "CR characters are removed before display text is stored."
+        },
+        {
+          "given": "A line begins with `<` or `[` immediately after newline",
+          "when": "ChatMessage is constructed",
+          "then": "`- ` is inserted before that character."
+        },
+        {
+          "given": "Message is sent by local user or sender identity is not a user",
+          "when": "parseMention is called",
+          "then": "mentionedNick is not set by this call."
+        },
+        {
+          "given": "Remote user text contains local nick as substring",
+          "when": "parseMention is called",
+          "then": "mentionedNick is set to local nick."
+        },
+        {
+          "given": "Hook and default highlights are supplied",
+          "when": "parseHighlights runs",
+          "then": "hook highlights are inserted before default highlights; sorted insertion rejects overlapping ranges, preserving an earlier item."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "contract_evidence": "source-traced",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "private-chat.message-value-models",
+      "kind": "operation",
+      "upstream_symbols": [
+        "OutgoingChatMessage",
+        "ChatMessage::ChatMessage",
+        "ChatMessage::format",
+        "ChatMessage::formatAuthor",
+        "ChatMessage::parseMention",
+        "ChatMessage::parseHighlights",
+        "ChatMessage::cleanText"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/Message.h:28:StructDecl:OutgoingChatMessage",
+        "decl:airdcpp/message/Message.h:31:FieldDecl:text",
+        "decl:airdcpp/message/Message.h:32:FieldDecl:owner",
+        "decl:airdcpp/message/Message.h:33:FieldDecl:ownerId",
+        "decl:airdcpp/message/Message.h:34:FieldDecl:thirdPerson",
+        "decl:airdcpp/message/Message.h:37:ClassDecl:ChatMessage",
+        "decl:airdcpp/message/Message.h:41:FieldDecl:from",
+        "decl:airdcpp/message/Message.h:42:FieldDecl:to",
+        "decl:airdcpp/message/Message.h:43:FieldDecl:replyTo",
+        "decl:airdcpp/message/Message.h:45:FieldDecl:time",
+        "decl:airdcpp/message/Message.h:46:FieldDecl:thirdPerson",
+        "decl:airdcpp/message/Message.h:48:FieldDecl:read",
+        "decl:airdcpp/message/Message.h:73:FieldDecl:highlights",
+        "decl:airdcpp/message/Message.h:74:FieldDecl:mentionedNick",
+        "decl:airdcpp/message/Message.h:75:FieldDecl:text",
+        "decl:airdcpp/message/Message.h:76:FieldDecl:id",
+        "decl:airdcpp/message/Message.h:41:macro:GETSET",
+        "decl:airdcpp/message/Message.h:42:macro:GETSET",
+        "decl:airdcpp/message/Message.h:43:macro:GETSET",
+        "decl:airdcpp/message/Message.h:45:macro:GETSET",
+        "decl:airdcpp/message/Message.h:46:macro:IGETSET",
+        "decl:airdcpp/message/Message.h:48:macro:GETSET",
+        "decl:airdcpp/message/Message.h:29:CXCursor_Constructor:faf535074fe5",
+        "decl:airdcpp/message/Message.h:39:CXCursor_Constructor:93ee94ac139a"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/Message.h",
+          "start_line": 28,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/message/Message.cpp",
+          "start_line": 30,
+          "end_line": 103
+        },
+        {
+          "path": "airdcpp/core/types/GetSet.h",
+          "start_line": 34,
+          "end_line": 37
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Outgoing text, caller owner, owner identifier, third-person flag; chat text and from/to/reply-to OnlineUserPtr values."
+        ],
+        "preconditions": [
+          "ChatMessage formatting and parsing dereference `from`; callers must provide a valid sender."
+        ],
+        "defaults": [
+          "OutgoingChatMessage has no further defaults; its four constructor arguments are stored as text/owner/ownerId/thirdPerson. ChatMessage defaults `to` and `replyTo` to null; thirdPerson defaults false."
+        ],
+        "effects": [
+          "OutgoingChatMessage stores text, ownerId and thirdPerson as const values and retains the CallerPtr. ChatMessage retains from/to/replyTo shared pointers, initializes timestamp and monotonic message ID, normalizes text by deleting CR characters, then inserts `- ` after newline when the following character is `[` or `<`. Initial read is true only when sender user is local. formatAuthor emits `* nick` for third person and `<nick>` otherwise; format appends a space and text. parseMention leaves state unchanged for local sender or non-user identities; otherwise it records the local nick if it occurs as a substring. parseHighlights inserts hook highlights first, then default link/release/nick highlights through sorted insertion; overlap collisions retain whichever insertion was already present.",
+          "GETSET/IGETSET declarations in Message.h expose generated accessors for supplied chat fields; their exact generated definitions come from the macro in `core/types/GetSet.h`, while source declarations do not add validation around pointer values."
+        ],
+        "events": [],
+        "errors": [
+          "Constructor and format/parse methods do not expose an error result; parse methods are noexcept. Invalid/null sender use is not guarded in formatAuthor/parseMention and requires characterization rather than being treated as supported."
+        ],
+        "completion": "Construction, formatting and local parsing are synchronous.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "ChatMessage owns normalized text and highlight list and retains OnlineUserPtr values by shared ownership. OutgoingChatMessage retains its CallerPtr but does not own a separate network task."
+        ]
+      },
+      "ownership_evidence": [
+        "ChatMessage stores its supplied OnlineUserPtr values and text in members (Message.cpp:30-34).",
+        "OutgoingChatMessage stores constructor values directly in fields (Message.h:28-34)."
+      ],
+      "threading_evidence": [
+        "These value operations show no locking; callers must serialize mutation of read/mention/highlight fields."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "Construct a message from `a\r\nb\n<c` with a sender whose user is local",
+          "when": "ChatMessage construction completes",
+          "then": "stored text is `a\nb\n- <c` and read is true."
+        },
+        {
+          "given": "A remote user message contains the local nick as a substring and hook highlights overlap a default highlight",
+          "when": "parseMention and parseHighlights run",
+          "then": "mentionedNick is set and sorted insertion keeps the first non-overlapping insertion."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.log-message-contract",
+      "kind": "operation",
+      "upstream_symbols": [
+        "LogMessage::LogMessage",
+        "LogMessage::format",
+        "LogMessage::getId",
+        "LogMessage::getText",
+        "LogMessage::getSeverity",
+        "LogMessage::getTime",
+        "LogMessage::isHistory",
+        "LogMessage::getHighlights",
+        "LogMessage::getLabel",
+        "LogMessage::getType"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/Message.h:79:ClassDecl:LogMessage",
+        "decl:airdcpp/message/Message.h:81:EnumDecl:Severity",
+        "decl:airdcpp/message/Message.h:82:EnumConstantDecl:SEV_NOTIFY",
+        "decl:airdcpp/message/Message.h:83:EnumConstantDecl:SEV_VERBOSE",
+        "decl:airdcpp/message/Message.h:84:EnumConstantDecl:SEV_INFO",
+        "decl:airdcpp/message/Message.h:85:EnumConstantDecl:SEV_WARNING",
+        "decl:airdcpp/message/Message.h:86:EnumConstantDecl:SEV_ERROR",
+        "decl:airdcpp/message/Message.h:87:EnumConstantDecl:SEV_LAST",
+        "decl:airdcpp/message/Message.h:91:EnumDecl:InitFlags",
+        "decl:airdcpp/message/Message.h:92:EnumConstantDecl:INIT_NORMAL",
+        "decl:airdcpp/message/Message.h:93:EnumConstantDecl:INIT_READ",
+        "decl:airdcpp/message/Message.h:94:EnumConstantDecl:INIT_DISABLE_HIGHLIGHTS",
+        "decl:airdcpp/message/Message.h:95:EnumConstantDecl:INIT_DISABLE_TIMESTAMP",
+        "decl:airdcpp/message/Message.h:98:EnumDecl:Type",
+        "decl:airdcpp/message/Message.h:99:EnumConstantDecl:SYSTEM",
+        "decl:airdcpp/message/Message.h:100:EnumConstantDecl:PRIVATE",
+        "decl:airdcpp/message/Message.h:101:EnumConstantDecl:HISTORY",
+        "decl:airdcpp/message/Message.h:102:EnumConstantDecl:SPAM",
+        "decl:airdcpp/message/Message.h:103:EnumConstantDecl:SERVER",
+        "decl:airdcpp/message/Message.h:108:CXXMethod:getId()",
+        "decl:airdcpp/message/Message.h:112:CXXMethod:getText()",
+        "decl:airdcpp/message/Message.h:118:CXXMethod:getSeverity()",
+        "decl:airdcpp/message/Message.h:122:CXXMethod:getTime()",
+        "decl:airdcpp/message/Message.h:126:CXXMethod:isHistory()",
+        "decl:airdcpp/message/Message.h:130:FieldDecl:read",
+        "decl:airdcpp/message/Message.h:132:CXXMethod:getHighlights()",
+        "decl:airdcpp/message/Message.h:136:CXXMethod:getLabel()",
+        "decl:airdcpp/message/Message.h:140:CXXMethod:getType()",
+        "decl:airdcpp/message/Message.h:144:FieldDecl:id",
+        "decl:airdcpp/message/Message.h:145:FieldDecl:text",
+        "decl:airdcpp/message/Message.h:146:FieldDecl:label",
+        "decl:airdcpp/message/Message.h:147:FieldDecl:time",
+        "decl:airdcpp/message/Message.h:148:FieldDecl:severity",
+        "decl:airdcpp/message/Message.h:149:FieldDecl:highlights",
+        "decl:airdcpp/message/Message.h:150:FieldDecl:type",
+        "decl:airdcpp/message/Message.h:153:TypeAliasDecl:LogMessageF",
+        "decl:airdcpp/message/Message.h:130:macro:IGETSET",
+        "decl:airdcpp/message/Message.h:106:CXCursor_Constructor:04f9cf896488",
+        "decl:airdcpp/message/Message.h:116:CXXMethod:format()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/Message.h",
+          "start_line": 79,
+          "end_line": 153
+        },
+        {
+          "path": "airdcpp/message/Message.cpp",
+          "start_line": 36,
+          "end_line": 48
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Text, severity, LogMessage type, label, and bitwise InitFlags."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "InitFlags defaults to INIT_NORMAL (zero). INIT_READ is declared but constructor read state is initialized from INIT_DISABLE_TIMESTAMP, not INIT_READ."
+        ],
+        "effects": [
+          "Construction allocates a shared monotonic message ID, removes CR line-ending characters via Message::unifyLineEndings, stores label/severity/type, and sets timestamp to zero only when INIT_DISABLE_TIMESTAMP is set. The read flag is initialized from INIT_DISABLE_TIMESTAMP. Unless INIT_DISABLE_HIGHLIGHTS is set, default log highlights are parsed with empty local nick and no recipient. `isHistory()` is exactly the zero-time test. `format()` returns raw text for zero time and prepends `*** ` otherwise. Severity values are NOTIFY, VERBOSE, INFO, WARNING, ERROR, LAST; source comments state NOTIFY is event-only and not saved to system log. Type values distinguish SYSTEM, PRIVATE, HISTORY, SPAM and SERVER."
+        ],
+        "events": [],
+        "errors": [
+          "No error result is exposed; constructor and getters are noexcept."
+        ],
+        "completion": "Construction and formatting are synchronous.",
+        "cancellation": "No cancellation API.",
+        "persistence": [
+          "Persistence is caller-controlled; the LogMessage object itself performs no disk write."
+        ],
+        "resources": [
+          "Message owns its text and label values; highlight list is owned by the object and returned by const reference."
+        ]
+      },
+      "ownership_evidence": [
+        "LogMessage initializes fields and optional highlights in Message.cpp:36-44; type/field declarations are Message.h:79-150."
+      ],
+      "threading_evidence": [
+        "No internal lock; immutable id/label/time/severity/type and text are read directly; read flag is mutable through generated accessor."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "Create a SYSTEM INFO LogMessage with INIT_NORMAL",
+          "when": "format is called",
+          "then": "timestamp is nonzero under normal clock operation, history is false, and formatting prepends `*** `."
+        },
+        {
+          "given": "Create a log with INIT_DISABLE_TIMESTAMP and INIT_DISABLE_HIGHLIGHTS",
+          "when": "the object is inspected",
+          "then": "time is zero, read is true, isHistory is true, and no parsed highlights are added."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat-message-value-wrapper",
+      "kind": "operation",
+      "upstream_symbols": [
+        "Message::Message(ChatMessagePtr)",
+        "Message::Message(LogMessagePtr)",
+        "Message::fromText",
+        "Message::getHighlights",
+        "Message::getText",
+        "Message::getTime",
+        "Message::format",
+        "Message::unifyLineEndings"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/Message.h:155:StructDecl:Message",
+        "decl:airdcpp/message/Message.h:158:CXXMethod:fromText(const string &, int)",
+        "decl:airdcpp/message/Message.h:160:EnumDecl:Type",
+        "decl:airdcpp/message/Message.h:161:EnumConstantDecl:TYPE_CHAT",
+        "decl:airdcpp/message/Message.h:162:EnumConstantDecl:TYPE_LOG",
+        "decl:airdcpp/message/Message.h:165:FieldDecl:chatMessage",
+        "decl:airdcpp/message/Message.h:166:FieldDecl:logMessage",
+        "decl:airdcpp/message/Message.h:167:CXXMethod:getHighlights()",
+        "decl:airdcpp/message/Message.h:171:CXXMethod:getText()",
+        "decl:airdcpp/message/Message.h:175:CXXMethod:getTime()",
+        "decl:airdcpp/message/Message.h:183:FieldDecl:type",
+        "decl:airdcpp/message/Message.h:185:CXXMethod:unifyLineEndings(const string &)",
+        "decl:airdcpp/message/Message.h:188:TypeAliasDecl:ModuleLogger",
+        "decl:airdcpp/message/Message.h:156:CXCursor_Constructor:a945fc926e02",
+        "decl:airdcpp/message/Message.h:157:CXCursor_Constructor:cd04fb9e0626",
+        "decl:airdcpp/message/Message.h:179:CXXMethod:format()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/Message.h",
+          "start_line": 155,
+          "end_line": 188
+        },
+        {
+          "path": "airdcpp/message/Message.cpp",
+          "start_line": 105,
+          "end_line": 118
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "A ChatMessagePtr or LogMessagePtr, or text and LogMessage initialization flags for fromText."
+        ],
+        "preconditions": [
+          "The selected shared pointer must be non-null before delegated getters/format are called."
+        ],
+        "defaults": [
+          "The wrapper type is TYPE_CHAT or TYPE_LOG according to the explicit converting constructor; the unselected shared pointer member defaults to null. fromText defaults to INIT_NORMAL."
+        ],
+        "effects": [
+          "The value wrapper retains one shared message pointer and delegates highlights/text/time/format to the selected object. fromText constructs an INFO SYSTEM LogMessage with empty label and returns a TYPE_LOG wrapper. unifyLineEndings removes every carriage-return character; it does not replace LF characters."
+        ],
+        "events": [],
+        "errors": [
+          "No result error is exposed; methods are noexcept except unifyLineEndings. Null selected pointers are not checked before dereference."
+        ],
+        "completion": "Conversions and delegated reads are synchronous.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "The selected message object is retained via shared_ptr; returned string/highlight references borrow from the selected object."
+        ]
+      },
+      "ownership_evidence": [
+        "Message.h:155-185 defines wrapper pointer ownership and delegation; Message.cpp:105-118 defines normalization/fromText."
+      ],
+      "threading_evidence": [
+        "Wrapper contains no mutex; callers must ensure pointed-to message mutable state is not concurrently changed."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "Wrap a ChatMessagePtr with text containing CRLF",
+          "when": "getText and format are called",
+          "then": "they delegate to the chat object, whose constructor already removed CR; no second wrapper normalization occurs."
+        },
+        {
+          "given": "Call fromText on text containing CR characters",
+          "when": "the returned wrapper is read",
+          "then": "it has TYPE_LOG and an INFO SYSTEM LogMessage with CR characters removed."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.highlight-model-and-parser",
+      "kind": "operation",
+      "upstream_symbols": [
+        "Position",
+        "MessageHighlight",
+        "MessageHighlight::HighlightSort",
+        "MessageHighlight::HighlightPosition",
+        "MessageHighlight::parseHighlights",
+        "MessageHighlight::parseLinkHighlights",
+        "MessageHighlight::parseReleaseHighlights",
+        "MessageHighlight::parseUserHighlights",
+        "MessageHighlight::getDupe"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/MessageHighlight.h:31:StructDecl:Position",
+        "decl:airdcpp/message/MessageHighlight.h:34:FieldDecl:start",
+        "decl:airdcpp/message/MessageHighlight.h:35:FieldDecl:end",
+        "decl:airdcpp/message/MessageHighlight.h:38:ClassDecl:MessageHighlight",
+        "decl:airdcpp/message/MessageHighlight.h:40:EnumDecl:HighlightType",
+        "decl:airdcpp/message/MessageHighlight.h:41:EnumConstantDecl:TYPE_LINK_URL",
+        "decl:airdcpp/message/MessageHighlight.h:42:EnumConstantDecl:TYPE_LINK_TEXT",
+        "decl:airdcpp/message/MessageHighlight.h:43:EnumConstantDecl:TYPE_BOLD",
+        "decl:airdcpp/message/MessageHighlight.h:44:EnumConstantDecl:TYPE_USER",
+        "decl:airdcpp/message/MessageHighlight.h:49:CXXMethod:getToken()",
+        "decl:airdcpp/message/MessageHighlight.h:53:CXXMethod:getText()",
+        "decl:airdcpp/message/MessageHighlight.h:57:FieldDecl:tag",
+        "decl:airdcpp/message/MessageHighlight.h:58:FieldDecl:type",
+        "decl:airdcpp/message/MessageHighlight.h:59:FieldDecl:magnet",
+        "decl:airdcpp/message/MessageHighlight.h:61:CXXMethod:getDupe()",
+        "decl:airdcpp/message/MessageHighlight.h:63:TypeAliasDecl:KeyT",
+        "decl:airdcpp/message/MessageHighlight.h:65:StructDecl:HighlightSort",
+        "decl:airdcpp/message/MessageHighlight.h:66:CXXMethod:operator()(const KeyT &, const KeyT &)",
+        "decl:airdcpp/message/MessageHighlight.h:69:StructDecl:HighlightPosition",
+        "decl:airdcpp/message/MessageHighlight.h:70:CXXMethod:operator()(const MessageHighlightPtr &)",
+        "decl:airdcpp/message/MessageHighlight.h:73:TypeAliasDecl:SortedList",
+        "decl:airdcpp/message/MessageHighlight.h:75:VarDecl:TAG_ME",
+        "decl:airdcpp/message/MessageHighlight.h:76:VarDecl:TAG_FAVORITE",
+        "decl:airdcpp/message/MessageHighlight.h:77:VarDecl:TAG_RELEASE",
+        "decl:airdcpp/message/MessageHighlight.h:78:VarDecl:TAG_MAGNET",
+        "decl:airdcpp/message/MessageHighlight.h:79:VarDecl:TAG_TEMP_SHARE",
+        "decl:airdcpp/message/MessageHighlight.h:81:CXXMethod:parseHighlights(const string &, const string &, const UserPtr &)",
+        "decl:airdcpp/message/MessageHighlight.h:83:CXXMethod:parseLinkHighlights(const string &, MessageHighlight::SortedList &, const UserPtr &)",
+        "decl:airdcpp/message/MessageHighlight.h:84:CXXMethod:parseReleaseHighlights(const string &, MessageHighlight::SortedList &)",
+        "decl:airdcpp/message/MessageHighlight.h:85:CXXMethod:parseUserHighlights(const string &, MessageHighlight::SortedList &, const string &)",
+        "decl:airdcpp/message/MessageHighlight.h:87:FieldDecl:token",
+        "decl:airdcpp/message/MessageHighlight.h:88:FieldDecl:text",
+        "decl:airdcpp/message/MessageHighlight.h:34:macro:GETSET",
+        "decl:airdcpp/message/MessageHighlight.h:35:macro:GETSET",
+        "decl:airdcpp/message/MessageHighlight.h:57:macro:GETSET",
+        "decl:airdcpp/message/MessageHighlight.h:58:macro:GETSET",
+        "decl:airdcpp/message/MessageHighlight.h:59:macro:GETSET",
+        "decl:airdcpp/message/MessageHighlight.h:32:CXCursor_Constructor:8786bde368cb",
+        "decl:airdcpp/message/MessageHighlight.h:47:CXCursor_Constructor:eed972d15fa5"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/MessageHighlight.h",
+          "start_line": 31,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/message/MessageHighlight.cpp",
+          "start_line": 31,
+          "end_line": 153
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Text, local nick, optional target user; highlight positions, text, type and tag."
+        ],
+        "preconditions": [
+          "Link parsing depends on the configured LinkUtil URL regex; release parsing is gated by FORMAT_RELEASE. Magnet classification uses the recipient and TempShareManager."
+        ],
+        "defaults": [
+          "Position end is start plus text length. Tokens use an atomic counter starting at 1. Static tags are `me`, `favorite`, `release`, `magnet`, `temp_share`."
+        ],
+        "effects": [
+          "Highlight ranges are sorted by start and ranges compare equal when `a.start <= b.end && b.start <= a.end`, including touching endpoints, so cannot coexist. parseHighlights processes links, then release names, then nick occurrences; earlier insertions win overlap collisions. URL regex exceptions are swallowed. Magnet URLs are parsed with recipient context; successful magnets get `temp_share` tag when recipient has that TTH temporarily shared, otherwise `magnet`. Release-name matches are added only when FORMAT_RELEASE is enabled. Nick parser adds every non-overlapping exact substring occurrence when nick is nonempty. getDupe checks TYPE_LINK_TEXT as ADC directory dupe; TYPE_LINK_URL returns magnet dupe only when parsed magnet exists; bold/user and other URLs yield DUPE_NONE."
+        ],
+        "events": [],
+        "errors": [
+          "URL matcher/parsing exceptions are swallowed by parseLinkHighlights and yield whatever highlights were accumulated before failure; release/user parsing expose no error result."
+        ],
+        "completion": "Parsing and dupe lookup are synchronous.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "SortedList stores shared pointers to MessageHighlight objects; Magnet is optional; token and text are value members."
+        ]
+      },
+      "ownership_evidence": [
+        "MessageHighlight.cpp:31-153 defines tags, token allocation, sorting, parsing order and dupe lookup; declarations/accessors are MessageHighlight.h:31-88."
+      ],
+      "threading_evidence": [
+        "Token counter is atomic; parser output is local. No lock is used for mutable tag/type/magnet properties."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "Text contains an overlapping magnet URL and nick occurrence with a recipient context",
+          "when": "parseHighlights parses the text",
+          "then": "the link is inserted first, takes the overlapping range, and has magnet or temp_share tag according to TempShareManager."
+        },
+        {
+          "given": "FORMAT_RELEASE is disabled and text contains a release-name pattern plus repeated local nick",
+          "when": "parseHighlights runs",
+          "then": "no release token is added and non-overlapping nick occurrences are tagged `me`."
+        },
+        {
+          "given": "A URL-type highlight has no successfully parsed Magnet",
+          "when": "getDupe is called",
+          "then": "the result is DUPE_NONE."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.cache-state-and-reads",
+      "kind": "operation",
+      "upstream_symbols": [
+        "MessageCache::MessageCache",
+        "MessageCache::getMessages",
+        "MessageCache::getMessagesUnsafe",
+        "MessageCache::getHighlights",
+        "MessageCache::getLogMessages",
+        "MessageCache::getChatMessages",
+        "MessageCache::size",
+        "MessageCache::clear",
+        "MessageCache::countUnreadLogMessages",
+        "MessageCache::countUnreadChatMessages",
+        "MessageCache::setRead",
+        "MessageCache::getCS",
+        "MessageCache::findMessageHighlight",
+        "MessageCache::addMessage",
+        "MessageCache::add",
+        "MessageCount"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/MessageCache.h:31:TypeAliasDecl:MessageList",
+        "decl:airdcpp/message/MessageCache.h:33:StructDecl:MessageCount",
+        "decl:airdcpp/message/MessageCache.h:34:FieldDecl:logMessages",
+        "decl:airdcpp/message/MessageCache.h:35:FieldDecl:chatMessages",
+        "decl:airdcpp/message/MessageCache.h:42:ClassDecl:MessageCache",
+        "decl:airdcpp/message/MessageCache.h:44:TypeAliasDecl:HighlightList",
+        "decl:airdcpp/message/MessageCache.h:46:TypeAliasDecl:ChatMessageFilterF",
+        "decl:airdcpp/message/MessageCache.h:79:FieldDecl:setting",
+        "decl:airdcpp/message/MessageCache.h:80:FieldDecl:messages",
+        "decl:airdcpp/message/MessageCache.h:81:FieldDecl:highlights",
+        "decl:airdcpp/message/MessageCache.h:83:FieldDecl:cs",
+        "decl:airdcpp/message/MessageCache.h:48:CXCursor_Constructor:2279df7f77c1",
+        "decl:airdcpp/message/MessageCache.h:49:CXCursor_Constructor:7624f158d0cd"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/MessageCache.h",
+          "start_line": 31,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/message/MessageCache.cpp",
+          "start_line": 23,
+          "end_line": 157
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "A SettingsManager IntSetting selecting the maximum retained messages; Message or ChatMessage/LogMessage values; optional ChatMessage predicate; severity filter."
+        ],
+        "preconditions": [
+          "The supplied setting is read from SettingsManager on add; valid singleton lifecycle is required."
+        ],
+        "defaults": [
+          "MessageCount counters begin at zero and hasMessages is true when either is positive. countUnreadChatMessages defaults filterF to null (all chat messages). SEV_LAST counts non-VERBOSE logs."
+        ],
+        "effects": [
+          "The cache stores a deque of Message values and token-to-highlight shared pointers. Copy construction copies setting and locked snapshots of messages/highlights. Snapshot getters take a read lock; getMessagesUnsafe returns a borrowed const reference without locking. Typed getters filter by TYPE_LOG/TYPE_CHAT. setRead takes write lock, marks unread messages and returns separate counts. countUnreadChatMessages applies the optional predicate; countUnreadLogMessages selects the requested severity, with SEV_LAST excluding VERBOSE. clear returns the size observed before acquiring write lock, then clears messages and highlight map. add/addMessage take write lock, append the new value and index its highlights, then if size exceeds configured setting evict exactly one oldest message and its highlights. getCS exposes the internal SharedMutex by reference. findMessageHighlight returns shared pointer or null. ChatHandlerBase is an abstract contract for hub URL, cache/read/clear, hooked send and status message."
+        ],
+        "events": [],
+        "errors": [
+          "No error/result channel is provided by these cache methods. clear() observes size before its write lock, so concurrent modifications can make returned count differ from the number actually cleared."
+        ],
+        "completion": "Cache reads and writes are synchronous; read/write locks guard most storage access.",
+        "cancellation": "No cancellation API.",
+        "persistence": [],
+        "resources": [
+          "Cache owns deque entries and map of shared highlight pointers. Snapshot getters copy; unsafe getter and getCS expose borrowed internal state/lock."
+        ]
+      },
+      "ownership_evidence": [
+        "MessageCache.cpp:23-157 implements reads, filtering, counts, clearing, and FIFO eviction; MessageCache.h:31-95 declares model and abstract ChatHandlerBase."
+      ],
+      "threading_evidence": [
+        "RLock protects snapshot/filter/count methods; WLock protects add and setRead. clear computes size before WLock; getMessagesUnsafe deliberately has no lock. Filter callback executes while RLock is held and must avoid lock reentry."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "Cache setting is 2 and cache contains two messages with highlight tokens",
+          "when": "a third message is added",
+          "then": "the new message is retained and exactly the oldest message and its highlight tokens are removed."
+        },
+        {
+          "given": "Cache has unread verbose and info logs plus unread chat messages",
+          "when": "countUnreadLogMessages(SEV_LAST), countUnreadChatMessages(), and setRead are called",
+          "then": "SEV_LAST excludes verbose, chat count includes all matching unread chats, and setRead marks each unread entry and returns per-kind counts."
+        },
+        {
+          "given": "A client holds getMessagesUnsafe while another thread mutates the cache",
+          "when": "the cache changes",
+          "then": "the borrowed reference has no snapshot/locking guarantee and must not cross asynchronous or concurrent use."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat-state-and-delayed-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "PrivateChat::PMInfo",
+        "PrivateChat::CCPMState",
+        "PrivateChat::EventType",
+        "PrivateChat::getToken",
+        "PrivateChat::getUser",
+        "PrivateChat::getHubUrl",
+        "PrivateChat::getHintedUser",
+        "PrivateChat::getClient",
+        "PrivateChat::getLogPath",
+        "PrivateChat::isOnline",
+        "PrivateChat::getCCPMState",
+        "PrivateChat::getUc",
+        "PrivateChat::ccpmStateToString",
+        "PrivateChat::checkIgnored",
+        "PrivateChat::checkAlwaysCCPM",
+        "PrivateChat::checkCCPMTimeout",
+        "PrivateChat::checkCCPMHubBlocked",
+        "PrivateChat::checkUserHub",
+        "PrivateChat::onUserUpdated",
+        "PrivateChat::on(ClientManagerListener::UserConnected)",
+        "PrivateChat::on(ClientManagerListener::UserUpdated)",
+        "PrivateChat::on(ClientManagerListener::UserDisconnected)"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/private_chat/PrivateChat.h:31:ClassDecl:PrivateChat",
+        "decl:airdcpp/private_chat/PrivateChat.h:35:EnumDecl:PMInfo",
+        "decl:airdcpp/private_chat/PrivateChat.h:37:EnumConstantDecl:MSG_SEEN",
+        "decl:airdcpp/private_chat/PrivateChat.h:38:EnumConstantDecl:TYPING_ON",
+        "decl:airdcpp/private_chat/PrivateChat.h:39:EnumConstantDecl:TYPING_OFF",
+        "decl:airdcpp/private_chat/PrivateChat.h:40:EnumConstantDecl:NO_AUTOCONNECT",
+        "decl:airdcpp/private_chat/PrivateChat.h:41:EnumConstantDecl:QUIT",
+        "decl:airdcpp/private_chat/PrivateChat.h:42:EnumConstantDecl:PMINFO_LAST",
+        "decl:airdcpp/private_chat/PrivateChat.h:46:EnumDecl:CCPMState",
+        "decl:airdcpp/private_chat/PrivateChat.h:47:EnumConstantDecl:CONNECTING",
+        "decl:airdcpp/private_chat/PrivateChat.h:48:EnumConstantDecl:CONNECTED",
+        "decl:airdcpp/private_chat/PrivateChat.h:49:EnumConstantDecl:DISCONNECTED",
+        "decl:airdcpp/private_chat/PrivateChat.h:116:FieldDecl:cache",
+        "decl:airdcpp/private_chat/PrivateChat.h:117:EnumDecl:EventType",
+        "decl:airdcpp/private_chat/PrivateChat.h:118:EnumConstantDecl:USER_UPDATE",
+        "decl:airdcpp/private_chat/PrivateChat.h:119:EnumConstantDecl:CCPM_TIMEOUT",
+        "decl:airdcpp/private_chat/PrivateChat.h:120:EnumConstantDecl:CCPM_AUTO",
+        "decl:airdcpp/private_chat/PrivateChat.h:128:FieldDecl:replyTo",
+        "decl:airdcpp/private_chat/PrivateChat.h:130:FieldDecl:ccpmAttempts",
+        "decl:airdcpp/private_chat/PrivateChat.h:131:FieldDecl:allowAutoCCPM",
+        "decl:airdcpp/private_chat/PrivateChat.h:132:FieldDecl:lastCCPMAttempt",
+        "decl:airdcpp/private_chat/PrivateChat.h:134:FieldDecl:ccpmState",
+        "decl:airdcpp/private_chat/PrivateChat.h:135:FieldDecl:uc",
+        "decl:airdcpp/private_chat/PrivateChat.h:137:FieldDecl:delayEvents",
+        "decl:airdcpp/private_chat/PrivateChat.h:150:FieldDecl:online",
+        "decl:airdcpp/private_chat/PrivateChat.h:153:FieldDecl:hubName",
+        "decl:airdcpp/private_chat/PrivateChat.h:54:CXCursor_Constructor:3dd538ca9ef9",
+        "decl:airdcpp/private_chat/PrivateChat.h:55:CXCursor_Destructor:1db4d145d001"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChat.h",
+          "start_line": 31,
+          "end_line": 158
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 29,
+          "end_line": 431
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Hinted user, optional UserConnection, ClientManager user/hub lifecycle callbacks, delayed event kinds."
+        ],
+        "preconditions": [
+          "Construction registers ClientManager listener; chat identity comes from replyTo. CCPM requires TLS availability, peer CCPM+TLS support and a suitable online hub."
+        ],
+        "defaults": [
+          "ccpmAttempts=0; allowAutoCCPM=true; lastCCPMAttempt=0; ccpmState defaults DISCONNECTED unless initConnectState sees a supplied UserConnection, in which case it sets CONNECTED. `online` is initialized from `aUser.user->isOnline()` (the header initializer `true` is overridden by the constructor). Delay event tags are USER_UPDATE, CCPM_TIMEOUT, CCPM_AUTO. PMInfo values map MSG_SEEN, TYPING_ON, TYPING_OFF, NO_AUTOCONNECT, QUIT followed by sentinel PMINFO_LAST."
+        ],
+        "effects": [
+          "The chat holds MessageCache initialized with PM_MESSAGE_CACHE and the hinted peer; ctor initializes `online` from User::isOnline, sets CONNECTED and registers the supplied connection when non-null, otherwise remains DISCONNECTED and schedules CCPM_AUTO after one second; it then registers ClientManager listener, reads history and checks ignored state. On online update it refreshes hint/hub, reports online, emits UserUpdated, and may schedule automatic CCPM after three seconds. Went-offline callback removes pending user update, clears connecting timeout, closes CCPM immediately, resets auto/online state, emits UserUpdated and offline status. A hub-only disconnect schedules a one-second update before checking current hub and emitting UserUpdated. Timeout reports warning, sets DISCONNECTED, and emits CCPMStatusUpdated if still CONNECTING. Automatic CCPM attempts only when ALWAYS_CCPM and allowCCPM; it caps retries at three and ready state resets the flag. checkIgnored posts an ignored-user status message; getToken reads reply user CID, getClient resolves current hint, getLogPath derives peer log path. CCPM state string maps the three enum states to localized status text."
+        ],
+        "events": [
+          "UserUpdated is emitted after peer/hub state update or hub reevaluation; CCPMStatusUpdated occurs on timeout/state transition; status messages report online/offline/ignored/blocking states."
+        ],
+        "errors": [
+          "No error result from getters or delayed callbacks. Connection errors are handled by the separate startCC/send flow contract."
+        ],
+        "completion": "Client event callbacks are synchronous; delayed retry/timeout/user-refresh work executes later through DelayedEvents.",
+        "cancellation": "Destructor unregisters ClientManager listener; pending delayed-event cancellation behavior is controlled by DelayedEvents destruction/clear paths and should be runtime characterized. No public cancellation method is declared.",
+        "persistence": [
+          "History read/log paths use LogManager; persistent file format/read-tail semantics are owned by LogManager."
+        ],
+        "resources": [
+          "PrivateChat owns MessageCache and retains HintedUser shared user; UserConnection is a raw observer/listener pointer and is unregistered by lifecycle paths. DelayedEvents is a member."
+        ]
+      },
+      "ownership_evidence": [
+        "PrivateChat.cpp:29-151 constructor, identity/history and CCPM eligibility; 337-431 user updates/hub changes; PrivateChat.h:31-158 state/declarations."
+      ],
+      "threading_evidence": [
+        "ccpmState is atomic; delayed callbacks and listener events may race with chat lifetime and must preserve unregister/clear ordering. No blanket mutex protects all PrivateChat fields."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "A PrivateChat is constructed without a UserConnection for a peer whose User::isOnline() is false",
+          "when": "constructor initialization completes",
+          "then": "state is DISCONNECTED, online is false, attempts are zero and auto-connect is enabled; CCPM_AUTO is scheduled after one second and history/listener/ignored-state initialization runs."
+        },
+        {
+          "given": "Peer is CONNECTING and reports wentOffline=true",
+          "when": "UserDisconnected callback runs",
+          "then": "pending user update is removed, timeout is cleared, CCPM is closed immediately, state is reset and UserUpdated plus offline status are emitted."
+        },
+        {
+          "given": "A hub disconnect does not mark the peer offline",
+          "when": "the hub lifecycle callback runs",
+          "then": "user/hub reevaluation is delayed by one second before UserUpdated."
+        },
+        {
+          "given": "A PrivateChat is constructed with a UserConnection and the peer is online",
+          "when": "initConnectState runs",
+          "then": "state becomes CONNECTED and the chat registers as a UserConnection listener; online mirrors User::isOnline."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat-listener-event-contracts",
+      "kind": "operation",
+      "upstream_symbols": [
+        "PrivateChatListener",
+        "PrivateChatListener::PrivateMessage",
+        "PrivateChatListener::Close",
+        "PrivateChatListener::UserUpdated",
+        "PrivateChatListener::PMStatus",
+        "PrivateChatListener::StatusMessage",
+        "PrivateChatListener::CCPMStatusUpdated",
+        "PrivateChatListener::MessagesRead",
+        "PrivateChatListener::MessagesCleared",
+        "PrivateChatListener::ChatCommand"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/private_chat/PrivateChatListener.h:27:ClassDecl:PrivateChatListener",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/private_chat/PrivateChatListener.h:30:30)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:32:TypedefDecl:PrivateMessage",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:33:TypedefDecl:Close",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:34:TypedefDecl:UserUpdated",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:35:TypedefDecl:PMStatus",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:36:TypedefDecl:StatusMessage",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:37:TypedefDecl:CCPMStatusUpdated",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:38:TypedefDecl:MessagesRead",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:39:TypedefDecl:MessagesCleared",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:40:TypedefDecl:ChatCommand",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:42:CXXMethod:on(PrivateMessage, PrivateChat *, const ChatMessagePtr &)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:43:CXXMethod:on(Close, PrivateChat *)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:44:CXXMethod:on(UserUpdated, PrivateChat *)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:45:CXXMethod:on(PMStatus, PrivateChat *, uint8_t)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:46:CXXMethod:on(StatusMessage, PrivateChat *, const LogMessagePtr &, const string &)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:47:CXXMethod:on(CCPMStatusUpdated, PrivateChat *)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:48:CXXMethod:on(MessagesRead, PrivateChat *)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:49:CXXMethod:on(MessagesCleared, PrivateChat *)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:50:CXXMethod:on(ChatCommand, PrivateChat *, const OutgoingChatMessage &)",
+        "decl:airdcpp/private_chat/PrivateChatListener.h:29:CXCursor_Destructor:a1188711b01b"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChatListener.h",
+          "start_line": 27,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 152,
+          "end_line": 336
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChat.cpp",
+          "start_line": 412,
+          "end_line": 466
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 91,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 163,
+          "end_line": 175
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/core/thread/CriticalSection.h",
+          "start_line": 34,
+          "end_line": 36
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Speaker listener registrations receive PrivateChat pointer plus event-specific payload."
+        ],
+        "preconditions": [
+          "Listeners must remain registered only while the PrivateChat is alive; exact Speaker delivery/thread affinity is not proved by this domain source."
+        ],
+        "defaults": [
+          "Listener methods are virtual no-op defaults; event tags are compile-time X<I> types."
+        ],
+        "effects": [
+          "PrivateMessage is fired after incoming chat is normalized/logged/cached. Close is fired when close() is requested before CPMI QU/CCPM close handling. UserUpdated is fired for relevant peer/hub state changes. PMStatus carries recognized CPMI information type. StatusMessage carries LogMessagePtr and owner. CCPMStatusUpdated accompanies CCPM state changes/timeouts. MessagesRead fires only when setRead finds unread cache messages; MessagesCleared fires only when clearCache removed at least one item. ChatCommand is fired when outgoing text is recognized as a command, but sendMessageHooked continues into normal send routing (the source notes command interception is TODO).",
+          "statusMessage always fires StatusMessage(message, owner); it adds the LogMessage to cache only when owner is empty and type is neither SPAM nor PRIVATE. Recognized CPMI SN/TP/AC/QU commands update local message-seen/typing/auto-connect/quit state and fire PMStatus with the corresponding local PMInfo tag; unrecognized or unsupported commands do not fire it."
+        ],
+        "events": [
+          "Each event callback is the observable contract listed in effects; callback payload pointers are borrowed for callback duration unless retained with shared ownership."
+        ],
+        "errors": [
+          "Event callbacks return void and do not communicate delivery failure."
+        ],
+        "completion": "Speaker callback dispatch occurs synchronously at each source fire site; delivery order across threads is not established by this contract.",
+        "cancellation": "No event cancellation/consume result is exposed by listener callbacks.",
+        "persistence": [],
+        "resources": [
+          "PrivateChat pointer is raw and message/log payloads are shared pointers or const references as declared."
+        ]
+      },
+      "ownership_evidence": [
+        "PrivateChat.cpp:152-336 contains event fire sites; PrivateChatListener.h:27-50 defines tags, payloads, and no-op virtual callbacks."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS and invokes listener callbacks inline (Speaker.h:42-49); delivery is on the emitter thread.",
+        "PrivateMessage is emitted synchronously under PrivateChatManager::cs write lock on an existing-chat inbound PM (PrivateChatManager.cpp:168-174; PrivateChat.cpp:195-210). Close is emitted synchronously under that same manager write lock when removeChat calls close before erasure (PrivateChatManager.cpp:91-109; PrivateChat.cpp:244-255). SharedMutex is std::shared_mutex (CriticalSection.h:34-36). Those callback paths must not synchronously re-enter manager methods that take cs; copy callback payload and defer such work until return."
+      ],
+      "proposed_bridge_requirement": "Callbacks are synchronous on the emitter thread. Copy borrowed payloads promptly. In the PrivateMessage and removeChat Close paths, do not call manager methods that acquire the shared mutex from inside the callback; schedule that work after callback return.",
+      "acceptance_scenarios": [
+        {
+          "given": "An existing chat receives a PM while a PrivateMessage listener is registered",
+          "when": "the manager synchronously calls handleMessage under WLock(cs)",
+          "then": "PrivateMessage is delivered inline before the manager lock is released; callback code copies its payload and defers any manager lookup."
+        },
+        {
+          "given": "removeChat is removing an existing chat with a Close listener",
+          "when": "it calls chat->close() under WLock(cs)",
+          "then": "Close is delivered inline before CCPM cleanup/map erasure; callback code does not re-enter manager lookup until it returns."
+        },
+        {
+          "given": "A peer/user/hub lifecycle update changes the chat state",
+          "when": "the relevant delayed or direct update completes",
+          "then": "UserUpdated fires after state/hub fields are refreshed."
+        },
+        {
+          "given": "A remote CPMI command contains exactly one recognized SN, TP, AC or QU flag",
+          "when": "the PMI listener processes it",
+          "then": "the corresponding local PMInfo value is fired; an unrecognized command emits no PMStatus."
+        },
+        {
+          "given": "statusMessage is called with owner empty and type SERVER",
+          "when": "the status is recorded",
+          "then": "the LogMessage is added to cache and StatusMessage fires with empty owner."
+        },
+        {
+          "given": "statusMessage is called with a nonempty owner or type PRIVATE/SPAM",
+          "when": "the status is recorded",
+          "then": "it is not added to the cache, but StatusMessage still fires with the supplied owner."
+        },
+        {
+          "given": "CCPM connection becomes connected or a connected CCPM disconnects",
+          "when": "CCPMConnected/CCPMDisconnected completes",
+          "then": "CCPMStatusUpdated fires after state and connection-listener changes."
+        },
+        {
+          "given": "Cache contains unread messages",
+          "when": "setRead marks them read",
+          "then": "MessagesRead fires; CPMI MSG_SEEN is queued only when unread chat count was positive."
+        },
+        {
+          "given": "Cache contains no entries, then at least one entry",
+          "when": "clearCache is called in each state",
+          "then": "MessagesCleared is suppressed for zero removed items and fires after a nonempty clear."
+        },
+        {
+          "given": "Outgoing text matches Util::isChatCommand",
+          "when": "sendMessageHooked runs",
+          "then": "ChatCommand fires with the original OutgoingChatMessage and normal hooked send routing still runs."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat-manager-state-and-listener-surface",
+      "kind": "operation",
+      "upstream_symbols": [
+        "PrivateChatManager",
+        "PrivateChatManager::ChatMap",
+        "PrivateChatManager::PrivateChatManager",
+        "PrivateChatManager::~PrivateChatManager",
+        "PrivateChatManagerListener",
+        "PrivateChatManagerListener::ChatCreated",
+        "PrivateChatManagerListener::ChatRemoved"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/private_chat/PrivateChatManager.h:35:ClassDecl:PrivateChatManager",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:40:TypedefDecl:ChatMap",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:56:FieldDecl:chats",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:57:FieldDecl:cs",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:59:FieldDecl:ccpms",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:42:CXCursor_Constructor:9669c0bd2c98",
+        "decl:airdcpp/private_chat/PrivateChatManager.h:43:CXCursor_Destructor:15281574b498",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:27:ClassDecl:PrivateChatManagerListener",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/private_chat/PrivateChatManagerListener.h:30:30)",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:32:TypedefDecl:ChatCreated",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:33:TypedefDecl:ChatRemoved",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:35:CXXMethod:on(ChatCreated, const PrivateChatPtr &, bool)",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:36:CXXMethod:on(ChatRemoved, const PrivateChatPtr &)",
+        "decl:airdcpp/private_chat/PrivateChatManagerListener.h:29:CXCursor_Destructor:404884e7e0b0"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.h",
+          "start_line": 35,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManager.cpp",
+          "start_line": 31,
+          "end_line": 242
+        },
+        {
+          "path": "airdcpp/private_chat/PrivateChatManagerListener.h",
+          "start_line": 27,
+          "end_line": 36
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Upstream source/header and installed declaration are inventoried; packaged symbol/runtime proof has not been collected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Manager lifecycle; map of UserPtr to PrivateChatPtr; listeners observe chat create/remove."
+        ],
+        "preconditions": [
+          "Construction registers with ClientManager and ConnectionManager."
+        ],
+        "defaults": [
+          "ChatMap is keyed by UserPtr; ccpms retains raw UserConnection pointers for users whose chat was removed while CCPM remains open."
+        ],
+        "effects": [
+          "Manager owns chat shared_ptrs in chats, protects maps with SharedMutex, and retains idle CCPM pointers in ccpms with a manager listener. Construction registers listeners; destruction unregisters and clears chats under write lock, then disconnects ConnectionManager. ChatCreated fires only after a new insertion and includes whether creation was caused by a received message; ChatRemoved fires after close/erase. Listener event tags are X<0> ChatCreated and X<1> ChatRemoved; callbacks default to no-op."
+        ],
+        "events": [
+          "ChatCreated(chat, receivedMessage) after insertion; ChatRemoved(chat) after close and erasure."
+        ],
+        "errors": [
+          "The listener has no return/error channel. Operation return behavior is documented in private-chat.manage."
+        ],
+        "completion": "Map insertion/removal and event firing are synchronous; network teardown may be asynchronous.",
+        "cancellation": "No explicit cancellation method on the manager listener surface.",
+        "persistence": [],
+        "resources": [
+          "Manager owns PrivateChatPtr map; ccpms contains non-owning raw UserConnection pointers and listener registrations. Destructor disconnects ConnectionManager."
+        ]
+      },
+      "ownership_evidence": [
+        "PrivateChatManager.cpp:31-69 lifecycle/map setup; :78-83 retained CCPM connection ownership; :52-69 chat insert; :86-108 removal; PrivateChatManagerListener.h:27-36 event tags and callback signatures."
+      ],
+      "threading_evidence": [
+        "Map reads/writes use read/write locks; create/remove events are fired outside map lock; manager connection callbacks and removal can mutate retained raw pointer state."
+      ],
+      "proposed_bridge_requirement": "Preserve this source contract and its observable state; characterize any behavior that depends on unverified runtime integration.",
+      "acceptance_scenarios": [
+        {
+          "given": "No chat exists for a user",
+          "when": "addChat inserts a new shared chat",
+          "then": "ChatCreated fires once after insertion with the received-message boolean supplied to addChat."
+        },
+        {
+          "given": "A chat exists and is removed",
+          "when": "removeChat finishes close and erasure",
+          "then": "ChatRemoved fires after the map no longer contains it."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "private-chat.abstract-chat-handler",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ChatHandlerBase::getHubUrl",
+        "clearCache",
+        "setRead",
+        "getCache",
+        "sendMessageHooked",
+        "statusMessage"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/message/MessageCache.h:86:ClassDecl:ChatHandlerBase",
+        "decl:airdcpp/message/MessageCache.h:88:CXXMethod:getHubUrl()",
+        "decl:airdcpp/message/MessageCache.h:89:CXXMethod:clearCache()",
+        "decl:airdcpp/message/MessageCache.h:90:CXXMethod:setRead()",
+        "decl:airdcpp/message/MessageCache.h:92:CXXMethod:getCache()",
+        "decl:airdcpp/message/MessageCache.h:93:CXXMethod:sendMessageHooked(const OutgoingChatMessage &, string &)",
+        "decl:airdcpp/message/MessageCache.h:94:CXXMethod:statusMessage(const string &, LogMessage::Severity, LogMessage::Type, const string &, const string &)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/message/MessageCache.h",
+          "start_line": 86,
+          "end_line": 95
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Abstract interface is declared in installed source header; concrete implementation/runtime dispatch is not established by this declaration."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Derived ChatHandlerBase implementation supplies hub URL, cache operations, hooked send and status-message handling."
+        ],
+        "preconditions": [
+          "The type is abstract; each listed pure virtual method must be implemented by a concrete derived class."
+        ],
+        "defaults": [
+          "No default implementation exists for the pure virtual operations. statusMessage parameters aLabel/aOwner default to Util::emptyString."
+        ],
+        "effects": [
+          "Interface requires getHubUrl, clearCache, setRead, getCache, sendMessageHooked(message,error) and statusMessage(message,severity,type,label,owner). No implementation, storage policy, event, persistence, or failure policy is defined at this interface."
+        ],
+        "events": [],
+        "errors": [
+          "sendMessageHooked exposes a bool result and mutable error string, but meaning of true/false and error population are implementation-specific and not established by this interface."
+        ],
+        "completion": "Invocation dispatches synchronously through the virtual method call; implementation may schedule work beyond this call.",
+        "cancellation": "No cancellation method is declared.",
+        "persistence": [],
+        "resources": [
+          "getCache returns borrowed const reference; sendMessageHooked borrows the message and mutable error reference for call duration."
+        ]
+      },
+      "ownership_evidence": [
+        "Pure virtual interface and signatures in MessageCache.h:86-95."
+      ],
+      "threading_evidence": [
+        "No thread-affinity or synchronization contract is specified by this interface."
+      ],
+      "proposed_bridge_requirement": "Preserve abstract dispatch and reference lifetimes without inventing implementation semantics.",
+      "acceptance_scenarios": [
+        {
+          "given": "A test derived handler implements each pure virtual method",
+          "when": "the bridge invokes each interface operation",
+          "then": "the corresponding override is dispatched with the same arguments; sendMessageHooked result/error remain implementation-specific."
+        },
+        {
+          "given": "A derived handler returns a cache reference",
+          "when": "getCache is called",
+          "then": "the returned reference is borrowed and must not outlive the handler/cache owner."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    }
+  ]
+}

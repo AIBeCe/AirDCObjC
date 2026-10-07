@@ -1,0 +1,2038 @@
+{
+  "schema_version": 1,
+  "domain_id": "connectivity",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "connectivity.event.finished",
+      "kind": "event",
+      "upstream_symbols": [
+        "ConnectivityManagerListener::on(Finished, bool /*v6*/, bool /*failed*/) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 240,
+          "end_line": 295
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 448,
+          "end_line": 468
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: bool /*v6*/, bool /*failed*/"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Direct public-IP detection emits Finished(family,false); listen exception emits Finished(false,true) and Finished(true,true) even if only one family was targeted; mapping completion emits Finished(v6,mapper.empty()) only while that family auto-detect setting remains enabled."
+        ],
+        "events": [
+          "Finished"
+        ],
+        "errors": [
+          "failed=true reports listen or mapper failure; direct/public-IP success reports false."
+        ],
+        "completion": "Synchronous at detection branch or mapping worker completion.",
+        "cancellation": "No event cancellation.",
+        "persistence": [],
+        "resources": [
+          "Connectivity detection and MappingManager completion state."
+        ]
+      },
+      "ownership_evidence": [
+        "Callback receives: bool /*v6*/, bool /*failed*/",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "public IPv4 is detected",
+          "when": "the IPv4 path completes direct detection",
+          "then": "Finished(false,false) fires and v4 running clears."
+        },
+        {
+          "given": "the initial listen attempt throws",
+          "when": "detection catches the exception",
+          "then": "Finished(false,true) and Finished(true,true) fire."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "connectivity.event.message",
+      "kind": "event",
+      "upstream_symbols": [
+        "ConnectivityManagerListener::on(Message, const LogMessagePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 469,
+          "end_line": 491
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const LogMessagePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Fires only when log receives a family-typed message (v4/v6/both); it carries a newly allocated shared LogMessagePtr with system type and proto label. TYPE_NORMAL logs do not fire Message."
+        ],
+        "events": [
+          "Message"
+        ],
+        "errors": [],
+        "completion": "Synchronous after forwarding to LogManager.",
+        "cancellation": "No event cancellation.",
+        "persistence": [],
+        "resources": [
+          "Shared LogMessage payload."
+        ]
+      },
+      "ownership_evidence": [
+        "Callback receives: const LogMessagePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a normal generic connectivity log is emitted",
+          "when": "ConnectivityManager::log runs with TYPE_NORMAL",
+          "then": "Message is not fired."
+        },
+        {
+          "given": "a typed v4 connectivity status log is emitted",
+          "when": "log runs with TYPE_V4",
+          "then": "Message carries that text, severity and IPv4 system label."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "connectivity.event.settingChanged",
+      "kind": "event",
+      "upstream_symbols": [
+        "ConnectivityManagerListener::on(SettingChanged) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 367,
+          "end_line": 381
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No payload."
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Fires after editAutoSettings disables v4 auto detect, writes cached string/int settings to SettingsManager, then clears autoSettings. Cached bool values are not copied by that loop."
+        ],
+        "events": [
+          "SettingChanged"
+        ],
+        "errors": [],
+        "completion": "Synchronous at end of editAutoSettings.",
+        "cancellation": "No event cancellation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "No payload; listener object is registered by raw pointer in Speaker.",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "auto-detected settings are edited into persistent settings",
+          "when": "editAutoSettings completes",
+          "then": "SettingChanged fires after cached string/integer values are written and the cache is cleared."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "connectivity.event.started",
+      "kind": "event",
+      "upstream_symbols": [
+        "ConnectivityManagerListener::on(Started, bool /*v6*/) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 208,
+          "end_line": 213
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: bool /*v6*/"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Fires Started(false) after marking v4 autodetection running and before mapper close/disconnect/listen; similarly Started(true) for v6. Only enabled auto-detection families with incoming mode not disabled start."
+        ],
+        "events": [
+          "Started"
+        ],
+        "errors": [],
+        "completion": "Synchronous before detection work.",
+        "cancellation": "No event cancellation; listener removal is managed through Speaker ownership.",
+        "persistence": [],
+        "resources": [
+          "ConnectivityManager listeners."
+        ]
+      },
+      "ownership_evidence": [
+        "Callback receives: bool /*v6*/",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "v6 autodetection is enabled and incoming v6 is not disabled",
+          "when": "detectConnection starts a detection pass",
+          "then": "Started(true) fires before network listening or mapper work."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "connectivity.lifecycle-and-status",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ConnectivityManager::startup(StartupLoader&) noexcept",
+        "ConnectivityManager::detectConnection()",
+        "ConnectivityManager::setup(bool, bool)",
+        "ConnectivityManager::editAutoSettings()",
+        "ConnectivityManager::ok(bool) const",
+        "ConnectivityManager::isRunning() const",
+        "ConnectivityManager::getStatus(bool) const",
+        "ConnectivityManager::getInformation() const",
+        "ConnectivityManager::close()",
+        "ConnectivityManager::disconnect()",
+        "ConnectivityManager::getMappers(bool) const"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 42,
+          "end_line": 62
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Address family flags and connectivity settings."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "ConnectivityManager::startup configures both families and registers setting handlers; setting changes rerun setup for affected families. Detection and mapping branch semantics, settings precedence, event timing, and failures are fully source-backed by connectivity.manager-source-contract. close closes mappers; disconnect closes transfer/search listening sockets. getInformation reports family mode/IP/interface/ports and a configuration-in-progress message while running."
+        ],
+        "events": [
+          "Listener kinds Message, Started, Finished, SettingChanged; SettingChanged means auto-detection enabled/disabled (ConnectivityManagerListener.h:34-39)."
+        ],
+        "errors": [
+          "startup and setting handlers catch Core/Socket exceptions and report them through StartupLoader or supplied callback. listen converts failures to transfer/search-port Core Exception."
+        ],
+        "completion": "Synchronous status/query and settings operations; detection may start worker mapping.",
+        "cancellation": "close waits through MappingManager close/join; disconnect stops socket listeners.",
+        "persistence": [
+          "Configured values are SettingsManager state; auto-detected overrides remain in memory until editAutoSettings."
+        ],
+        "resources": [
+          "Listening sockets and mapping backend; NAT-PMP remains a separate gap."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose per-family state and mapper/error events; do not imply successful mapping without backend evidence.",
+      "acceptance_scenarios": [
+        {
+          "given": "settings change while autodetection is disabled",
+          "when": "setup receives a changed family flag",
+          "then": "listening sockets are reset using configured incoming settings."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "connectivity.listener-payloads",
+      "kind": "event",
+      "upstream_symbols": [
+        "class ConnectivityManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> Message;",
+        "typedef X<1> Started;",
+        "typedef X<2> Finished;",
+        "typedef X<3> SettingChanged; // auto-detection has been enabled / disabled",
+        "virtual void on(Message, const LogMessagePtr&) noexcept {}",
+        "virtual void on(Started, bool /*v6*/) noexcept {}",
+        "virtual void on(Finished, bool /*v6*/, bool /*failed*/) noexcept {}",
+        "virtual void on(SettingChanged) noexcept {}",
+        "\tvirtual ~ConnectivityManagerListener() {}"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 31,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 208,
+          "end_line": 294
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 375,
+          "end_line": 491
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Started carries v6=true for IPv6 or false for IPv4 when enabled auto-detection starts. Finished carries (v6,failed); detection emits direct-mode success, listen failure emits failed for both families, and mapping completion emits one family result when the corresponding auto-detect remains enabled.",
+          "SettingChanged follows editAutoSettings. Message carries LogMessagePtr for typed connectivity status logs; ordinary normal logs do not fire it. Default callbacks are no-ops and Speaker dispatch is synchronous."
+        ],
+        "events": [
+          "Started(bool v6)",
+          "Finished(bool v6,bool failed)",
+          "SettingChanged()",
+          "Message(LogMessagePtr)"
+        ],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "automatic detection starts IPv6 only",
+          "when": "the family attempt begins",
+          "then": "Started(true) fires; its outcome is later delivered by Finished(true,failed)."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:31:ClassDecl:ConnectivityManagerListener",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:34:ClassTemplate:X<I>",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:34:EnumConstantDecl:TYPE",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:34:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/connectivity/ConnectivityManagerListener.h:34:29)",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:36:TypedefDecl:Message",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:37:TypedefDecl:Started",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:38:TypedefDecl:Finished",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:39:TypedefDecl:SettingChanged",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:41:CXXMethod:on(Message, const LogMessagePtr &)",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:42:CXXMethod:on(Started, bool)",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:43:CXXMethod:on(Finished, bool, bool)",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:44:CXXMethod:on(SettingChanged)",
+        "decl:airdcpp/connectivity/ConnectivityManagerListener.h:33:CXCursor_Destructor:384740d7ccc5"
+      ]
+    },
+    {
+      "id": "connectivity.manager-source-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ConnectivityManager : public Singleton<ConnectivityManager>, public Speaker<ConnectivityManagerListener>",
+        "void startup(StartupLoader& aLoader) noexcept;",
+        "bool get(SettingsManager::BoolSetting setting) const;",
+        "int get(SettingsManager::IntSetting setting) const;",
+        "const string& get(SettingsManager::StrSetting setting) const;",
+        "void set(SettingsManager::StrSetting setting, const string& str);",
+        "void detectConnection();",
+        "void setup(bool v4SettingsChanged, bool v6SettingsChanged);",
+        "void editAutoSettings();",
+        "bool ok(bool v6) const { return v6 ? autoDetectedV6 : autoDetectedV4; }",
+        "bool isRunning() const { return runningV4 || runningV6; }",
+        "const string& getStatus(bool v6) const;",
+        "string getInformation() const;",
+        "void close();",
+        "void disconnect();",
+        "StringList getMappers(bool v6) const;",
+        "bool isActive() const noexcept;",
+        "static const SettingsManager::SettingKeyList commonIncomingSettings;",
+        "static const SettingsManager::SettingKeyList incomingV4Settings;",
+        "static const SettingsManager::SettingKeyList incomingV6Settings;",
+        "static void onIncomingSettingsChanged(const MessageCallback& errorF, const SettingsManager::SettingKeyList& aSettings);",
+        "static void onProxySettingsChanged(const MessageCallback& errorF, const SettingsManager::SettingKeyList& aSettings) noexcept;",
+        "void startMapping();",
+        "void startMapping(bool v6);",
+        "void mappingFinished(const string& mapper, bool v6);",
+        "void clearAutoSettings(bool v6, bool resetDefaults);",
+        "enum LogType {",
+        "TYPE_NORMAL,",
+        "TYPE_V4,",
+        "TYPE_V6,",
+        "TYPE_BOTH",
+        "void log(const string& message, LogMessage::Severity sev, LogType aType);",
+        "void startSocket();",
+        "void listen();",
+        "bool autoDetectedV4 = false;",
+        "bool autoDetectedV6 = false;",
+        "bool runningV4 = false;",
+        "bool runningV6 = false;",
+        "string statusV4;",
+        "string statusV6;",
+        "unordered_map<int, boost::variant<bool, int, string>> autoSettings;",
+        "MappingManager mapperV4;",
+        "MappingManager mapperV6;",
+        "mutable SharedMutex cs;",
+        "\tConnectivityManager();",
+        "\t~ConnectivityManager() override = default;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 40,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 81,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 83,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 84,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 85,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 86,
+          "end_line": 86
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 92,
+          "end_line": 92
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 93,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 96,
+          "end_line": 96
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 97,
+          "end_line": 97
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 98,
+          "end_line": 98
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 100,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 101,
+          "end_line": 101
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 106,
+          "end_line": 106
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 108,
+          "end_line": 108
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 109,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 111,
+          "end_line": 111
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 49,
+          "end_line": 556
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "startup calls setup for both families, catches Core Exception into StartupLoader, applies SOCKS settings when selected, and registers inbound/proxy setting callbacks. Incoming callbacks recompute affected v4/v6 setup and report caught errors; proxy updates call Socket::socksUpdated and report SocketException.",
+          "get(bool/int/string) reads autoSettings variant only while either autodetect setting is enabled and that key exists, else falls back to SettingsManager. set(str) stores in autoSettings under autodetect or writes SettingsManager otherwise. editAutoSettings disables v4 AUTO_DETECT_CONNECTION, writes cached string/int overrides (not bool overrides), clears cache and fires SettingChanged.",
+          "detectConnection no-ops while either family is running; starts only enabled/non-disabled families and emits Started. It closes current relevant mapper, disconnects, restores family defaults, then listens. Listen failure sets both incoming modes passive, logs and emits Finished(false,true) and Finished(true,true); success classifies public v4 as ACTIVE, private v4 as ACTIVE_UPNP; public v6 as ACTIVE and non-public v6 as DISABLED; private v4 attempts mapping.",
+          "setup closes mapper when family settings changed or autodetected family is disabled; clears no-longer-used auto settings; reruns detection when needed; otherwise resets listening sockets after changes. Explicit ACTIVE_UPNP modes start mappers when not already running. close closes mapper workers; disconnect tears down search and transfer listeners.",
+          "getStatus returns family status; getMappers delegates to MappingManager. getInformation reports detection status/mode, external IPs, bind addresses and ports; while running it returns a fixed configuration-in-progress message. isActive is true for active incoming modes or any favorite active hub. Typed status log emits Message(LogMessagePtr); normal logs only call LogManager.",
+          "clearAutoSettings erases family external-IP, bind-address, no-IP-override and incoming-mode overrides; resetDefaults stores SettingsManager defaults. When either configured family remains enabled/non-disabled with autodetection off, configured TCP/UDP/TLS ports are preferred; resetDefaults otherwise seeds default port values."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [
+          "Incoming/proxy settings are read/written through SettingsManager; auto-detected values are held separately until edited."
+        ],
+        "resources": [
+          "ConnectionManager and SearchManager sockets; router-control APIs; TimerManager renewal; SettingsManager."
+        ]
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "automatic setup detects a public IPv4 address",
+          "when": "detection completes",
+          "then": "incoming v4 mode becomes ACTIVE, Started(false) precedes Finished(false,false), and no v4 mapping starts."
+        },
+        {
+          "given": "a private IPv4 path requires mapping and providers exhaust without success",
+          "when": "the mapping worker finishes",
+          "then": "mappingFinished receives an empty provider and autodetected incoming v4 falls back to PASSIVE with failure completion."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/ConnectivityManager.h:40:ClassDecl:ConnectivityManager",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:43:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:45:CXXMethod:get(SettingsManager::BoolSetting)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:46:CXXMethod:get(SettingsManager::IntSetting)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:47:CXXMethod:get(SettingsManager::StrSetting)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:48:CXXMethod:set(SettingsManager::StrSetting, const string &)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:50:CXXMethod:detectConnection()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:51:CXXMethod:setup(bool, bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:52:CXXMethod:editAutoSettings()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:53:CXXMethod:ok(bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:54:CXXMethod:isRunning()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:55:CXXMethod:getStatus(bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:56:CXXMethod:getInformation()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:58:CXXMethod:close()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:59:CXXMethod:disconnect()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:60:CXXMethod:getMappers(bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:62:CXXMethod:isActive()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:64:VarDecl:commonIncomingSettings",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:65:VarDecl:incomingV4Settings",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:66:VarDecl:incomingV6Settings",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:68:CXXMethod:onIncomingSettingsChanged(const MessageCallback &, const SettingsManager::SettingKeyList &)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:69:CXXMethod:onProxySettingsChanged(const MessageCallback &, const SettingsManager::SettingKeyList &)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:77:CXXMethod:startMapping()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:78:CXXMethod:startMapping(bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:79:CXXMethod:mappingFinished(const string &, bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:81:CXXMethod:clearAutoSettings(bool, bool)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:83:EnumDecl:LogType",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:84:EnumConstantDecl:TYPE_NORMAL",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:85:EnumConstantDecl:TYPE_V4",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:86:EnumConstantDecl:TYPE_V6",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:87:EnumConstantDecl:TYPE_BOTH",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:90:CXXMethod:log(const string &, LogMessage::Severity, LogType)",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:92:CXXMethod:startSocket()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:93:CXXMethod:listen()",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:95:FieldDecl:autoDetectedV4",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:96:FieldDecl:autoDetectedV6",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:97:FieldDecl:runningV4",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:98:FieldDecl:runningV6",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:100:FieldDecl:statusV4",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:101:FieldDecl:statusV6",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:106:FieldDecl:autoSettings",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:108:FieldDecl:mapperV4",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:109:FieldDecl:mapperV6",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:111:FieldDecl:cs",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:74:CXCursor_Constructor:6ccc0ddd25c0",
+        "decl:airdcpp/connectivity/ConnectivityManager.h:75:CXCursor_Destructor:d9b434ecc766"
+      ]
+    },
+    {
+      "id": "connectivity.mapper-base-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class Mapper : boost::noncopyable",
+        "enum Protocol {",
+        "PROTOCOL_TCP,",
+        "PROTOCOL_UDP,",
+        "PROTOCOL_LAST",
+        "static const char* protocols[PROTOCOL_LAST];",
+        "virtual bool init() = 0;",
+        "virtual void uninit() = 0;",
+        "bool open(const string& port, const Protocol protocol, const string& description);",
+        "bool close();",
+        "bool hasRules() const;",
+        "virtual uint32_t renewal() const = 0;",
+        "virtual string getDeviceName() = 0;",
+        "virtual string getExternalIP() = 0;",
+        "virtual const string& getName() const = 0;",
+        "virtual bool supportsProtocol(bool v6) const = 0;",
+        "string localIp;",
+        "const bool v6;",
+        "virtual bool add(const string& port, const Protocol protocol, const string& description) = 0;",
+        "virtual bool remove(const string& port, const Protocol protocol) = 0;",
+        "std::set<std::pair<string, Protocol>> rules;",
+        "\tMapper(const string& localIp, bool v6);",
+        "\tvirtual ~Mapper() = default;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 33,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 39,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/connectivity/Mapper.cpp",
+          "start_line": 25,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Base constructor stores local IP and v6 family. open calls virtual add and records (port, protocol) only if add succeeds; close attempts remove for each recorded rule, combines results, and clears all records even when remove failed. hasRules reports the local recorded set.",
+          "Protocol values are TCP/UDP/LAST; concrete providers supply init/uninit, renewal, device/external IP/name, protocol support, add/remove. The rule set has no mutex in this class."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": [
+          "ConnectionManager and SearchManager sockets; router-control APIs; TimerManager renewal; SettingsManager."
+        ]
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "a provider add(port,protocol,description) returns false",
+          "when": "Mapper::open runs",
+          "then": "it returns false and does not record the rule."
+        },
+        {
+          "given": "one or more rules were recorded and a provider remove fails for one",
+          "when": "Mapper::close runs",
+          "then": "it attempts every recorded removal, returns false overall, and clears the local rule set."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/Mapper.h:33:ClassDecl:Mapper",
+        "decl:airdcpp/connectivity/Mapper.h:39:EnumDecl:Protocol",
+        "decl:airdcpp/connectivity/Mapper.h:40:EnumConstantDecl:PROTOCOL_TCP",
+        "decl:airdcpp/connectivity/Mapper.h:41:EnumConstantDecl:PROTOCOL_UDP",
+        "decl:airdcpp/connectivity/Mapper.h:42:EnumConstantDecl:PROTOCOL_LAST",
+        "decl:airdcpp/connectivity/Mapper.h:44:VarDecl:protocols",
+        "decl:airdcpp/connectivity/Mapper.h:48:CXXMethod:init()",
+        "decl:airdcpp/connectivity/Mapper.h:50:CXXMethod:uninit()",
+        "decl:airdcpp/connectivity/Mapper.h:52:CXXMethod:open(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/Mapper.h:53:CXXMethod:close()",
+        "decl:airdcpp/connectivity/Mapper.h:54:CXXMethod:hasRules()",
+        "decl:airdcpp/connectivity/Mapper.h:57:CXXMethod:renewal()",
+        "decl:airdcpp/connectivity/Mapper.h:59:CXXMethod:getDeviceName()",
+        "decl:airdcpp/connectivity/Mapper.h:60:CXXMethod:getExternalIP()",
+        "decl:airdcpp/connectivity/Mapper.h:66:CXXMethod:getName()",
+        "decl:airdcpp/connectivity/Mapper.h:67:CXXMethod:supportsProtocol(bool)",
+        "decl:airdcpp/connectivity/Mapper.h:69:FieldDecl:localIp",
+        "decl:airdcpp/connectivity/Mapper.h:70:FieldDecl:v6",
+        "decl:airdcpp/connectivity/Mapper.h:73:CXXMethod:add(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/Mapper.h:75:CXXMethod:remove(const string &, const Protocol)",
+        "decl:airdcpp/connectivity/Mapper.h:77:FieldDecl:rules",
+        "decl:airdcpp/connectivity/Mapper.h:36:CXCursor_Constructor:907012c34084",
+        "decl:airdcpp/connectivity/Mapper.h:37:CXCursor_Destructor:3a3637f37efa"
+      ]
+    },
+    {
+      "id": "connectivity.mapping-manager",
+      "kind": "operation",
+      "upstream_symbols": [
+        "MappingManager::getMappers() const",
+        "MappingManager::open()",
+        "MappingManager::close()",
+        "MappingManager::getOpened() const",
+        "MappingManager::getStatus() const"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 45,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.cpp",
+          "start_line": 45,
+          "end_line": 95
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration is present; per-operation link/runtime behavior remains unverified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Address-family choice at construction; mapping backend selection and open/close."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Registers MiniUPnPc always; registers NAT-PMP for IPv4 only when HAVE_NATPMP_H and Windows UPnP only on WIN32; open rejects already-open, empty-mapper and concurrent-in-progress cases, otherwise starts mapper worker; close joins worker, removes timer renewal and closes active mapper; reports active/status."
+        ],
+        "events": [],
+        "errors": [
+          "open returns false for already-open, no available backend, or busy; emitted log severity differs by condition."
+        ],
+        "completion": "open returns after starting a worker; provider discovery/rule installation and mappingFinished happen on worker. close joins worker and synchronously removes recorded rules when possible.",
+        "cancellation": "close joins active work; it does not provide per-mapping cancellation result.",
+        "persistence": [],
+        "resources": [
+          "MiniUPnPc library; optional NAT-PMP; Windows-only UPnP; active-family local address."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "open starts a worker and close joins it; worker details and shutdown races require remaining implementation trace."
+      ],
+      "proposed_bridge_requirement": "Expose backend names, opening result and status as separate observations; report unavailable backends explicitly.",
+      "acceptance_scenarios": [
+        {
+          "given": "there is no registered provider",
+          "when": "open runs",
+          "then": "it logs no-interface and returns false without starting a worker."
+        },
+        {
+          "given": "a provider successfully installs the required non-empty transfer/search rules",
+          "when": "the worker completes setup",
+          "then": "it becomes the active unique-owned provider and mappingFinished reports its name."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "connectivity.mapping-manager-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class MappingManager :",
+        "template<typename T> void addMapper() {\n\t\tmappers.emplace_back(T::name, [](const string& localIp, bool aV6) {\n\t\t\treturn new T(localIp, aV6);\n\t\t});\n\t}",
+        "StringList getMappers() const;",
+        "bool open();",
+        "void close();",
+        "bool getOpened() const;",
+        "string getStatus() const;",
+        "vector<pair<string, function<Mapper* (const string&, bool)>>> mappers;",
+        "atomic_flag busy;",
+        "unique_ptr<Mapper> working; /// currently working implementation.",
+        "uint64_t renewal = 0; /// when the next renewal should happen, if requested by the mapper.",
+        "int run() override;",
+        "void close(Mapper& mapper);",
+        "void log(const string& message, LogMessage::Severity sev);",
+        "string deviceString(Mapper& mapper) const;",
+        "void renewLater(Mapper& mapper);",
+        "bool v6;",
+        "void on(TimerManagerListener::Minute, uint64_t tick) noexcept override;",
+        "\texplicit MappingManager(bool v6);",
+        "\t~MappingManager() override = default;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 40,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 47,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 76,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/connectivity/MappingManager.cpp",
+          "start_line": 35,
+          "end_line": 238
+        },
+        {
+          "path": "airdcpp/connectivity/ConnectivityManager.cpp",
+          "start_line": 434,
+          "end_line": 468
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Registers MiniUPnP for both families; NAT-PMP (HAVE_NATPMP_H) and Windows UPnP (WIN32) only for IPv4. open returns false if already open, no providers, or busy; otherwise starts worker.",
+          "Worker tries preferred MAPPER first, then others; initializes with explicit bind address or empty default, creates TCP transfer, TCP secure-transfer and UDP search rules for non-empty ports, closes partial mappings and advances on failure. Success takes unique ownership of provider; external IP updates only when family NO_IP_OVERRIDE allows, then mappingFinished and renewal are scheduled.",
+          "Renewal is at max(provider interval, 10 minutes); renewal reinitializes provider and retries existing rules, intentionally ignores per-rule failures, then reschedules. close joins worker, removes renewal listener, reinitializes/removes active rules and clears provider. If all providers fail, mappingFinished receives empty name."
+        ],
+        "events": [],
+        "errors": [
+          "open returns false for already-open/no-provider/busy cases; starting the Thread may throw ThreadException. Provider init/add failures log and fall through; no provider success reports empty mapper to ConnectivityManager. Renewal start catches ThreadException and clears busy for later retry."
+        ],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": [
+          "ConnectionManager and SearchManager sockets; router-control APIs; TimerManager renewal; SettingsManager."
+        ]
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "automatic setup detects a public IPv4 address",
+          "when": "detection completes",
+          "then": "incoming v4 mode becomes ACTIVE, Started(false) precedes Finished(false,false), and no v4 mapping starts."
+        },
+        {
+          "given": "a private IPv4 path requires mapping and providers exhaust without success",
+          "when": "the mapping worker finishes",
+          "then": "mappingFinished receives an empty provider and autodetected incoming v4 falls back to PASSIVE with failure completion."
+        },
+        {
+          "given": "a mapping provider fails to initialize",
+          "when": "the worker evaluates providers",
+          "then": "it logs the provider failure, calls uninit through scoped cleanup, and tries the next provider."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/MappingManager.h:40:ClassDecl:MappingManager",
+        "decl:airdcpp/connectivity/MappingManager.h:47:FunctionTemplate:addMapper()",
+        "decl:airdcpp/connectivity/MappingManager.h:52:CXXMethod:getMappers()",
+        "decl:airdcpp/connectivity/MappingManager.h:54:CXXMethod:open()",
+        "decl:airdcpp/connectivity/MappingManager.h:55:CXXMethod:close()",
+        "decl:airdcpp/connectivity/MappingManager.h:57:CXXMethod:getOpened()",
+        "decl:airdcpp/connectivity/MappingManager.h:60:CXXMethod:getStatus()",
+        "decl:airdcpp/connectivity/MappingManager.h:65:FieldDecl:mappers",
+        "decl:airdcpp/connectivity/MappingManager.h:67:FieldDecl:busy",
+        "decl:airdcpp/connectivity/MappingManager.h:68:FieldDecl:working",
+        "decl:airdcpp/connectivity/MappingManager.h:69:FieldDecl:renewal",
+        "decl:airdcpp/connectivity/MappingManager.h:71:CXXMethod:run()",
+        "decl:airdcpp/connectivity/MappingManager.h:73:CXXMethod:close(Mapper &)",
+        "decl:airdcpp/connectivity/MappingManager.h:74:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/connectivity/MappingManager.h:75:CXXMethod:deviceString(Mapper &)",
+        "decl:airdcpp/connectivity/MappingManager.h:76:CXXMethod:renewLater(Mapper &)",
+        "decl:airdcpp/connectivity/MappingManager.h:78:FieldDecl:v6",
+        "decl:airdcpp/connectivity/MappingManager.h:79:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/connectivity/MappingManager.h:62:CXCursor_Constructor:e7cf52e99bd6",
+        "decl:airdcpp/connectivity/MappingManager.h:63:CXCursor_Destructor:29c6dfcb3bc4"
+      ]
+    },
+    {
+      "id": "connectivity.miniupnp-provider",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class Mapper_MiniUPnPc : public Mapper",
+        "static const string name;",
+        "bool init() override;",
+        "void uninit() override;",
+        "bool add(const string& port, const Protocol protocol, const string& description) override;",
+        "bool remove(const string& port, const Protocol protocol) override;",
+        "bool supportsProtocol(bool aV6) const override;",
+        "uint32_t renewal() const override { return 0; }",
+        "string getDeviceName() override;",
+        "string getExternalIP() override;",
+        "const string& getName() const override { return name; }",
+        "void updateLocalIp(const string& aControlUrl) noexcept;",
+        "string url;",
+        "string service;",
+        "string device;",
+        "\tMapper_MiniUPnPc(const string& localIp, bool v6);"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 26,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_MiniUPnPc.cpp",
+          "start_line": 25,
+          "end_line": 187
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "MiniUPnP supports requested v4/v6. init is idempotent when a control URL exists; discovers for 2 seconds and obtains a valid IGD; with no explicit bind it tries to select a local adapter in the router subnet. Failed discovery/IGD returns false.",
+          "add/delete map same external/internal port and requested protocol; getExternalIP returns empty on command failure. Device display uses selected local IP or Generic. On non-Windows isIPInRange returns true without subnet filtering, so adapter selection can choose the first adapter; this is source behavior."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "MiniUPnP discovery finds no devices or no valid IGD",
+          "when": "init runs",
+          "then": "it frees discovery resources and returns false."
+        },
+        {
+          "given": "an IGD is initialized and add(port,PROTOCOL_TCP) succeeds",
+          "when": "the same rule is closed",
+          "then": "delete uses the same port and TCP protocol; source supports requested v4 and v6."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:26:ClassDecl:Mapper_MiniUPnPc",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:31:VarDecl:name",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:34:CXXMethod:init()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:35:CXXMethod:uninit()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:37:CXXMethod:add(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:38:CXXMethod:remove(const string &, const Protocol)",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:39:CXXMethod:supportsProtocol(bool)",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:41:CXXMethod:renewal()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:43:CXXMethod:getDeviceName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:44:CXXMethod:getExternalIP()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:46:CXXMethod:getName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:49:CXXMethod:updateLocalIp(const string &)",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:51:FieldDecl:url",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:52:FieldDecl:service",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:53:FieldDecl:device",
+        "decl:airdcpp/connectivity/mappers/Mapper_MiniUPnPc.h:29:CXCursor_Constructor:b8c211bf35b2"
+      ]
+    },
+    {
+      "id": "connectivity.natpmp-provider",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class Mapper_NATPMP : public Mapper",
+        "static const string name;",
+        "bool init() override;",
+        "void uninit() override;",
+        "bool add(const string& port, const Protocol protocol, const string& description) override;",
+        "bool remove(const string& port, const Protocol protocol) override;",
+        "bool supportsProtocol(bool aV6) const override;",
+        "uint32_t renewal() const override { return lifetime / 2; }",
+        "string getDeviceName() override;",
+        "string getExternalIP() override;",
+        "const string& getName() const override { return name; }",
+        "string gateway;",
+        "uint32_t lifetime; // in minutes",
+        "\tMapper_NATPMP(const string& localIp, bool v6);"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 26,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_NATPMP.cpp",
+          "start_line": 25,
+          "end_line": 145
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified",
+          "gap:natpmp.disabled"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Source provider is IPv4-only. init initializes global NAT-PMP state and records gateway IPv4; add asks same private/public port for 3600 seconds and accepts only matching response/type/public port, setting renewal to min(server lifetime,3600)/60.",
+          "remove asks for lifetime zero and verifies matching private port/type/zero lifetime. Request polling retries NATPMP_TRYAGAIN up to try_number 5. External-IP query returns empty unless public-address response succeeds. Accepted Core build disables NAT-PMP via HAVE_NATPMP_H/dependency; retain natpmp.disabled."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "an IPv4 NAT-PMP add request receives the requested mapping response and same public port",
+          "when": "add completes",
+          "then": "it returns true and renewal is min(response lifetime, 3600)/60 minutes."
+        },
+        {
+          "given": "request polling returns NATPMP_TRYAGAIN repeatedly",
+          "when": "read retries",
+          "then": "it stops after try_number exceeds 5 and returns false if no valid response arrived."
+        },
+        {
+          "given": "remove receives a response with mismatched private port or nonzero lifetime",
+          "when": "it validates the response",
+          "then": "it returns false."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "natpmp.disabled"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:26:ClassDecl:Mapper_NATPMP",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:31:VarDecl:name",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:34:CXXMethod:init()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:35:CXXMethod:uninit()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:37:CXXMethod:add(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:38:CXXMethod:remove(const string &, const Protocol)",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:39:CXXMethod:supportsProtocol(bool)",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:41:CXXMethod:renewal()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:43:CXXMethod:getDeviceName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:44:CXXMethod:getExternalIP()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:46:CXXMethod:getName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:48:FieldDecl:gateway",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:49:FieldDecl:lifetime",
+        "decl:airdcpp/connectivity/mappers/Mapper_NATPMP.h:29:CXCursor_Constructor:bb318a44f34b"
+      ]
+    },
+    {
+      "id": "connectivity.win-upnp-provider",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class Mapper_WinUPnP : public Mapper",
+        "static const string name;",
+        "bool init() override;",
+        "void uninit() override;",
+        "bool add(const string& port, const Protocol protocol, const string& description) override;",
+        "bool remove(const string& port, const Protocol protocol) override;",
+        "bool supportsProtocol(bool aV6) const override;",
+        "uint32_t renewal() const override { return 0; }",
+        "string getDeviceName() override;",
+        "string getExternalIP() override;",
+        "const string& getName() const override { return name; }",
+        "IStaticPortMappingCollection* getStaticPortMappingCollection();",
+        "IUPnPNAT* pUN = 0;",
+        "long lastPort = 0;",
+        "Protocol lastProtocol = PROTOCOL_LAST;",
+        "\tMapper_WinUPnP(const string& localIp, bool v6);",
+        "\tIUPnPNAT* pUN = 0;\n\n\t// need to save these to get the external IP...\n\tlong lastPort = 0;\n\tProtocol lastProtocol = PROTOCOL_LAST;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 30,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.h",
+          "start_line": 55,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/connectivity/mappers/Mapper_WinUPnP.cpp",
+          "start_line": 25,
+          "end_line": 175
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified",
+          "gap:platform.win-mapper"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Provider is IPv4-only. init initializes COM apartment and creates UPnP NAT device interface; uninit calls CoUninitialize. add/remove use static port mapping collection and record last successful port/protocol for external-IP query.",
+          "getStaticPortMappingCollection retries three times with 1.5-second sleep between failures. Device name is empty and external-IP returns empty when there is no prior mapping or COM query fails. Source is WIN32-only and absent from accepted macOS target; MiniUPnP is the non-Windows provider path."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous getters/state changes except provider mapping on MappingManager worker and timer callbacks.",
+        "cancellation": "Connectivity close joins mapping workers and disconnects listeners; no caller cancellation token is declared.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned values are copied except reference-returning setting/status getters; MappingManager uniquely owns the active Mapper."
+      ],
+      "threading_evidence": [
+        "MappingManager inherits Thread and uses atomic busy coordination; ConnectivityManager protects autoSettings with SharedMutex but no common lock is demonstrated for all status fields. Mapper rule set has no mutex."
+      ],
+      "proposed_bridge_requirement": "Preserve family-specific detection results, event ordering, settings precedence, provider selection and mapping lifecycle; do not expose provider handles as bridge-owned objects.",
+      "acceptance_scenarios": [
+        {
+          "given": "UPnP static port-mapping collection is unavailable",
+          "when": "getStaticPortMappingCollection retries",
+          "then": "it makes at most three COM calls with 1.5-second sleeps after unsuccessful calls and returns null if none yields a collection."
+        },
+        {
+          "given": "the provider cannot initialize COM or create its NAT interface",
+          "when": "init returns",
+          "then": "it returns false; on successful add it stores last port/protocol for subsequent external-IP lookup."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "platform.win-mapper"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:30:ClassDecl:Mapper_WinUPnP",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:35:VarDecl:name",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:38:CXXMethod:init()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:39:CXXMethod:uninit()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:41:CXXMethod:add(const string &, const Protocol, const string &)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:42:CXXMethod:remove(const string &, const Protocol)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:43:CXXMethod:supportsProtocol(bool)",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:45:CXXMethod:renewal()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:47:CXXMethod:getDeviceName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:48:CXXMethod:getExternalIP()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:50:CXXMethod:getName()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:53:CXXMethod:getStaticPortMappingCollection()",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:58:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:59:conditional-source",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:33:CXCursor_Constructor:aa725fe45ec1",
+        "decl:airdcpp/connectivity/mappers/Mapper_WinUPnP.h:55-59:conditional-region"
+      ]
+    }
+  ]
+}

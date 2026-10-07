@@ -1,0 +1,1531 @@
+{
+  "schema_version": 1,
+  "domain_id": "share-profiles",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "share-profiles.initialize-defaults",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::ensureDefaultProfiles",
+        "dcpp::ShareProfileManager::loadProfile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 106,
+          "end_line": 121
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 89,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:64:CXXMethod:ensureDefaultProfiles()",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:68:CXXMethod:loadProfile(SimpleXML &, bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "XML token/name and isDefault flag."
+        ],
+        "preconditions": [
+          "Initialization under owning ShareManager, with no concurrent profile modifications; valid settings/localization."
+        ],
+        "defaults": [],
+        "effects": [
+          "loadProfile rejects empty name or hidden token for nondefault input; default empty name uses localized DEFAULT; pushes shared profile. ensureDefaultProfiles creates configured default if empty, else changes DEFAULT_SP to first when missing; appends hidden profile."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "DEFAULT_SP can change in settings."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "An empty profile manager, DEFAULT_SP token42 and available localization.",
+          "when": "Call ensureDefaultProfiles once.",
+          "then": "Configured default and hidden profile are created."
+        },
+        {
+          "given": "XML nondefault profile with empty Name or SP_HIDDEN token.",
+          "when": "Call loadProfile(xml,false).",
+          "then": "Return is null and profile is not appended."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.lookup",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::getShareProfile",
+        "dcpp::ShareProfileManager::getProfileByName",
+        "dcpp::ShareProfileManager::getProfiles",
+        "dcpp::ShareProfileManager::getProfileInfos"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 123,
+          "end_line": 132
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 139,
+          "end_line": 149
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 248,
+          "end_line": 251
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 253,
+          "end_line": 268
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:51:CXXMethod:getShareProfile(ProfileToken, bool)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:53:CXXMethod:getProfiles()",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:54:CXXMethod:getProfileInfos()",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:57:CXXMethod:getProfileByName(const string &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Token; allowFallback=false; name."
+        ],
+        "preconditions": [
+          "Fallback requires nonempty initialized list."
+        ],
+        "defaults": [
+          "allowFallback=false."
+        ],
+        "effects": [
+          "Token lookup returns shared pointer or null; fallback returns first stored profile. Empty name resolves DEFAULT_SP; other names match case-insensitively. getProfiles copies shared pointers including hidden; infos copy visible metadata only with default first."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned shared pointers keep mutable profiles alive; metadata list copies names/tokens."
+      ],
+      "threading_evidence": [
+        "Lookup/snapshot operations acquire shared cs."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Initialized default token42, another visible token43 and hidden profile.",
+          "when": "Lookup unknown token without/with fallback; query getProfileInfos.",
+          "then": "Unknown without fallback is null; fallback returns first profile; infos omit hidden and place default first."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.mutate",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::addProfiles",
+        "dcpp::ShareProfileManager::removeProfiles",
+        "dcpp::ShareProfileManager::renameProfiles",
+        "dcpp::ShareProfileManager::addProfile",
+        "dcpp::ShareProfileManager::removeProfile",
+        "dcpp::ShareProfileManager::updateProfile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 176,
+          "end_line": 180
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 182,
+          "end_line": 186
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 188,
+          "end_line": 196
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 198,
+          "end_line": 207
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 213,
+          "end_line": 230
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 209,
+          "end_line": 211
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:42:CXXMethod:addProfiles(const ShareProfileInfo::List &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:43:CXXMethod:removeProfiles(const ShareProfileInfo::List &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:44:CXXMethod:renameProfiles(const ShareProfileInfo::List &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:46:CXXMethod:addProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:47:CXXMethod:updateProfile(const ShareProfilePtr &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:48:CXXMethod:removeProfile(ProfileToken)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Shared profile or profile-info list/token."
+        ],
+        "preconditions": [
+          "Initialized list ends with hidden profile; caller avoids invalid/default/hidden edits according to owning ShareManager validation."
+        ],
+        "defaults": [],
+        "effects": [
+          "Batch operations loop. add inserts before final hidden profile, emits Added after write lock. rename finds token, changes plain name then emits major Updated. remove calls onRemoveProfile before write-locked erase then Removed; missing token returns false. update emits major Updated."
+        ],
+        "events": [
+          "ProfileAdded(token), ProfileUpdated(token,true), ProfileRemoved(token)."
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Manager stores shared_ptr; onRemoveProfile is owned callback moved into manager at construction."
+      ],
+      "threading_evidence": [
+        "Mutation lock covers vector edit; removal initial unsafe lookup/callback is outside write lock and needs coordinated access."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Initialized default/hidden list and a new visible profile token43.",
+          "when": "Call addProfile, renameProfiles, then removeProfile(43) and removeProfile(43) again.",
+          "then": "Added and major Updated occur; first removal invokes root-cleanup callback then Removed/true; second returns false without Removed."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "share-profiles.default-and-dirty",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::setDefaultProfile",
+        "dcpp::ShareProfileManager::setProfilesDirty"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 159,
+          "end_line": 174
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 232,
+          "end_line": 246
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:59:CXXMethod:setDefaultProfile(ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:62:CXXMethod:setProfilesDirty(const ProfileTokenSet &, bool)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Existing new-default token; token set and major flag."
+        ],
+        "preconditions": [
+          "Default token exists; caller has validated admissible visible profile."
+        ],
+        "defaults": [],
+        "effects": [
+          "Default change rotates selected profile to first, sets DEFAULT_SP, emits DefaultChanged(old,new), Updated(new,true), Updated(old,true). Dirty updates existing profiles, then emits Updated for every requested token including absent ones."
+        ],
+        "events": [
+          "DefaultProfileChanged then new and old ProfileUpdated; dirty updates emit ProfileUpdated outside profile lock."
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "DEFAULT_SP changes in SettingsManager."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Vector rotation write lock; dirty mutation uses read lock on vector but changes pointed-to profile."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Visible tokens42/43 with current default42.",
+          "when": "Call setDefaultProfile(43), then setProfilesDirty({43,unknown},true).",
+          "then": "DefaultChanged(42,43), Updated(43,true), Updated(42,true) occur in order; dirty operation emits Updated even for unknown token."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "share-profiles.list-roots",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::getListTTH"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 78,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:40:CXXMethod:getListTTH(const string &, ProfileToken)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Virtual list name and profile token."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "bz2 list name returns bzXmlRoot; extracted list name returns xmlRoot; unknown profile/list name raises ShareException FILE_NOT_AVAILABLE."
+        ],
+        "events": [],
+        "errors": [
+          "ShareException(UserConnection::FILE_NOT_AVAILABLE)."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Read lock on profiles; returned TTH copied value."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Known profile with compressed/extracted list roots.",
+          "when": "Call getListTTH for each supported list name, then an unknown name/profile.",
+          "then": "Corresponding root is returned; unsupported name/profile raises FILE_NOT_AVAILABLE."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.serialize",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::saveProfile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 151,
+          "end_line": 157
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:69:CXXMethod:saveProfile(const ShareProfilePtr &, SimpleXML &)"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Shared profile and mutable XML builder."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Default profile writes legacy Share tag; other profiles write ShareProfile; both include Token and plain Name."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [
+          "Caller owns XML/file persistence; saveProfile itself only mutates XML builder."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Default token42 and nondefault token43, each with a plain name.",
+          "when": "Call saveProfile for both into XML builders.",
+          "then": "Default uses Share tag, other uses ShareProfile; both preserve Token/Name."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.cache-teardown",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::shutdown",
+        "dcpp::ShareProfileManager::removeCachedFilelists"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 48,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 52,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:35:CXXMethod:shutdown(const ProgressFunction &)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:66:CXXMethod:removeCachedFilelists()"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Progress callback accepted but unused by shutdown."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Finds config files matching files?*.xml.bz2; resets each bzXmlRef then deletes matched lists; catches all exceptions; shutdown calls this cleanup."
+        ],
+        "events": [],
+        "errors": [
+          "All exceptions swallowed by removeCachedFilelists."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "User config cached filelist directory."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Read lock spans reset and file deletion."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Config directory with matching cached files and profile-owned bzXmlRef.",
+          "when": "Call shutdown/removeCachedFilelists.",
+          "then": "Refs reset before matched file deletion attempts; cleanup exceptions remain swallowed."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.model",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::ShareProfile",
+        "dcpp::ShareProfileInfo",
+        "dcpp::ShareProfile::hasCommonProfiles",
+        "dcpp::ShareProfile::getProfileNames",
+        "dcpp::ShareProfile::setDirty"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.h",
+          "start_line": 1,
+          "end_line": 135
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 77,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 67,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 83,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 90,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 69,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 110,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 114,
+          "end_line": 116
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 118,
+          "end_line": 120
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 122,
+          "end_line": 127
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfile.h:69:ClassDecl:ShareProfileInfo",
+        "decl:airdcpp/share/profiles/ShareProfile.h:92:ClassDecl:ShareProfile",
+        "decl:airdcpp/share/profiles/ShareProfile.h:94:CXXMethod:hasCommonProfiles(const ProfileTokenSet &, const ProfileTokenSet &)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:95:CXXMethod:getProfileNames(const ProfileTokenSet &, const ShareProfileList &)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:126:CXXMethod:setDirty(bool)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:78:CXCursor_Constructor:6bb498b2ebf4",
+        "decl:airdcpp/share/profiles/ShareProfile.h:109:CXCursor_Constructor:9f1d97cc9ea4"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Names/tokens; default token randInt(100), empty default name, info state NORMAL."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Profile owns embedded FileList; defaults contentInfoDirty=true,size/count0. isDefault compares settings DEFAULT_SP; hidden compares SP_HIDDEN. Display appends localized default label. Common-profile query is set intersection; names query skips unmatched tokens. Dirty sets contentInfoDirty and xmlDirty; major forces refresh."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "getProfileList returns borrowed pointer to embedded FileList; cache size/count explicitly stale until ShareManager refreshes them."
+      ],
+      "threading_evidence": [
+        "Model methods have no standalone synchronization; owning ShareManager coordinates."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Profiles with tokens42/43, default42 and hidden SP_HIDDEN; intersecting/disjoint token sets.",
+          "when": "Query common profiles, names, display labels, then setDirty(true).",
+          "then": "Intersection/name filtering/default/hidden distinctions match source; major dirty marks content and forced filelist refresh."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "share-profiles.filelist-cache",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::FileList::getFileName",
+        "dcpp::FileList::allowGenerateNew",
+        "dcpp::FileList::generationFinished",
+        "dcpp::FileList::saveList"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.h",
+          "start_line": 1,
+          "end_line": 135
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 31,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 33,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 37,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 47,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.cpp",
+          "start_line": 55,
+          "end_line": 65
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfile.h:55:CXXMethod:getFileName()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:57:CXXMethod:allowGenerateNew(bool)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:58:CXXMethod:generationFinished(bool)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:59:CXXMethod:saveList()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:40:ClassDecl:FileList",
+        "decl:airdcpp/share/profiles/ShareProfile.h:44:FieldDecl:xmlRoot",
+        "decl:airdcpp/share/profiles/ShareProfile.h:45:FieldDecl:bzXmlRoot",
+        "decl:airdcpp/share/profiles/ShareProfile.h:46:FieldDecl:profile",
+        "decl:airdcpp/share/profiles/ShareProfile.h:48:FieldDecl:xmlListLen",
+        "decl:airdcpp/share/profiles/ShareProfile.h:49:FieldDecl:bzXmlListLen",
+        "decl:airdcpp/share/profiles/ShareProfile.h:50:FieldDecl:lastXmlUpdate",
+        "decl:airdcpp/share/profiles/ShareProfile.h:51:FieldDecl:xmlDirty",
+        "decl:airdcpp/share/profiles/ShareProfile.h:52:FieldDecl:forceXmlRefresh",
+        "decl:airdcpp/share/profiles/ShareProfile.h:54:FieldDecl:bzXmlRef",
+        "decl:airdcpp/share/profiles/ShareProfile.h:60:FieldDecl:cs",
+        "decl:airdcpp/share/profiles/ShareProfile.h:61:CXXMethod:getCurrentNumber()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:63:FieldDecl:listN",
+        "decl:airdcpp/share/profiles/ShareProfile.h:67:TypeAliasDecl:ShareProfileInfoPtr",
+        "decl:airdcpp/share/profiles/ShareProfile.h:71:EnumDecl:State",
+        "decl:airdcpp/share/profiles/ShareProfile.h:72:EnumConstantDecl:STATE_NORMAL",
+        "decl:airdcpp/share/profiles/ShareProfile.h:73:EnumConstantDecl:STATE_ADDED",
+        "decl:airdcpp/share/profiles/ShareProfile.h:74:EnumConstantDecl:STATE_REMOVED",
+        "decl:airdcpp/share/profiles/ShareProfile.h:75:EnumConstantDecl:STATE_RENAMED",
+        "decl:airdcpp/share/profiles/ShareProfile.h:81:FieldDecl:name",
+        "decl:airdcpp/share/profiles/ShareProfile.h:82:FieldDecl:token",
+        "decl:airdcpp/share/profiles/ShareProfile.h:83:FieldDecl:isDefault",
+        "decl:airdcpp/share/profiles/ShareProfile.h:84:FieldDecl:state",
+        "decl:airdcpp/share/profiles/ShareProfile.h:86:TypeAliasDecl:List",
+        "decl:airdcpp/share/profiles/ShareProfile.h:87:CXXMethod:getDisplayName()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:90:FunctionDecl:operator==(const ShareProfileInfoPtr &, ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:97:StructDecl:Hash",
+        "decl:airdcpp/share/profiles/ShareProfile.h:98:CXXMethod:operator()(const ShareProfilePtr &)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:101:FieldDecl:token",
+        "decl:airdcpp/share/profiles/ShareProfile.h:102:FieldDecl:plainName",
+        "decl:airdcpp/share/profiles/ShareProfile.h:103:FieldDecl:profileContentInfoDirty",
+        "decl:airdcpp/share/profiles/ShareProfile.h:106:FieldDecl:shareSize",
+        "decl:airdcpp/share/profiles/ShareProfile.h:107:FieldDecl:sharedFiles",
+        "decl:airdcpp/share/profiles/ShareProfile.h:112:CXXMethod:getProfileList()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:113:CXXMethod:isDefault()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:114:CXXMethod:isHidden()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:115:CXXMethod:getDisplayName()",
+        "decl:airdcpp/share/profiles/ShareProfile.h:117:TypeAliasDecl:Set",
+        "decl:airdcpp/share/profiles/ShareProfile.h:118:TypeAliasDecl:List",
+        "decl:airdcpp/share/profiles/ShareProfile.h:120:StructDecl:NotHidden",
+        "decl:airdcpp/share/profiles/ShareProfile.h:121:CXXMethod:operator()(const ShareProfilePtr &)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:128:FieldDecl:fileList",
+        "decl:airdcpp/share/profiles/ShareProfile.h:131:FunctionDecl:operator==(const ShareProfilePtr &, ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfile.h:44:macro:GETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:45:macro:GETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:46:macro:GETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:48:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:49:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:50:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:51:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:52:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:101:macro:GETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:102:macro:GETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:103:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:106:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:107:macro:IGETSET",
+        "decl:airdcpp/share/profiles/ShareProfile.h:42:CXCursor_Constructor:5d1e7a826796",
+        "decl:airdcpp/share/profiles/ShareProfile.h:79:CXCursor_Destructor:74fb01338b7e",
+        "decl:airdcpp/share/profiles/ShareProfile.h:110:CXCursor_Destructor:53956611542d"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Profile token; force=false; failed flag."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "aForce=false; guard15*60*1000 ticks."
+        ],
+        "effects": [
+          "Cache filename config/files_token_generation.xml.bz2. Defaults lengths/tick0, dirty/forced=true,generation0. Generation admitted when forced-and-dirty, forcedRefresh, or dirty and15minutes elapsed; increments generation. Finish clears dirty/force and updates tick, decrements generation on failure. save opens file/read ref, stores size and removes other cached generations. This is internal cache machinery supporting public profile/filelist capability."
+        ],
+        "events": [],
+        "errors": [
+          "File operations in saveList can throw; admission methods noexcept."
+        ],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": [
+          "Config directory cache files."
+        ]
+      },
+      "ownership_evidence": [
+        "FileList owns cached File ref and has CriticalSection; helpers do not automatically lock it."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:40:ClassDecl:FileList",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:44:FieldDecl:xmlRoot",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:45:FieldDecl:bzXmlRoot",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:46:FieldDecl:profile",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:48:FieldDecl:xmlListLen",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:49:FieldDecl:bzXmlListLen",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:50:FieldDecl:lastXmlUpdate",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:51:FieldDecl:xmlDirty",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:52:FieldDecl:forceXmlRefresh",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:54:FieldDecl:bzXmlRef",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:60:FieldDecl:cs",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:61:CXXMethod:getCurrentNumber()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:63:FieldDecl:listN",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:67:TypeAliasDecl:ShareProfileInfoPtr",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:71:EnumDecl:State",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:72:EnumConstantDecl:STATE_NORMAL",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:73:EnumConstantDecl:STATE_ADDED",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:74:EnumConstantDecl:STATE_REMOVED",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:75:EnumConstantDecl:STATE_RENAMED",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:81:FieldDecl:name",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:82:FieldDecl:token",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:83:FieldDecl:isDefault",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:84:FieldDecl:state",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:86:TypeAliasDecl:List",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:87:CXXMethod:getDisplayName()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:90:FunctionDecl:operator==(const ShareProfileInfoPtr &, ProfileToken)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:97:StructDecl:Hash",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:98:CXXMethod:operator()(const ShareProfilePtr &)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:101:FieldDecl:token",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:102:FieldDecl:plainName",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:103:FieldDecl:profileContentInfoDirty",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:106:FieldDecl:shareSize",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:107:FieldDecl:sharedFiles",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:112:CXXMethod:getProfileList()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:113:CXXMethod:isDefault()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:114:CXXMethod:isHidden()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:115:CXXMethod:getDisplayName()",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:117:TypeAliasDecl:Set",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:118:TypeAliasDecl:List",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:120:StructDecl:NotHidden",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:121:CXXMethod:operator()(const ShareProfilePtr &)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:128:FieldDecl:fileList",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:131:FunctionDecl:operator==(const ShareProfilePtr &, ProfileToken)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:44:macro:GETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:45:macro:GETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:46:macro:GETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:48:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:49:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:50:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:51:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:52:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:101:macro:GETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:102:macro:GETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:103:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:106:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:107:macro:IGETSET",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:42:CXCursor_Constructor:5d1e7a826796",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:79:CXCursor_Destructor:74fb01338b7e",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfile.h:110:CXCursor_Destructor:53956611542d",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        }
+      ]
+    },
+    {
+      "id": "share-profiles.support",
+      "kind": "internal",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManager::log",
+        "dcpp::ShareProfileManager::getShareProfileUnsafe",
+        "dcpp::ShareProfileManager::getProfileFileListUnsafe"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.h",
+          "start_line": 1,
+          "end_line": 89
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfile.h",
+          "start_line": 1,
+          "end_line": 135
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManagerListener.h",
+          "start_line": 1,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 44,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 134,
+          "end_line": 137
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 68,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 38,
+          "end_line": 39
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:33:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:75:CXXMethod:getShareProfileUnsafe(ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:80:CXXMethod:getProfileFileListUnsafe(ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:31:ClassDecl:ShareProfileManager",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:71:TypeAliasDecl:ProfileCallback",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:77:FieldDecl:cs",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:82:FieldDecl:shareProfiles",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:84:FieldDecl:onRemoveProfile",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:26:ClassDecl:ShareProfileManagerListener",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/profiles/ShareProfileManagerListener.h:29:30)",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:36:CXXMethod:on(ProfileAdded, ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:37:CXXMethod:on(ProfileUpdated, ProfileToken, bool)",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:38:CXXMethod:on(ProfileRemoved, ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:39:CXXMethod:on(DefaultProfileChanged, ProfileToken, ProfileToken)",
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:28:CXCursor_Destructor:278e1039217f",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:72:CXCursor_Constructor:b6563e1438e2",
+        "decl:airdcpp/share/profiles/ShareProfileManager.h:73:CXCursor_Destructor:5aac5ded3cbb"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Log forwards SHARE diagnostics. Unsafe helpers intentionally omit mutex; filelist helper returns borrowed pointer or throws FILE_NOT_AVAILABLE. Shared pointer equality/hash/filter and metadata state enum support profile operations, not separate facade capabilities."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "onRemoveProfile callback moved into const manager member; manager vector stores shared profiles."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "structural_mapping_notes": [
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:31:ClassDecl:ShareProfileManager",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:71:TypeAliasDecl:ProfileCallback",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:77:FieldDecl:cs",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:82:FieldDecl:shareProfiles",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:84:FieldDecl:onRemoveProfile",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:26:ClassDecl:ShareProfileManagerListener",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:ClassTemplate:X<I>",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:EnumConstantDecl:TYPE",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/share/profiles/ShareProfileManagerListener.h:29:30)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:36:CXXMethod:on(ProfileAdded, ProfileToken)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:37:CXXMethod:on(ProfileUpdated, ProfileToken, bool)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:38:CXXMethod:on(ProfileRemoved, ProfileToken)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:39:CXXMethod:on(DefaultProfileChanged, ProfileToken, ProfileToken)",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:28:CXCursor_Destructor:278e1039217f",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:72:CXCursor_Constructor:b6563e1438e2",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        },
+        {
+          "declaration_id": "decl:airdcpp/share/profiles/ShareProfileManager.h:73:CXCursor_Destructor:5aac5ded3cbb",
+          "rationale": "Declaration is within the inspected operation/listener/value implementation anchors; supporting storage and aliases adapt through that contract."
+        }
+      ]
+    },
+    {
+      "id": "share-profiles.event.ProfileAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManagerListener::ProfileAdded"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 1,
+          "end_line": 270
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:31:TypedefDecl:ProfileAdded"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(ProfileAdded, ProfileToken) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Synchronous exact-signature callback after the operation-specific profile edits; see mutation/default/dirty sequence records."
+        ],
+        "events": [
+          "ProfileAdded"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Speaker holds listenerCS; emissions are outside vector write lock in inspected manager methods."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Initialized default/hidden profiles and new visible token43.",
+          "when": "Call addProfile for token43.",
+          "then": "Copied token/boolean values preserve this event and sequence without retaining Core listener storage."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "share-profiles.event.ProfileUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManagerListener::ProfileUpdated"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 1,
+          "end_line": 270
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:32:TypedefDecl:ProfileUpdated"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(ProfileUpdated, ProfileToken, bool /*aIsMajorChange*/) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Synchronous exact-signature callback after the operation-specific profile edits; see mutation/default/dirty sequence records."
+        ],
+        "events": [
+          "ProfileUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Speaker holds listenerCS; emissions are outside vector write lock in inspected manager methods."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Existing visible token43 and a listener.",
+          "when": "Call updateProfile for43.",
+          "then": "Copied token/boolean values preserve this event and sequence without retaining Core listener storage."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "share-profiles.event.ProfileRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManagerListener::ProfileRemoved"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 1,
+          "end_line": 270
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:33:TypedefDecl:ProfileRemoved"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(ProfileRemoved, ProfileToken) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Synchronous exact-signature callback after the operation-specific profile edits; see mutation/default/dirty sequence records."
+        ],
+        "events": [
+          "ProfileRemoved"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Speaker holds listenerCS; emissions are outside vector write lock in inspected manager methods."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Existing visible token43 and root-removal callback.",
+          "when": "Call removeProfile(43).",
+          "then": "Copied token/boolean values preserve this event and sequence without retaining Core listener storage."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "share-profiles.event.DefaultProfileChanged",
+      "kind": "event",
+      "upstream_symbols": [
+        "dcpp::ShareProfileManagerListener::DefaultProfileChanged"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/share/profiles/ShareProfileManager.cpp",
+          "start_line": 1,
+          "end_line": 270
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 43,
+          "end_line": 49
+        }
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/share/profiles/ShareProfileManagerListener.h:34:TypedefDecl:DefaultProfileChanged"
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Pinned source definitions and accepted macOS feature/build policy; individual runtime behavior has not been exercised."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "virtual void on(DefaultProfileChanged, ProfileToken /*aOldDefault*/, ProfileToken /*aNewDefault*/) noexcept {}"
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Synchronous exact-signature callback after the operation-specific profile edits; see mutation/default/dirty sequence records."
+        ],
+        "events": [
+          "DefaultProfileChanged"
+        ],
+        "errors": [],
+        "completion": "Synchronous return unless an HTTP completion callback is explicitly described below.",
+        "cancellation": "No cancellation entry point is provided by this inspected operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Speaker holds listenerCS; emissions are outside vector write lock in inspected manager methods."
+      ],
+      "proposed_bridge_requirement": "Preserve the source-established contract and reported errors; adapt values and lifetimes to Objective-C without exposing C++ storage.",
+      "acceptance_scenarios": [
+        {
+          "given": "Default42 and existing visible43.",
+          "when": "Call setDefaultProfile(43).",
+          "then": "Copied token/boolean values preserve this event and sequence without retaining Core listener storage."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "events.delivery-contract"
+      ]
+    }
+  ]
+}

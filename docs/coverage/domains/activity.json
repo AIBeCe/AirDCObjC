@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "domain_id": "activity",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "activity.away-state",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ActivityManager::updateActivity(uint64_t = GET_TICK()) noexcept",
+        "ActivityManager::isAway() const noexcept",
+        "ActivityManager::getAwayMode() const noexcept",
+        "ActivityManager::setAway(AwayMode)",
+        "ActivityManager::getAwayMessage(const string&, ParamMap&) const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 55,
+          "end_line": 64
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Activity tick, away mode and away-message parameters."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "AWAY_OFF and GET_TICK() initialize manager state. updateActivity defaults its time to GET_TICK()."
+        ],
+        "effects": [
+          "updateActivity ignores timestamps older than lastActivity; otherwise stores it and clears non-manual away. Second timer enters AWAY_IDLE only when AWAY_IDLE_TIME>0, current mode is OFF, and timeout has elapsed. setAway no-ops unchanged mode and refuses idle when timeout is disabled; manual transitions persist AWAY, non-OFF resets activity tick, then ClientManager myInfoUpdated and AwayModeChanged fire. getAwayMessage writes idleTI into caller params as formatted elapsed seconds before formatting the message."
+        ],
+        "events": [
+          "Settings LoadCompleted applies AWAY=true as AWAY_MANUAL; Timer Second evaluates idle timeout; AwayModeChanged carries new mode."
+        ],
+        "errors": [],
+        "completion": "Synchronous state update and parameter formatting; timer/settings transitions execute from their callbacks.",
+        "cancellation": "No cancellation API; destructor unregisters timer and settings listeners.",
+        "persistence": [
+          "AWAY is written only for manual-away entry or manual->off transitions; idle state is not saved."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose configured away mode and derived away state separately.",
+      "acceptance_scenarios": [
+        {
+          "given": "manual away is active",
+          "when": "a newer updateActivity timestamp arrives",
+          "then": "lastActivity changes but away remains manual; a stale timestamp changes nothing."
+        },
+        {
+          "given": "AWAY_IDLE_TIME is zero",
+          "when": "setAway requests AWAY_IDLE",
+          "then": "the request is ignored and no AwayModeChanged event fires."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "activity.manager-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "enum AwayMode : uint8_t {",
+        "AWAY_OFF,",
+        "AWAY_IDLE,",
+        "AWAY_MANUAL //highest value",
+        "class ActivityManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> AwayModeChanged;",
+        "virtual void on(AwayModeChanged, AwayMode) noexcept { }",
+        "class ActivityManager : public Speaker<ActivityManagerListener>, public Singleton<ActivityManager>, public TimerManagerListener, private SettingsManagerListener",
+        "void updateActivity(uint64_t aLastActivity = GET_TICK()) noexcept;",
+        "bool isAway() const noexcept;",
+        "AwayMode getAwayMode() const noexcept { return awayMode; }",
+        "void setAway(AwayMode aAway);",
+        "string getAwayMessage(const string& aAwayMsg, ParamMap& params) const noexcept;",
+        "void on(SettingsManagerListener::LoadCompleted, bool aFileLoaded) noexcept override;",
+        "void on(TimerManagerListener::Second, uint64_t aTick) noexcept override;",
+        "AwayMode awayMode = AWAY_OFF;",
+        "uint64_t lastActivity = GET_TICK();",
+        "\t\tvirtual ~ActivityManagerListener() { }",
+        "\t\tActivityManager();",
+        "\t\t~ActivityManager();"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 33,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 39,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 49,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/hub/activity/ActivityManager.cpp",
+          "start_line": 28,
+          "end_line": 95
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "AWAY_OFF and GET_TICK() initialize manager state. updateActivity defaults its time to GET_TICK()."
+        ],
+        "effects": [
+          "updateActivity ignores timestamps older than lastActivity; otherwise stores it and clears non-manual away. Second timer enters AWAY_IDLE only when AWAY_IDLE_TIME>0, current mode is OFF, and timeout has elapsed. setAway no-ops unchanged mode and refuses idle when timeout is disabled; manual transitions persist AWAY, non-OFF resets activity tick, then ClientManager myInfoUpdated and AwayModeChanged fire. getAwayMessage writes idleTI into caller params as formatted elapsed seconds before formatting the message."
+        ],
+        "events": [
+          "Settings LoadCompleted applies AWAY=true as AWAY_MANUAL; Timer Second evaluates idle timeout; AwayModeChanged carries new mode."
+        ],
+        "errors": [],
+        "completion": "Synchronous state update and parameter formatting; timer/settings transitions execute from their callbacks.",
+        "cancellation": "No cancellation API; destructor unregisters timer and settings listeners.",
+        "persistence": [
+          "AWAY is written only for manual-away entry or manual->off transitions; idle state is not saved."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "manual away is active",
+          "when": "a newer updateActivity timestamp arrives",
+          "then": "lastActivity changes but away remains manual; a stale timestamp changes nothing."
+        },
+        {
+          "given": "AWAY_IDLE_TIME is zero",
+          "when": "setAway requests AWAY_IDLE",
+          "then": "the request is ignored and no AwayModeChanged event fires."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hub/activity/ActivityManager.h:33:EnumDecl:AwayMode",
+        "decl:airdcpp/hub/activity/ActivityManager.h:34:EnumConstantDecl:AWAY_OFF",
+        "decl:airdcpp/hub/activity/ActivityManager.h:35:EnumConstantDecl:AWAY_IDLE",
+        "decl:airdcpp/hub/activity/ActivityManager.h:36:EnumConstantDecl:AWAY_MANUAL",
+        "decl:airdcpp/hub/activity/ActivityManager.h:39:ClassDecl:ActivityManagerListener",
+        "decl:airdcpp/hub/activity/ActivityManager.h:42:ClassTemplate:X<I>",
+        "decl:airdcpp/hub/activity/ActivityManager.h:42:EnumConstantDecl:TYPE",
+        "decl:airdcpp/hub/activity/ActivityManager.h:42:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hub/activity/ActivityManager.h:42:30)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:44:TypedefDecl:AwayModeChanged",
+        "decl:airdcpp/hub/activity/ActivityManager.h:46:CXXMethod:on(AwayModeChanged, AwayMode)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:49:ClassDecl:ActivityManager",
+        "decl:airdcpp/hub/activity/ActivityManager.h:55:CXXMethod:updateActivity(uint64_t)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:57:CXXMethod:isAway()",
+        "decl:airdcpp/hub/activity/ActivityManager.h:58:CXXMethod:getAwayMode()",
+        "decl:airdcpp/hub/activity/ActivityManager.h:59:CXXMethod:setAway(AwayMode)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:61:CXXMethod:getAwayMessage(const string &, ParamMap &)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:63:CXXMethod:on(SettingsManagerListener::LoadCompleted, bool)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:64:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/hub/activity/ActivityManager.h:66:FieldDecl:awayMode",
+        "decl:airdcpp/hub/activity/ActivityManager.h:67:FieldDecl:lastActivity",
+        "decl:airdcpp/hub/activity/ActivityManager.h:41:CXCursor_Destructor:132a7f905fd9",
+        "decl:airdcpp/hub/activity/ActivityManager.h:52:CXCursor_Constructor:d9d3f92f59db",
+        "decl:airdcpp/hub/activity/ActivityManager.h:53:CXCursor_Destructor:2e79a171d468"
+      ]
+    }
+  ]
+}

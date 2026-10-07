@@ -1,0 +1,1046 @@
+{
+  "schema_version": 1,
+  "domain_id": "viewed-files",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "viewed-files.event.fileAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "ViewFileManagerListener::on(FileAdded, const ViewFilePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const ViewFilePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "FileAdded"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const ViewFilePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for FileAdded",
+          "when": "the owning Core manager emits FileAdded",
+          "then": "the callback receives the payload defined by `ViewFileManagerListener::on(FileAdded, const ViewFilePtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "viewed-files.event.fileClosed",
+      "kind": "event",
+      "upstream_symbols": [
+        "ViewFileManagerListener::on(FileClosed, const ViewFilePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const ViewFilePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "FileClosed"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const ViewFilePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for FileClosed",
+          "when": "the owning Core manager emits FileClosed",
+          "then": "the callback receives the payload defined by `ViewFileManagerListener::on(FileClosed, const ViewFilePtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "viewed-files.event.fileFinished",
+      "kind": "event",
+      "upstream_symbols": [
+        "ViewFileManagerListener::on(FileFinished, const ViewFilePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const ViewFilePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "FileFinished"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const ViewFilePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for FileFinished",
+          "when": "the owning Core manager emits FileFinished",
+          "then": "the callback receives the payload defined by `ViewFileManagerListener::on(FileFinished, const ViewFilePtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "viewed-files.event.fileRead",
+      "kind": "event",
+      "upstream_symbols": [
+        "ViewFileManagerListener::on(FileRead, const ViewFilePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const ViewFilePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "FileRead"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const ViewFilePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for FileRead",
+          "when": "the owning Core manager emits FileRead",
+          "then": "the callback receives the payload defined by `ViewFileManagerListener::on(FileRead, const ViewFilePtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "viewed-files.event.fileStateUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "ViewFileManagerListener::on(FileStateUpdated, const ViewFilePtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const ViewFilePtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "FileStateUpdated"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const ViewFilePtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for FileStateUpdated",
+          "when": "the owning Core manager emits FileStateUpdated",
+          "then": "the callback receives the payload defined by `ViewFileManagerListener::on(FileStateUpdated, const ViewFilePtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "viewed-files.listener-events",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ViewFileManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> FileAdded;",
+        "typedef X<1> FileStateUpdated;",
+        "typedef X<2> FileClosed;",
+        "typedef X<3> FileFinished;",
+        "typedef X<4> FileRead;",
+        "virtual void on(FileAdded, const ViewFilePtr&) noexcept { }",
+        "virtual void on(FileStateUpdated, const ViewFilePtr&) noexcept { }",
+        "virtual void on(FileClosed, const ViewFilePtr&) noexcept { }",
+        "virtual void on(FileFinished, const ViewFilePtr&) noexcept { }",
+        "virtual void on(FileRead, const ViewFilePtr&) noexcept { }",
+        "\t\tvirtual ~ViewFileManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 26,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.cpp",
+          "start_line": 68,
+          "end_line": 219
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FileAdded, FileStateUpdated, FileClosed, FileFinished, and FileRead callbacks carry ViewFilePtr. Default callbacks are no-ops; manager emits only at the state transitions described in manager/model records."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "setRead changes a registered file from unread to read",
+          "when": "the transition succeeds",
+          "then": "FileRead carries the ViewFilePtr exactly once; setting it again emits no duplicate transition."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:26:ClassDecl:ViewFileManagerListener",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/viewed_files/ViewFileManagerListener.h:29:30)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:31:TypedefDecl:FileAdded",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:32:TypedefDecl:FileStateUpdated",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:33:TypedefDecl:FileClosed",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:34:TypedefDecl:FileFinished",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:35:TypedefDecl:FileRead",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:37:CXXMethod:on(FileAdded, const ViewFilePtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:38:CXXMethod:on(FileStateUpdated, const ViewFilePtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:39:CXXMethod:on(FileClosed, const ViewFilePtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:40:CXXMethod:on(FileFinished, const ViewFilePtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:41:CXXMethod:on(FileRead, const ViewFilePtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManagerListener.h:28:CXCursor_Destructor:165c0c4b6558"
+      ]
+    },
+    {
+      "id": "viewed-files.manage",
+      "kind": "operation",
+      "upstream_symbols": [
+        "ViewFileManager::getFiles() const noexcept",
+        "ViewFileManager::addUserFileHookedNotify(const ViewedFileAddData&) noexcept",
+        "ViewFileManager::addUserFileHookedThrow(const ViewedFileAddData&)",
+        "ViewFileManager::addLocalFileNotify(const TTHValue&, bool, const string&) noexcept",
+        "ViewFileManager::addLocalFileThrow(const TTHValue&, bool)",
+        "ViewFileManager::removeFile(const TTHValue&) noexcept",
+        "ViewFileManager::getFile(const TTHValue&) const noexcept",
+        "ViewFileManager::setRead(const TTHValue&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 45,
+          "end_line": 65
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Viewed file data or TTH value; local-file operations include text flag and path/name."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getFiles returns a locked copy; getFile returns pointer or null. setRead returns false if missing, otherwise true and fires FileRead only on transition. Throwing local add returns null for duplicate; missing share content throws FILE_NOT_FOUND; success registers and fires FileFinished. Throwing user add uses shared/temp-shared local content if possible, rejects self, returns null for duplicate, otherwise queues opened item and initializes progress. Notify wrappers catch Core Exception, log notification, return null; duplicates log and return null. removeFile erases before queue removal and FileClosed callback; missing TTH returns false."
+        ],
+        "events": [
+          "FileAdded, FileStateUpdated, FileClosed, FileFinished, FileRead event kinds at ViewFileManagerListener.h:31-35."
+        ],
+        "errors": [
+          "Throwing local add throws Core Exception FILE_NOT_FOUND for absent shared TTH. Throwing user add throws Core Exception NO_DOWNLOADS_FROM_SELF for self; QueueManager::addOpenedItemHooked may throw its declared queue/file failures. Notify wrappers catch Core Exception, log and return null."
+        ],
+        "completion": "Synchronous registration/removal; transfer progress and finish are updated by queue listener callbacks.",
+        "cancellation": "No direct cancellation API; removeFile requests QueueManager removal for the tracked path.",
+        "persistence": [
+          "No ViewFileManager persistence path is implemented in inspected source; view records are in-memory and tied to active manager lifetime."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Represent TTH as a value string and distinguish notify failure from documented exception behavior.",
+      "acceptance_scenarios": [
+        {
+          "given": "A viewed-file record exists",
+          "when": "setRead(TTH) succeeds",
+          "then": "the record becomes read and FileRead is emitted."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "viewed-files.manager-operations",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ViewFileManager final : public Singleton<ViewFileManager>, public Speaker<ViewFileManagerListener>, public QueueManagerListener {",
+        "using ViewFileMap = unordered_map<TTHValue, ViewFilePtr>;",
+        "using ViewFileList = vector<ViewFilePtr>;",
+        "ViewFileList getFiles() const noexcept;",
+        "ViewFilePtr addUserFileHookedNotify(const ViewedFileAddData& aFileInfo) noexcept;",
+        "ViewFilePtr addUserFileHookedThrow(const ViewedFileAddData& aFileInfo);",
+        "ViewFilePtr addLocalFileNotify(const TTHValue& aTTH, bool aIsText, const string& aFileName) noexcept;",
+        "ViewFilePtr addLocalFileThrow(const TTHValue& aTTH, bool aIsText);",
+        "bool removeFile(const TTHValue& aTTH) noexcept;",
+        "ViewFilePtr getFile(const TTHValue& aTTH) const noexcept;",
+        "bool setRead(const TTHValue& aTTH) noexcept;",
+        "static void log(const string& aMsg, LogMessage::Severity aSeverity) noexcept;",
+        "ViewFilePtr createFile(const string& aFileName, const string& aPath, const TTHValue& aTTH, bool aIsText, bool aIsLocalFile) noexcept;",
+        "static bool isViewedItem(const QueueItemPtr& aQI) noexcept;",
+        "void on(QueueManagerListener::ItemFinished, const QueueItemPtr& qi, const string& dir, const HintedUser& aUser, int64_t aSpeed) noexcept override;",
+        "void on(QueueManagerListener::ItemRemoved, const QueueItemPtr& qi, bool finished) noexcept override;",
+        "void on(QueueManagerListener::ItemTick, const QueueItemPtr& aQI) noexcept override;",
+        "void onFileStateUpdated(const TTHValue& aTTH) noexcept;",
+        "mutable SharedMutex cs;",
+        "ViewFileMap viewFiles;",
+        "\t\tViewFileManager() noexcept;",
+        "\t\t~ViewFileManager() noexcept;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 37,
+          "end_line": 81
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 78,
+          "end_line": 78
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 80,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.cpp",
+          "start_line": 29,
+          "end_line": 222
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManagerListener.h",
+          "start_line": 31,
+          "end_line": 46
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getFiles returns a shared-lock copy; getFile returns shared pointer or null. `setRead` returns false if missing; otherwise sets read and fires FileRead only on false->true, then true.",
+          "Local file add returns null if already viewed, otherwise resolves TTH through ShareManager and throws FILE_NOT_FOUND when absent; success registers then fires FileFinished. Hooked remote add uses shared/temp-shared local path when available; rejects self-download, duplicate returns null, otherwise queues opened item and initializes progress. Notify wrappers catch Core Exception, log notification and return null; duplicates log already-viewed.",
+          "Queue ItemTick updates viewed download progress; ItemFinished updates final queue state and fires FileFinished. Non-finished queue removal erases corresponding view; finished removal is retained. `removeFile` erases map first under write lock, removes queue target, then fires FileClosed, making removal terminal before reentrant callback. Queue listener is registered/unregistered in ctor/dtor. Listener events carry shared ViewFilePtr."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "an already-viewed TTH is added through a notify method",
+          "when": "the duplicate is detected",
+          "then": "the method logs a notification and returns null; a missing local shared TTH through the throwing method raises FILE_NOT_FOUND."
+        },
+        {
+          "given": "removeFile receives a registered TTH",
+          "when": "removal proceeds",
+          "then": "the map entry is erased before queue removal and FileClosed callback; a second removal returns false."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/viewed_files/ViewFileManager.h:37:ClassDecl:ViewFileManager",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:39:TypeAliasDecl:ViewFileMap",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:40:TypeAliasDecl:ViewFileList",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:45:CXXMethod:getFiles()",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:49:CXXMethod:addUserFileHookedNotify(const ViewedFileAddData &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:54:CXXMethod:addUserFileHookedThrow(const ViewedFileAddData &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:57:CXXMethod:addLocalFileNotify(const TTHValue &, bool, const string &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:58:CXXMethod:addLocalFileThrow(const TTHValue &, bool)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:60:CXXMethod:removeFile(const TTHValue &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:62:CXXMethod:getFile(const TTHValue &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:63:CXXMethod:setRead(const TTHValue &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:65:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:67:CXXMethod:createFile(const string &, const string &, const TTHValue &, bool, bool)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:68:CXXMethod:isViewedItem(const QueueItemPtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:70:CXXMethod:on(QueueManagerListener::ItemFinished, const QueueItemPtr &, const string &, const HintedUser &, int64_t)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:71:CXXMethod:on(QueueManagerListener::ItemRemoved, const QueueItemPtr &, bool)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:72:CXXMethod:on(QueueManagerListener::ItemTick, const QueueItemPtr &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:74:CXXMethod:onFileStateUpdated(const TTHValue &)",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:78:FieldDecl:cs",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:80:FieldDecl:viewFiles",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:42:CXCursor_Constructor:954f4a5248ce",
+        "decl:airdcpp/viewed_files/ViewFileManager.h:43:CXCursor_Destructor:8472036f5c95"
+      ]
+    },
+    {
+      "id": "viewed-files.model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ViewFile final : public TrackableDownloadItem {",
+        "using UpdateF = std::function<void (const TTHValue &)>;",
+        "const string& getPath() const noexcept {\n\t\t\treturn path;\n\t\t}",
+        "const string& getFileName() const noexcept {\n\t\t\treturn fileName;\n\t\t}",
+        "bool isText() const noexcept {\n\t\t\treturn text;\n\t\t}",
+        "bool isLocalFile() const noexcept {\n\t\t\treturn localFile;\n\t\t}",
+        "const TTHValue& getTTH() const noexcept {\n\t\t\treturn tth;\n\t\t}",
+        "time_t getTimeCreated() const noexcept {\n\t\t\treturn timeCreated;\n\t\t}",
+        "IGETSET(bool, read, Read, false);",
+        "void onStateChanged() noexcept override;",
+        "const string fileName;",
+        "const string path;",
+        "const UpdateF updateFunction;",
+        "const TTHValue tth;",
+        "const bool text;",
+        "const bool localFile;",
+        "const time_t timeCreated;",
+        "IGETSET(bool, read, Read, false);",
+        "\t\tViewFile(const string& aFileName, const string& aPath, const TTHValue& aTTH, bool aIsText, bool aIsLocalFile, UpdateF&& aUpdateFunction) noexcept;",
+        "\t\t~ViewFile() noexcept;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 29,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 36,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 40,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 44,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 48,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 52,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 56,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 62,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFile.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.cpp",
+          "start_line": 67,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/viewed_files/ViewFileManager.cpp",
+          "start_line": 89,
+          "end_line": 96
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "ViewFile stores immutable name/path/TTH/text/local flags, creation time, and update callback; `read` is generated with default false. TrackableDownloadItem base owns progress/state behavior. `onStateChanged` calls the supplied callback with TTH; manager looks it up and fires FileStateUpdated only while the file remains registered."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "a ViewFile is constructed with no later read update",
+          "when": "getRead is queried",
+          "then": "it is false; a false-to-true transition invokes the manager callback with its TTH."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/viewed_files/ViewFile.h:29:ClassDecl:ViewFile",
+        "decl:airdcpp/viewed_files/ViewFile.h:31:TypeAliasDecl:UpdateF",
+        "decl:airdcpp/viewed_files/ViewFile.h:36:CXXMethod:getPath()",
+        "decl:airdcpp/viewed_files/ViewFile.h:40:CXXMethod:getFileName()",
+        "decl:airdcpp/viewed_files/ViewFile.h:44:CXXMethod:isText()",
+        "decl:airdcpp/viewed_files/ViewFile.h:48:CXXMethod:isLocalFile()",
+        "decl:airdcpp/viewed_files/ViewFile.h:52:CXXMethod:getTTH()",
+        "decl:airdcpp/viewed_files/ViewFile.h:56:CXXMethod:getTimeCreated()",
+        "decl:airdcpp/viewed_files/ViewFile.h:60:FieldDecl:read",
+        "decl:airdcpp/viewed_files/ViewFile.h:62:CXXMethod:onStateChanged()",
+        "decl:airdcpp/viewed_files/ViewFile.h:64:FieldDecl:fileName",
+        "decl:airdcpp/viewed_files/ViewFile.h:65:FieldDecl:path",
+        "decl:airdcpp/viewed_files/ViewFile.h:66:FieldDecl:updateFunction",
+        "decl:airdcpp/viewed_files/ViewFile.h:67:FieldDecl:tth",
+        "decl:airdcpp/viewed_files/ViewFile.h:68:FieldDecl:text",
+        "decl:airdcpp/viewed_files/ViewFile.h:69:FieldDecl:localFile",
+        "decl:airdcpp/viewed_files/ViewFile.h:70:FieldDecl:timeCreated",
+        "decl:airdcpp/viewed_files/ViewFile.h:60:macro:IGETSET",
+        "decl:airdcpp/viewed_files/ViewFile.h:33:CXCursor_Constructor:f45297ebb29b",
+        "decl:airdcpp/viewed_files/ViewFile.h:34:CXCursor_Destructor:b25df3de2694"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1936 @@
+{
+  "schema_version": 1,
+  "domain_id": "download",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "download.connection-selection",
+      "kind": "operation",
+      "upstream_symbols": [
+        "DownloadManager::checkIdle(const UserPtr&, bool, bool)",
+        "DownloadManager::checkIdle(const string&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 50,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 146,
+          "end_line": 183
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User identity plus small-slot class, optional revive toggle; or connection token."
+        ],
+        "preconditions": [
+          "Connection must currently be in idlers for a match."
+        ],
+        "defaults": [
+          "aRevive defaults true."
+        ],
+        "effects": [
+          "User form skips MCN connections whose small-slot flag differs; when revive requested, schedules asynchronous revival. Token form schedules asynchronous revival on exact token. Returns true on first match, false otherwise."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous lookup; optional revival is queued asynchronously and re-runs queue selection.",
+        "cancellation": "No caller cancellation token; a queued revival can become a no-op if the connection is no longer in idlers.",
+        "persistence": [],
+        "resources": [
+          "DownloadManager idler list guarded by shared mutex; UserConnection async dispatcher."
+        ]
+      },
+      "ownership_evidence": [
+        "Idler vector stores shared UserConnectionPtr entries; revival erases the pointer before running queue selection (DownloadManager.cpp:175-184)."
+      ],
+      "threading_evidence": [
+        "Lookup holds shared lock; revive is dispatched via UserConnection::callAsync and rechecks membership under exclusive lock."
+      ],
+      "proposed_bridge_requirement": "Preserve the two distinct idler lookup keys and asynchronous revival semantics.",
+      "acceptance_scenarios": [
+        "Given an idling connection for a user and matching slot class, when checking with revive enabled, then it returns true and schedules queue selection.",
+        "Given no matching connection token, when checking idle by token, then it returns false and changes no connection state."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:50:CXXMethod:checkIdle(const UserPtr &, bool, bool)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:51:CXXMethod:checkIdle(const string &)"
+      ]
+    },
+    {
+      "id": "download.abort-or-disconnect",
+      "kind": "operation",
+      "upstream_symbols": [
+        "DownloadManager::abortDownload(const string&, const UserPtr&)",
+        "DownloadManager::disconnectBundle(const BundlePtr&, const UserPtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 54,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 577,
+          "end_line": 601
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Abort: target path and optional user filter. Bundle disconnect: bundle and optional user filter."
+        ],
+        "preconditions": [
+          "Bundle pointer must be non-null for bundle disconnect; target is compared exactly to active Download path. User filter is optional."
+        ],
+        "defaults": [
+          "User defaults to null (all users)."
+        ],
+        "effects": [
+          "For each matching active download, requests graceless disconnect of its owning connection; it does not directly erase queue item or download state."
+        ],
+        "events": [],
+        "errors": [
+          "No result indicates whether a matching transfer existed; aborting an active target can match multiple connections/segments."
+        ],
+        "completion": "Returns after issuing disconnect requests; transfer teardown/failure callback is asynchronous.",
+        "cancellation": "These are cancellation requests; later connection callbacks perform DownloadManager cleanup and queue retry handling.",
+        "persistence": [
+          "Queue requeue/persistence behavior is handled by QueueManager callbacks, not directly here."
+        ],
+        "resources": [
+          "Active Download objects and owning UserConnections; shared mutex held while enumerating."
+        ]
+      },
+      "ownership_evidence": [
+        "DownloadManager owns active list membership; it does not destroy Download directly in these methods (DownloadManager.cpp:577-601)."
+      ],
+      "threading_evidence": [
+        "Both methods enumerate while holding shared cs; connection disconnect is initiated under that lock; callbacks later perform cleanup."
+      ],
+      "proposed_bridge_requirement": "Expose cancellation as a request with eventual completion reported through transfer events; do not claim synchronous removal.",
+      "acceptance_scenarios": [
+        "Given two active segments for the target owned by different users, when aborting with one user filter, then only that user\u2019s matching connections receive a graceless disconnect request.",
+        "Given a bundle with active downloads, when disconnecting it without a user filter, then each active bundle download connection is asked to disconnect."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:54:CXXMethod:abortDownload(const string &, const UserPtr &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:55:CXXMethod:disconnectBundle(const BundlePtr &, const UserPtr &)"
+      ]
+    },
+    {
+      "id": "download.connection-counts",
+      "kind": "capability",
+      "upstream_symbols": [
+        "DownloadManager::getRunningAverage()",
+        "DownloadManager::getTotalDownloadConnectionCount()",
+        "DownloadManager::getFileDownloadConnectionCount()",
+        "DownloadManager::getBundleDownloadConnectionCount(const BundlePtr&)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 58,
+          "end_line": 62
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 487,
+          "end_line": 510
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Optional bundle for per-bundle count."
+        ],
+        "preconditions": [
+          "Bundle pointer must be non-null for per-bundle count; implementation dereferences it."
+        ],
+        "defaults": [],
+        "effects": [
+          "Running average sums each active Download average speed. Total count is active downloads vector length; file count excludes connections flagged small-slot; bundle count uses Bundle::getDownloads().size()."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous snapshot under shared lock.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Active Download list; per-bundle Download list."
+        ]
+      },
+      "ownership_evidence": [
+        "The manager holds a shared lock for list-based values; the per-bundle count asks Bundle for its download-list size (DownloadManager.cpp:487-510)."
+      ],
+      "threading_evidence": [
+        "Read methods acquire shared cs; bundle count is performed while the manager lock is held."
+      ],
+      "proposed_bridge_requirement": "Return value snapshots and state units without exposing Core containers.",
+      "acceptance_scenarios": [
+        "Given active downloads with different average speeds, when reading running average, then it is their arithmetic sum in bytes per second.",
+        "Given a small-slot connection and a normal-slot connection, when reading file download connection count, then only the normal-slot one is counted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:58:CXXMethod:getRunningAverage()",
+        "decl:airdcpp/transfer/download/DownloadManager.h:60:CXXMethod:getTotalDownloadConnectionCount()",
+        "decl:airdcpp/transfer/download/DownloadManager.h:61:CXXMethod:getFileDownloadConnectionCount()",
+        "decl:airdcpp/transfer/download/DownloadManager.h:62:CXXMethod:getBundleDownloadConnectionCount(const BundlePtr &)"
+      ]
+    },
+    {
+      "id": "download.running-bundles",
+      "kind": "operation",
+      "upstream_symbols": [
+        "DownloadManager::getRunningBundles(bool)",
+        "DownloadManager::getRunningBundleCount()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 65,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 202,
+          "end_line": 229
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Optional flag controlling highest-priority exclusion."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "aIgnoreHighestPrio defaults true."
+        ],
+        "effects": [
+          "Returns unique tokens for bundles referenced by active downloads; default excludes highest-priority bundles and individual highest-priority downloads. Count delegates with exclusion disabled, so it includes all running bundles."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous; returns token set/count snapshot.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Active Download list and Bundle metadata."
+        ]
+      },
+      "ownership_evidence": [
+        "Runs over downloads under shared lock and returns copied QueueTokenSet (DownloadManager.cpp:202-229)."
+      ],
+      "threading_evidence": [
+        "Shared cs protects the manager download vector during enumeration."
+      ],
+      "proposed_bridge_requirement": "Preserve the intentional difference: default token listing excludes highest-priority work while count includes it.",
+      "acceptance_scenarios": [
+        "Given running downloads in ordinary and highest priority bundles, when getting running bundles with default settings, then only ordinary bundle tokens appear.",
+        "Given the same downloads, when getting running bundle count, then all represented bundle tokens are counted."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:66:CXXMethod:getRunningBundles(bool)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:67:CXXMethod:getRunningBundleCount()"
+      ]
+    },
+    {
+      "id": "download.raw-list-access",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManager::getDownloads()",
+        "DownloadManager::getCS()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 68,
+          "end_line": 71
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Inline API returns a const reference to internal DownloadList and separately exposes the mutex. It is not a safe value snapshot; the class documentation directs UI consumers to listener notifications."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Reference is returned synchronously; lifetime and synchronization are caller-coupled.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Manager-owned vector and SharedMutex."
+        ]
+      },
+      "ownership_evidence": [
+        "DownloadManager owns downloads and cs (DownloadManager.h:78-79)."
+      ],
+      "threading_evidence": [
+        "Inline getter does not lock; callers must coordinate using getCS, but source comment says listener interface is intended for UI (DownloadManager.h:42-43,68-71)."
+      ],
+      "proposed_bridge_requirement": "Do not expose raw container or mutex; provide value snapshots and listener-driven updates.",
+      "acceptance_scenarios": [
+        "Given concurrent transfer changes, when adapting the manager\u2019s download list for clients, then bridge-owned snapshots are copied under synchronization rather than returning the vector reference."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:69:CXXMethod:getCS()",
+        "decl:airdcpp/transfer/download/DownloadManager.h:70:CXXMethod:getDownloads()"
+      ]
+    },
+    {
+      "id": "download.tick-and-rate-accounting",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Tick",
+        "DownloadManagerListener::BundleTick"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 86,
+          "end_line": 144
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 42,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 69,
+          "end_line": 77
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Timer tick timestamp in milliseconds."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Each second ticks active downloads with position >0; sums per-user rates and updates user speeds. Updates upload/download rates from Socket counters and increments TOTAL_UPLOAD/TOTAL_DOWNLOAD settings by counter deltas. Fires Tick only if its list of active positioned downloads is nonempty; BundleTick only for bundles whose onDownloadTick reports an update. Slow autodrop candidates are handed to QueueManager after releasing cs."
+        ],
+        "events": [
+          "Tick(DownloadList, tickMillis)",
+          "BundleTick(BundleList, tickMillis)"
+        ],
+        "errors": [],
+        "completion": "Runs from TimerManagerListener::Second callback.",
+        "cancellation": "No event cancellation; listener removal is handled by Speaker subscription lifecycle.",
+        "persistence": [
+          "Writes TOTAL_UPLOAD and TOTAL_DOWNLOAD through SettingsManager each tick."
+        ],
+        "resources": [
+          "Socket global byte counters; settings store; Download/Bundle; QueueManager slow source-drop path."
+        ]
+      },
+      "ownership_evidence": [
+        "Tick lists are local copies of pointer collections; manager retains download ownership; BundleList may contain duplicate bundle references if multiple downloads for one bundle tick (DownloadManager.cpp:91-111)."
+      ],
+      "threading_evidence": [
+        "Timer callback holds shared cs while updating downloads/settings and firing Speaker events; user speed updates and QueueManager slow-disconnect handling occur after lock release (DownloadManager.cpp:86-144)."
+      ],
+      "proposed_bridge_requirement": "Copy transient lists into stable event snapshots and retain 1-second conditional delivery and accounting effects.",
+      "acceptance_scenarios": [
+        "Given no active download has positive position, when a timer second runs, then no download Tick event fires.",
+        "Given a bundle reports a download tick update, when the timer second runs, then BundleTick includes that bundle and the same tick timestamp."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:69:CXXMethod:on(Tick, const DownloadList &, uint64_t)",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:77:CXXMethod:on(BundleTick, const BundleList &, uint64_t)"
+      ]
+    },
+    {
+      "id": "download.event.requesting",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Requesting"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 316,
+          "end_line": 316
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "First event before download starts; hubChanged true when alternate online ADC hub hint changed. Download pointer is transient.",
+          "Selected Download is appended to manager list and optional bundle list before callback; command is sent after callback."
+        ],
+        "events": [
+          "Requesting(const Download*, bool hubChanged)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given a selected download requiring another connected ADC hub hint, when it is requested, then Requesting fires with hubChanged=true before SND send."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:48:TypedefDecl:Requesting",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:59:CXXMethod:on(Requesting, const Download *, bool)"
+      ]
+    },
+    {
+      "id": "download.event.starting",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Starting"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 390,
+          "end_line": 390
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Emitted after output opens, start time is set, tick initialized, and connection state becomes running.",
+          "Download pointer remains manager-owned through active transfer; event is synchronous."
+        ],
+        "events": [
+          "Starting(const Download*)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given the peer accepts the requested range and target opens, when data starts, then Starting fires after state becomes running."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:46:TypedefDecl:Starting",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:64:CXXMethod:on(Starting, const Download *)"
+      ]
+    },
+    {
+      "id": "download.event.complete",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Complete"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 75,
+          "end_line": 75
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 473,
+          "end_line": 473
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Last message before Download is removed from active list; isTree is true only for TYPE_TREE.",
+          "Event precedes removeDownload and QueueManager putDownloadHooked success path."
+        ],
+        "events": [
+          "Complete(const Download*, bool isTree)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given a transfer reaches its requested segment end and a tree validates, when endData runs, then Complete fires once before active-list removal."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:44:TypedefDecl:Complete",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:75:CXXMethod:on(Complete, const Download *, bool)"
+      ]
+    },
+    {
+      "id": "download.event.failed",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Failed"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 86,
+          "end_line": 86
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 540,
+          "end_line": 540
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Failure event is emitted for a transfer before active-list removal and queue retry/reinsert. Failure paths include connection error, malformed size, target/open/write error, and peer unavailable; reason is localized string or Core error.",
+          "Not all failures have a Download: when no current Download, Remove fires instead."
+        ],
+        "events": [
+          "Failed(const Download*, const string& reason)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given a peer reports unavailable for an active file, when failure is handled, then Failed includes the item and reason before it is returned to QueueManager."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:45:TypedefDecl:Failed",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:86:CXXMethod:on(Failed, const Download *, const string &)"
+      ]
+    },
+    {
+      "id": "download.event.idle",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Idle"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 281,
+          "end_line": 281
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Fires when queue selection cannot yield a Download and there is no already-idling connection for that user/slot. The reason is QueueManager lastError, possibly empty.",
+          "Connection is then marked idle and retained in idlers."
+        ],
+        "events": [
+          "Idle(const UserConnection*, const string& reason)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given no eligible queued item exists and no existing idler matches, when queue selection completes, then Idle fires before the connection is inserted into idlers."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:50:TypedefDecl:Idle",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:87:CXXMethod:on(Idle, const UserConnection *, const string &)"
+      ]
+    },
+    {
+      "id": "download.event.remove",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Remove"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 88,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 544,
+          "end_line": 544
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Fires in failDownload when a connection is removed without an assigned Download (DownloadManager.cpp:536-551).",
+          "Listener gets a transient connection pointer; subsequent cleanup unregisters this listener and disconnects the connection."
+        ],
+        "events": [
+          "Remove(const UserConnection*)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given a connection fails before a Download is assigned, when failDownload handles it, then Remove fires before connection listener removal and disconnect."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:51:TypedefDecl:Remove",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:88:CXXMethod:on(Remove, const UserConnection *)"
+      ]
+    },
+    {
+      "id": "download.event.tick",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::Tick"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Fires at most once per timer callback only when at least one active Download had position >0.",
+          "Event list is a local vector of raw Download pointers; do not retain pointer past event."
+        ],
+        "events": [
+          "Tick(const DownloadList&, uint64_t)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given at least one active Download has downloaded bytes, when a second timer callback runs, then Tick includes it and the timer timestamp."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:47:TypedefDecl:Tick",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:69:CXXMethod:on(Tick, const DownloadList &, uint64_t)"
+      ]
+    },
+    {
+      "id": "download.event.bundle-tick",
+      "kind": "event",
+      "upstream_symbols": [
+        "DownloadManagerListener::BundleTick"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 135,
+          "end_line": 135
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Fires only when a bundle onDownloadTick indicates bundle-level progress update.",
+          "Local vector of BundlePtr values; may include repeated bundle references."
+        ],
+        "events": [
+          "BundleTick(const BundleList&, uint64_t)"
+        ],
+        "errors": [],
+        "completion": "Synchronous Speaker callback from DownloadManager work/timer path.",
+        "cancellation": "No per-event cancellation; listener subscription controls delivery.",
+        "persistence": [],
+        "resources": [
+          "Borrowed Core object/list payloads valid only under callback contract; copy data for bridge delivery."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener interface explicitly warns payloads are Download pointers and suggests Transfer values for UI (DownloadManagerListener.h:28-35)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire invokes registered callbacks synchronously; most transfer events are fired in the caller path, Tick/BundleTick under shared manager lock. (Speaker.h:43-47; inspect source-specific emitter.)"
+      ],
+      "proposed_bridge_requirement": "Preserve exact payloads, event order, and transient object lifetime; publish copied value events.",
+      "acceptance_scenarios": [
+        "Given bundle progress changes on a timer tick, when callbacks are delivered, then BundleTick contains the bundle and timestamp."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:53:TypedefDecl:BundleTick",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:77:CXXMethod:on(BundleTick, const BundleList &, uint64_t)"
+      ]
+    },
+    {
+      "id": "download.setting-use.disconnect-min-sources",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(DISCONNECT_MIN_SOURCES)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 63,
+          "end_line": 63
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Minimum running source count before slow-source evaluation for an autodrop bundle.",
+          "Setting participates only when bundle has autodrop, transfer has started, and source-count threshold is met."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read during each timer second when eligibility gates are true.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager runtime values."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep units and nested eligibility gates explicit; setting values/defaults are owned by settings domain.",
+      "acceptance_scenarios": [
+        "Given an autodrop bundle satisfying all earlier gates and speed below the configured threshold for longer than the configured interval, when a timer tick evaluates it, then QueueManager slow-disconnect handling is requested."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "download.setting-use.disconnect-filesize",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(DISCONNECT_FILESIZE)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 65,
+          "end_line": 65
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Minimum file size in MiB for slow-source disconnect evaluation.",
+          "Setting participates only when bundle has autodrop, transfer has started, and source-count threshold is met."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read during each timer second when eligibility gates are true.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager runtime values."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep units and nested eligibility gates explicit; setting values/defaults are owned by settings domain.",
+      "acceptance_scenarios": [
+        "Given an autodrop bundle satisfying all earlier gates and speed below the configured threshold for longer than the configured interval, when a timer tick evaluates it, then QueueManager slow-disconnect handling is requested."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "download.setting-use.disconnect-speed",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(DISCONNECT_SPEED)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 67,
+          "end_line": 67
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Threshold in KiB/s below which an autodrop source is slow.",
+          "Setting participates only when bundle has autodrop, transfer has started, and source-count threshold is met."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read during each timer second when eligibility gates are true.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager runtime values."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep units and nested eligibility gates explicit; setting values/defaults are owned by settings domain.",
+      "acceptance_scenarios": [
+        "Given an autodrop bundle satisfying all earlier gates and speed below the configured threshold for longer than the configured interval, when a timer tick evaluates it, then QueueManager slow-disconnect handling is requested."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "download.setting-use.disconnect-time",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(DISCONNECT_TIME)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 69,
+          "end_line": 69
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Duration in seconds below threshold before a source is considered slow.",
+          "Setting participates only when bundle has autodrop, transfer has started, and source-count threshold is met."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read during each timer second when eligibility gates are true.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager runtime values."
+        ]
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep units and nested eligibility gates explicit; setting values/defaults are owned by settings domain.",
+      "acceptance_scenarios": [
+        "Given an autodrop bundle satisfying all earlier gates and speed below the configured threshold for longer than the configured interval, when a timer tick evaluates it, then QueueManager slow-disconnect handling is requested."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "download.internal-protocol-lifecycle",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManager private UserConnectionListener, AdcCommand and timer handlers",
+        "DownloadManager private transfer cleanup/selection helpers"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 84,
+          "end_line": 126
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 146,
+          "end_line": 184
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 251,
+          "end_line": 319
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 320,
+          "end_line": 348
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 349,
+          "end_line": 403
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 404,
+          "end_line": 487
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 513,
+          "end_line": 574
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 603,
+          "end_line": 700
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Private callbacks implement incoming SND range negotiation, STA error parsing, data write/end/tree validation, failure and connection teardown, idle revival, selection, rate tick and slow-source checks. They are implementation routes for public behavior/events rather than independent client operations."
+        ],
+        "events": [],
+        "errors": [
+          "Bad-state or malformed protocol inputs disconnect; recoverable file-not-available/slot errors map into Failed/retry behavior; invalid ranges, output exceptions, and tree mismatch fail and requeue/remove source according to cause."
+        ],
+        "completion": "Connection protocol state machine drives completion or failure asynchronously.",
+        "cancellation": "Disconnect requests lead to callback-driven cleanup; there is no public cancellation handle.",
+        "persistence": [],
+        "resources": [
+          "UserConnection listener registration, QueueManager, ClientManager, Socket, local target output and hash tree."
+        ]
+      },
+      "ownership_evidence": [
+        "Private implementation helpers are private and manage active downloads/idlers and UserConnection listeners."
+      ],
+      "threading_evidence": [
+        "Data and protocol callbacks are noexcept entry points; they catch Core exceptions and convert them into failDownload; listener calls are synchronous."
+      ],
+      "proposed_bridge_requirement": "Do not surface protocol callback methods directly; translate their outcomes into DownloadManager operations and events.",
+      "acceptance_scenarios": [
+        "Given malformed SND range metadata, when the download state machine processes it, then it emits Failed and returns the Download to queue with retry rotation.",
+        "Given a received tree whose computed root differs from the expected TTH, when endData validates it, then Failed fires, the source is marked bad-tree, and the queue retries without accepting the tree."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:84:FieldDecl:idlers",
+        "decl:airdcpp/transfer/download/DownloadManager.h:86:CXXMethod:disconnect(UserConnectionPtr, bool)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:87:CXXMethod:removeConnection(UserConnectionPtr)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:88:CXXMethod:removeDownload(Download *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:89:CXXMethod:fileNotAvailable(UserConnection *, bool, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:90:CXXMethod:noSlots(UserConnection *, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:92:CXXMethod:failDownload(UserConnection *, const string &, bool)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:99:CXXMethod:checkDownloads(UserConnection *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:100:CXXMethod:disconnectSlowSpeed(Download *, uint64_t)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:101:CXXMethod:startData(UserConnection *, int64_t, int64_t, bool)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:103:CXXMethod:reviveThreaded(UserConnection *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:104:CXXMethod:endData(UserConnection *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:106:CXXMethod:onFailed(UserConnection *, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:109:CXXMethod:on(UserConnectionListener::Data, UserConnection *, const uint8_t *, size_t)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:110:CXXMethod:on(UserConnectionListener::Failed, UserConnection *, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:111:CXXMethod:on(UserConnectionListener::ProtocolError, UserConnection *, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:112:CXXMethod:on(UserConnectionListener::MaxedOut, UserConnection *, const string &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:113:CXXMethod:on(UserConnectionListener::FileNotAvailable, UserConnection *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:115:CXXMethod:on(AdcCommand::SND, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:116:CXXMethod:on(AdcCommand::STA, UserConnection *, const AdcCommand &)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:119:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:122:FieldDecl:lastUpdate",
+        "decl:airdcpp/transfer/download/DownloadManager.h:123:FieldDecl:lastUpBytes",
+        "decl:airdcpp/transfer/download/DownloadManager.h:124:FieldDecl:lastDownBytes",
+        "decl:airdcpp/transfer/download/DownloadManager.h:126:CXXMethod:updateConnectionHubUrl(UserConnection *, const string &)"
+      ]
+    },
+    {
+      "id": "download.listener-status-tag",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManagerListener::Status (X<5>)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 49,
+          "end_line": 49
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Status tag typedef exists, but DownloadManagerListener declares no on(Status, ...) overload and DownloadManager.cpp has no fire(Status, ...) call. This is an unused tag in this pin, not an event contract."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No callback can be delivered from this manager using this tag in inspected source.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Declaration appears as tag only (DownloadManagerListener.h:49); inspected manager implementation fires the other declared tags."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Keep the unused tag out of public event API unless runtime/source evidence establishes a producer.",
+      "acceptance_scenarios": [
+        "Given a listener registered with this manager, when any transfer path runs, then no Status callback is produced by this source revision."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:49:TypedefDecl:Status"
+      ]
+    },
+    {
+      "id": "download.internal-state-and-listener-scaffolding",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManager::DownloadList/idler storage and DownloadManagerListener tag scaffolding"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 42,
+          "end_line": 127
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManagerListener.h",
+          "start_line": 39,
+          "end_line": 88
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Manager class inheritance, synchronization/list fields, statistics accumulation fields, and listener tag/type declarations are accounted as structural scaffolding; externally observable consequences are represented by operation/event records above."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation; these declarations support manager-owned state and event typing.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "DownloadManager lifetime waits until active downloads empty in destructor (DownloadManager.cpp:41-54)."
+        ]
+      },
+      "ownership_evidence": [
+        "DownloadManager owns the active vector, idler vector and mutex; destructor blocks in 100 ms intervals until downloads empty (DownloadManager.cpp:41-54)."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Do not expose implementation state, listener tag numeric values, or singleton internals as independent client API.",
+      "acceptance_scenarios": [
+        "Given an audit of the public DownloadManager surface, when each structural declaration is classified, then only methods with externally meaningful effects are exposed and remaining state/type declarations stay internal."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:42:ClassDecl:DownloadManager",
+        "decl:airdcpp/transfer/download/DownloadManager.h:49:CXXMethod:addConnection(UserConnection *)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:78:FieldDecl:cs",
+        "decl:airdcpp/transfer/download/DownloadManager.h:79:FieldDecl:downloads",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:39:ClassDecl:DownloadManagerListener",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:42:ClassTemplate:X<I>",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:42:EnumConstantDecl:TYPE",
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:42:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/download/DownloadManagerListener.h:42:29)",
+        "decl:airdcpp/transfer/download/DownloadManager.h:74:FieldDecl:lastUpSpeed",
+        "decl:airdcpp/transfer/download/DownloadManager.h:75:FieldDecl:lastDownSpeed"
+      ]
+    },
+    {
+      "id": "download.internal-connection-admission",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManager::addConnection(UserConnection*)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 187,
+          "end_line": 200
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Connected UserConnection pointer."
+        ],
+        "preconditions": [
+          "Connection must have a user and negotiated protocol support flags."
+        ],
+        "defaults": [],
+        "effects": [
+          "Rejects peers lacking TTHF or ADCGET: marks user OLD_CLIENT, removes source flagged NO_TTHF from queue, and disconnects. Otherwise registers DownloadManager as connection listener then immediately runs queue selection."
+        ],
+        "events": [
+          "download.event.requesting",
+          "download.event.idle",
+          "download.event.remove",
+          "download.event.failed"
+        ],
+        "errors": [
+          "Unsupported protocol is not surfaced as a result; connection is disconnected after source removal."
+        ],
+        "completion": "Synchronous admission and queue selection; later protocol/data transitions are callback-driven.",
+        "cancellation": "No cancellation parameter.",
+        "persistence": [
+          "Queue source flag/state changes are delegated to QueueManager."
+        ],
+        "resources": [
+          "UserConnection listener registration; QueueManager source and download selection."
+        ]
+      },
+      "ownership_evidence": [
+        "Header marks addConnection @internal; on accepted connection the manager attaches itself as listener (DownloadManager.cpp:187-200)."
+      ],
+      "threading_evidence": [
+        "Runs on caller thread; calls checkDownloads synchronously."
+      ],
+      "proposed_bridge_requirement": "Keep this connection-admission hook internal to the bridge; do not expose raw UserConnection.",
+      "acceptance_scenarios": [
+        "Given a peer without TTHF or ADCGET support, when admitted to download handling, then it is marked OLD_CLIENT, removed as a NO_TTHF source, and disconnected.",
+        "Given a peer supporting TTHF and ADCGET, when admitted, then DownloadManager registers its listener and immediately performs queue selection."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:49:CXXMethod:addConnection(UserConnection *)"
+      ]
+    },
+    {
+      "id": "download.transfer-object",
+      "kind": "capability",
+      "upstream_symbols": [
+        "Download::getParams(const UserConnection&, ParamMap&)",
+        "Download::getTargetFileName()",
+        "Download::open(int64_t,bool,bool)",
+        "Download::close()",
+        "Download tree/PFS/output accessors",
+        "Download private segment/overlap/flag initialization helpers",
+        "Download Download(UserConnection &, QueueItem &) [void (UserConnection &, QueueItem &) noexcept] @ airdcpp/transfer/download/Download.h:61",
+        "getParams void (const UserConnection &, ParamMap &) const noexcept @ airdcpp/transfer/download/Download.h:63",
+        "~Download ~Download() [void () noexcept] @ airdcpp/transfer/download/Download.h:65",
+        "getTargetFileName string () const noexcept @ airdcpp/transfer/download/Download.h:68",
+        "open void (int64_t, bool, bool) @ airdcpp/transfer/download/Download.h:71",
+        "close void () @ airdcpp/transfer/download/Download.h:74",
+        "getTigerTree TigerTree &() @ airdcpp/transfer/download/Download.h:77",
+        "getTigerTree const TigerTree &() const noexcept @ airdcpp/transfer/download/Download.h:78",
+        "getPFS const string &() const @ airdcpp/transfer/download/Download.h:79",
+        "getCommand AdcCommand (bool, const string &) const noexcept @ airdcpp/transfer/download/Download.h:82",
+        "getOutput const unique_ptr<OutputStream> &() const @ airdcpp/transfer/download/Download.h:83",
+        "getBundleStringToken string () const noexcept @ airdcpp/transfer/download/Download.h:92",
+        "appendFlags void (OrderedStringSet &) const noexcept @ airdcpp/transfer/download/Download.h:94",
+        "flush void () const noexcept @ airdcpp/transfer/download/Download.h:95",
+        "disconnectOverlappedThrow void () @ airdcpp/transfer/download/Download.h:101",
+        "Download Download(const Download &) [void (const Download &)] @ airdcpp/transfer/download/Download.h:103",
+        "operator= Download &(const Download &) @ airdcpp/transfer/download/Download.h:104",
+        "getDownloadTarget const string &() const noexcept @ airdcpp/transfer/download/Download.h:106",
+        "initFlags void (const QueueItem &) noexcept @ airdcpp/transfer/download/Download.h:97",
+        "initOverlapped void (const QueueItem &) noexcept @ airdcpp/transfer/download/Download.h:98",
+        "initSegment void (QueueItem &) noexcept @ airdcpp/transfer/download/Download.h:99"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/Download.h",
+          "start_line": 31,
+          "end_line": 110
+        },
+        {
+          "path": "airdcpp/transfer/download/Download.cpp",
+          "start_line": 68,
+          "end_line": 111
+        },
+        {
+          "path": "airdcpp/transfer/download/Download.cpp",
+          "start_line": 73,
+          "end_line": 118
+        },
+        {
+          "path": "airdcpp/transfer/download/Download.cpp",
+          "start_line": 138,
+          "end_line": 220
+        },
+        {
+          "path": "airdcpp/transfer/download/Download.cpp",
+          "start_line": 252,
+          "end_line": 327
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Download is constructed from a UserConnection and QueueItem; open accepts byte limit, compression flag and whether prior bytes exist."
+        ],
+        "preconditions": [
+          "Connection must not already own another Download; file downloads have an assigned queue source/segment; resume target must have expected full TigerTree file size."
+        ],
+        "defaults": [
+          "lastTick initializes to GET_TICK(); treeValid=false; bundle=nullptr; temp/list paths are initialized from QueueItem. Download flags distinguish filelist, partial, chunked, TTH validation, overlap, queue and other request modes."
+        ],
+        "effects": [
+          "Construction links this Download into its UserConnection, derives transfer type/flags from QueueItem, attaches bundle where valid and initializes file segment/TTH/overlap state. getParams adds `target` (partial-list display label or transfer path); getTargetFileName returns basename; getDownloadTarget uses tempTarget when nonempty else path. open selects output stream by transfer type (shared file, full-list XML/XML.bz2, partial-list string buffer, or TigerTree stream), optionally wraps buffering, TTH check, byte limit and decompression, sets temp target and flags. close destroys/reset output stream. flush flushes output. appendFlags formats transfer flags."
+        ],
+        "events": [],
+        "errors": [
+          "When resuming a file, target size must equal full TigerTree size or open throws TARGET_FILE_MISSING. Overlapped completion may disconnect a slower overlapping connection; if none is found, open throws DOWNLOAD_FINISHED_IDLE. Filesystem and stream construction errors propagate from Core."
+        ],
+        "completion": "Synchronous construction, metadata and stream open/close operations; output writes are performed by transfer processing.",
+        "cancellation": "No Download-local cancellation API; DownloadManager abort/disconnect controls its connection.",
+        "persistence": [
+          "File bytes are written to tempTarget/resume target; final target management is handled by queue/transfer completion."
+        ],
+        "resources": [
+          "Download holds non-owning UserConnection relationship, QueueItem-derived transfer context, TigerTree/PFS, and unique_ptr-owned OutputStream."
+        ]
+      },
+      "ownership_evidence": [
+        "Download objects own their output stream but not their UserConnection/QueueItem; TrackableDownloadItem owns its path map and temporarily registers as listener."
+      ],
+      "threading_evidence": [
+        "DownloadManager owns transfer lifecycle; TrackableDownloadItem path map uses SharedMutex, while callbacks are delivered through DownloadManagerListener."
+      ],
+      "proposed_bridge_requirement": "Expose transfer and tracking state as copied values; do not surface Core pointers, streams, listener bases, or internal helper methods.",
+      "acceptance_scenarios": [
+        "Given a file download with a valid TTH tree and segment, when open is called with a byte limit and compression enabled, then writes pass through TTH validation, byte limiting and decompression wrappers.",
+        "Given a resume target whose size differs from the tree file size, when open is called with prior bytes, then it throws TARGET_FILE_MISSING before output begins.",
+        "Given a partial-list transfer, when getParams is requested, then target is the partial filelist label plus its list directory."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/Download.h:61:CXCursor_Constructor:aa0873be2962",
+        "decl:airdcpp/transfer/download/Download.h:63:CXXMethod:getParams(const UserConnection &, ParamMap &)",
+        "decl:airdcpp/transfer/download/Download.h:65:CXCursor_Destructor:6185b732c11b",
+        "decl:airdcpp/transfer/download/Download.h:68:CXXMethod:getTargetFileName()",
+        "decl:airdcpp/transfer/download/Download.h:71:CXXMethod:open(int64_t, bool, bool)",
+        "decl:airdcpp/transfer/download/Download.h:74:CXXMethod:close()",
+        "decl:airdcpp/transfer/download/Download.h:77:CXXMethod:getTigerTree()",
+        "decl:airdcpp/transfer/download/Download.h:78:CXXMethod:getTigerTree()",
+        "decl:airdcpp/transfer/download/Download.h:79:CXXMethod:getPFS()",
+        "decl:airdcpp/transfer/download/Download.h:82:CXXMethod:getCommand(bool, const string &)",
+        "decl:airdcpp/transfer/download/Download.h:83:CXXMethod:getOutput()",
+        "decl:airdcpp/transfer/download/Download.h:92:CXXMethod:getBundleStringToken()",
+        "decl:airdcpp/transfer/download/Download.h:94:CXXMethod:appendFlags(OrderedStringSet &)",
+        "decl:airdcpp/transfer/download/Download.h:95:CXXMethod:flush()"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/transfer/download/Download.h:101:CXXMethod:disconnectOverlappedThrow()",
+        "decl:airdcpp/transfer/download/Download.h:103:CXCursor_Constructor:75e44568eeef",
+        "decl:airdcpp/transfer/download/Download.h:104:CXXMethod:operator=(const Download &)",
+        "decl:airdcpp/transfer/download/Download.h:106:CXXMethod:getDownloadTarget()",
+        "decl:airdcpp/transfer/download/Download.h:108:FieldDecl:output",
+        "decl:airdcpp/transfer/download/Download.h:109:FieldDecl:tt",
+        "decl:airdcpp/transfer/download/Download.h:110:FieldDecl:pfs",
+        "decl:airdcpp/transfer/download/Download.h:42:ClassDecl:Download",
+        "decl:airdcpp/transfer/download/Download.h:45:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/transfer/download/Download.h:45:2)",
+        "decl:airdcpp/transfer/download/Download.h:46:EnumConstantDecl:FLAG_ZDOWNLOAD",
+        "decl:airdcpp/transfer/download/Download.h:47:EnumConstantDecl:FLAG_CHUNKED",
+        "decl:airdcpp/transfer/download/Download.h:48:EnumConstantDecl:FLAG_TTH_CHECK",
+        "decl:airdcpp/transfer/download/Download.h:49:EnumConstantDecl:FLAG_SLOWUSER",
+        "decl:airdcpp/transfer/download/Download.h:50:EnumConstantDecl:FLAG_XML_BZ_LIST",
+        "decl:airdcpp/transfer/download/Download.h:51:EnumConstantDecl:FLAG_PARTIAL",
+        "decl:airdcpp/transfer/download/Download.h:52:EnumConstantDecl:FLAG_OVERLAP",
+        "decl:airdcpp/transfer/download/Download.h:53:EnumConstantDecl:FLAG_VIEW",
+        "decl:airdcpp/transfer/download/Download.h:54:EnumConstantDecl:FLAG_RECURSIVE",
+        "decl:airdcpp/transfer/download/Download.h:55:EnumConstantDecl:FLAG_QUEUE",
+        "decl:airdcpp/transfer/download/Download.h:56:EnumConstantDecl:FLAG_TTHLIST",
+        "decl:airdcpp/transfer/download/Download.h:57:EnumConstantDecl:FLAG_TTHLIST_BUNDLE",
+        "decl:airdcpp/transfer/download/Download.h:58:EnumConstantDecl:FLAG_HIGHEST_PRIO",
+        "decl:airdcpp/transfer/download/Download.h:85:FieldDecl:tempTarget",
+        "decl:airdcpp/transfer/download/Download.h:85:macro:GETSET",
+        "decl:airdcpp/transfer/download/Download.h:86:FieldDecl:listDirectoryPath",
+        "decl:airdcpp/transfer/download/Download.h:86:macro:GETSET",
+        "decl:airdcpp/transfer/download/Download.h:88:FieldDecl:lastTick",
+        "decl:airdcpp/transfer/download/Download.h:88:macro:IGETSET",
+        "decl:airdcpp/transfer/download/Download.h:89:FieldDecl:treeValid",
+        "decl:airdcpp/transfer/download/Download.h:89:macro:IGETSET",
+        "decl:airdcpp/transfer/download/Download.h:90:FieldDecl:bundle",
+        "decl:airdcpp/transfer/download/Download.h:90:macro:IGETSET",
+        "decl:airdcpp/transfer/download/Download.h:97:CXXMethod:initFlags(const QueueItem &)",
+        "decl:airdcpp/transfer/download/Download.h:98:CXXMethod:initOverlapped(const QueueItem &)",
+        "decl:airdcpp/transfer/download/Download.h:99:CXXMethod:initSegment(QueueItem &)"
+      ],
+      "mapping_note": "download object, flags, output stream and private init helpers; private-only helper declarations are classified as internal, not public endpoints."
+    },
+    {
+      "id": "download.trackable-state",
+      "kind": "capability",
+      "upstream_symbols": [
+        "TrackableDownloadItem::onAddedQueue/onRemovedQueue/onProgress",
+        "getDownloadState/getStatusInfo/getDownloads/clearLastError",
+        "DownloadManagerListener Starting/Failed callbacks",
+        "onRemovedQueue void (const string &, bool) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:32",
+        "onAddedQueue void (const string &, int64_t) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:35",
+        "isDownloaded bool () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:36",
+        "onProgress void (const string &, int64_t) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:38",
+        "TrackableDownloadItem TrackableDownloadItem(bool) [void (bool) noexcept] @ airdcpp/transfer/download/TrackableDownloadItem.h:40",
+        "~TrackableDownloadItem ~TrackableDownloadItem() [void () noexcept] @ airdcpp/transfer/download/TrackableDownloadItem.h:41",
+        "getDownloadState State () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:50",
+        "getLastTimeFinished time_t () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:51",
+        "hasCompletedDownloads bool () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:53",
+        "hasDownloads bool () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:54",
+        "getDownloads StringList () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:55",
+        "getStatusInfo StatusInfo () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:62",
+        "getLastError const string &() const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:64",
+        "clearLastError void () noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:68",
+        "onStateChanged void () noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:70",
+        "operator() bool (const PathInfo &) const @ airdcpp/transfer/download/TrackableDownloadItem.h:80",
+        "PathInfo PathInfo(int64_t) [void (int64_t)] @ airdcpp/transfer/download/TrackableDownloadItem.h:85",
+        "trackProgress bool () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:91",
+        "getDownloadedPercentage double () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:92",
+        "formatRunningStatus string () const noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:101",
+        "onRunningStateChanged void (const Download *, bool) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:73",
+        "on void (DownloadManagerListener::Failed, const Download *, const string &) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:75",
+        "on void (DownloadManagerListener::Starting, const Download *) noexcept @ airdcpp/transfer/download/TrackableDownloadItem.h:76"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/TrackableDownloadItem.h",
+          "start_line": 28,
+          "end_line": 101
+        },
+        {
+          "path": "airdcpp/transfer/download/TrackableDownloadItem.cpp",
+          "start_line": 28,
+          "end_line": 200
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Tracked queue target paths, optional byte size, queue removal completion, transfer start/failure and downloaded byte progress."
+        ],
+        "preconditions": [
+          "A tracked path is keyed by exact string; onProgress and transfer callbacks affect only matching path entries."
+        ],
+        "defaults": [
+          "PathInfo starts running=false,size=-1,downloaded=-1; onAddedQueue size defaults -1 (no percentage tracking). TrackableDownloadItem(bool true) sets lastTimeFinished to current time; false leaves zero."
+        ],
+        "effects": [
+          "add stores path and subscribes to DownloadManagerListener when first entry is inserted; remove updates finish timestamp if finished, erases path and unsubscribes when map empties. Starting clears lastError and marks matched path running; Failed stores error and marks it stopped. Progress replaces downloaded byte count for the matching path. State precedence: nonempty lastError => FAILED; otherwise any running path => DOWNLOADING; with no paths, prior completion timestamp => DOWNLOADED else PENDING; with only stopped paths => PENDING. getStatusInfo formats pending/downloading percentage/downloaded/error. clearLastError is a no-op if already empty, otherwise clears and notifies derived class."
+        ],
+        "events": [
+          "Derived `onStateChanged()` callback fires after queue additions/removals, matching running-state transitions, progress updates, or an actual error clear."
+        ],
+        "errors": [
+          "A failure reason is reported as state text; no exception/error return is provided. Unmatched path callbacks return without notifying."
+        ],
+        "completion": "Synchronous map update and state callback.",
+        "cancellation": "Not cancellable; callers remove queue tracking; destructor removes listener if tracked paths remain.",
+        "persistence": [],
+        "resources": [
+          "Owns path-to-PathInfo map guarded by SharedMutex; registers non-owning listener with singleton DownloadManager while entries exist."
+        ]
+      },
+      "ownership_evidence": [
+        "Download objects own their output stream but not their UserConnection/QueueItem; TrackableDownloadItem owns its path map and temporarily registers as listener."
+      ],
+      "threading_evidence": [
+        "DownloadManager owns transfer lifecycle; TrackableDownloadItem path map uses SharedMutex, while callbacks are delivered through DownloadManagerListener."
+      ],
+      "proposed_bridge_requirement": "Expose transfer and tracking state as copied values; do not surface Core pointers, streams, listener bases, or internal helper methods.",
+      "acceptance_scenarios": [
+        "Given a tracked target receives a Starting event, when state is queried, then state is DOWNLOADING and last error is cleared.",
+        "Given all tracked paths are removed with at least one completed removal, when state is queried, then state is DOWNLOADED; a later error takes precedence until clearLastError."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:32:CXXMethod:onRemovedQueue(const string &, bool)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:35:CXXMethod:onAddedQueue(const string &, int64_t)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:36:CXXMethod:isDownloaded()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:38:CXXMethod:onProgress(const string &, int64_t)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:40:CXCursor_Constructor:9e6bdc6b7983",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:41:CXCursor_Destructor:a397a9711065",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:50:CXXMethod:getDownloadState()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:51:CXXMethod:getLastTimeFinished()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:53:CXXMethod:hasCompletedDownloads()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:54:CXXMethod:hasDownloads()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:55:CXXMethod:getDownloads()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:62:CXXMethod:getStatusInfo()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:64:CXXMethod:getLastError()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:68:CXXMethod:clearLastError()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:70:CXXMethod:onStateChanged()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:80:CXXMethod:operator()(const PathInfo &)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:85:CXCursor_Constructor:2a20096e139a",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:91:CXXMethod:trackProgress()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:92:CXXMethod:getDownloadedPercentage()"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:101:CXXMethod:formatRunningStatus()",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:29:ClassDecl:TrackableDownloadItem",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:43:EnumDecl:State",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:44:EnumConstantDecl:STATE_DOWNLOAD_PENDING",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:45:EnumConstantDecl:STATE_DOWNLOADING",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:46:EnumConstantDecl:STATE_DOWNLOADED",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:47:EnumConstantDecl:STATE_DOWNLOAD_FAILED",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:57:StructDecl:StatusInfo",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:58:FieldDecl:state",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:59:FieldDecl:str",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:73:CXXMethod:onRunningStateChanged(const Download *, bool)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:75:CXXMethod:on(DownloadManagerListener::Failed, const Download *, const string &)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:76:CXXMethod:on(DownloadManagerListener::Starting, const Download *)",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:78:StructDecl:PathInfo",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:79:StructDecl:IsRunning",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:87:FieldDecl:running",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:88:FieldDecl:size",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:89:FieldDecl:downloaded",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:95:FieldDecl:cs",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:96:FieldDecl:downloads",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:98:FieldDecl:lastError",
+        "decl:airdcpp/transfer/download/TrackableDownloadItem.h:99:FieldDecl:lastTimeFinished"
+      ],
+      "mapping_note": "TrackableDownloadItem tracked paths and listener lifecycle; private-only helper declarations are classified as internal, not public endpoints."
+    },
+    {
+      "id": "download.manager-construction",
+      "kind": "internal",
+      "upstream_symbols": [
+        "DownloadManager constructor/destructor",
+        "DownloadManagerListener virtual destructor",
+        "~DownloadManagerListener ~DownloadManagerListener() [void () noexcept] @ airdcpp/transfer/download/DownloadManagerListener.h:41",
+        "DownloadManager DownloadManager() [void ()] @ airdcpp/transfer/download/DownloadManager.h:96",
+        "~DownloadManager ~DownloadManager() [void () noexcept] @ airdcpp/transfer/download/DownloadManager.h:97"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.h",
+          "start_line": 90,
+          "end_line": 102
+        },
+        {
+          "path": "airdcpp/transfer/download/DownloadManager.cpp",
+          "start_line": 37,
+          "end_line": 50
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Singleton lifecycle."
+        ],
+        "preconditions": [
+          "DownloadManager singleton dependencies TimerManager must be initialized."
+        ],
+        "defaults": [],
+        "effects": [
+          "Constructor registers DownloadManager as a TimerManager listener. Destructor removes that listener, then waits in 100 ms increments until active download list is empty while checking under write lock. Listener destructor is virtual and defaulted inline."
+        ],
+        "events": [],
+        "errors": [
+          "No explicit error result; destructor waits for downloads to drain."
+        ],
+        "completion": "Synchronous construction; destruction blocks until the download list empties.",
+        "cancellation": "No cancellation path during manager destruction.",
+        "persistence": [],
+        "resources": [
+          "TimerManager listener registration, DownloadManager lock and active download list."
+        ]
+      },
+      "ownership_evidence": [
+        "Download objects own their output stream but not their UserConnection/QueueItem; TrackableDownloadItem owns its path map and temporarily registers as listener."
+      ],
+      "threading_evidence": [
+        "DownloadManager owns transfer lifecycle; TrackableDownloadItem path map uses SharedMutex, while callbacks are delivered through DownloadManagerListener."
+      ],
+      "proposed_bridge_requirement": "Expose transfer and tracking state as copied values; do not surface Core pointers, streams, listener bases, or internal helper methods.",
+      "acceptance_scenarios": [
+        "Given DownloadManager is constructed, when it is destroyed, then its timer listener is removed before destruction waits for active downloads to drain."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManagerListener.h:41:CXCursor_Destructor:aee4f0bcc7d2"
+      ],
+      "structural_declaration_ids": [
+        "decl:airdcpp/transfer/download/DownloadManager.h:74:macro:IGETSET",
+        "decl:airdcpp/transfer/download/DownloadManager.h:75:macro:IGETSET",
+        "decl:airdcpp/transfer/download/DownloadManager.h:96:CXCursor_Constructor:474edef10d99",
+        "decl:airdcpp/transfer/download/DownloadManager.h:97:CXCursor_Destructor:6176a09444a3"
+      ],
+      "mapping_note": "DownloadManager singleton and timer registration/shutdown; private-only helper declarations are classified as internal, not public endpoints."
+    }
+  ]
+}

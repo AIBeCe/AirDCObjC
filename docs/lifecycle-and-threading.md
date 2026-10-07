@@ -6,6 +6,12 @@ At the pinned revision, `airdcpp/DCPlusPlus.h` exposes `initializeUtil`, `startu
 
 `airdcpp/core/Speaker.h` invokes raw-pointer listeners synchronously while holding its listener critical section. TimerManager, hash workers, and BufferedSocket own threads. A serial bridge queue does not automatically synchronize these Core threads.
 
+The pinned source separates three entry points: `DCPlusPlus.cpp:64-68` initializes AppUtil, ValueGenerator and Text; `70-187` creates and loads managers; `189-265` tears them down. Startup calls module initialization before settings load (`121-123`), module loading after Core data/connectivity (`178-182`), then invokes post-load callbacks in stored order (`184-186`). A hash-startup exception becomes `dcpp::Exception` (`155-159`); there is no rollback block around singleton construction and loading.
+
+Shutdown first stops timers and refresh, then shuts down hash/share/connections, closes connectivity/GeoIP and waits for buffered sockets (`190-209`). Module unloading precedes queue/recents/ignore/favorites/settings persistence (`213-221`); module destruction precedes singleton deletion (`225-259`). The RUNNING flag is removed last (`261`). This is the normal full-startup path, not evidence that it is safe after an arbitrary partial start.
+
+`Speaker.h:43-59` copies the raw listener list and calls each listener while holding `listenerCS`; reversed delivery traverses the copied list in reverse order. Registration deduplicates pointer identity (`62-66`), removal erases from the registered list (`68-73`), and destruction asserts the list is empty (`38-40`). Removing a listener from the registered list does not remove it from a copy already being traversed. Adapter lifetime must therefore cover in-flight emission as well as registration.
+
 These observations are architectural anchors, not a complete proof of every manager's safety.
 
 ## Proposed runtime contract to validate

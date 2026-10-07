@@ -26,7 +26,7 @@
 - GitFlow: `develop` integrates development; every feature/point/phase branch starts from `develop`.
 - ALL original Core functional capabilities remain tracked; disabled capabilities are gaps rather than silent exclusions.
 - No product code, new build scripts, dependency changes, Core source changes, or production release in Phase 0.
-- Analyze and propose one implementation point before file changes; this plan does not waive the explicit approval gate.
+- Concrete proposals remain documented. User authorization on 2026-10-07 covers every Phase 0 and Phase 1 point; no routine approval stops are required. Material conflicts still require explicit handling.
 
 ## Review Focus
 
@@ -70,12 +70,12 @@ Prefer bounded discovery delegation for large API families and an independent re
 
 **Produces:** Schema-1 baseline with `upstream_url`, `upstream_commit`, `source_tree_clean`, `archive_sha256`, `core_headers`, `metadata_sha256`, `platform`, and `feature_evidence`. `core_headers` maps installed relative paths to byte hashes; `metadata_sha256` maps inspected metadata paths to byte hashes. `feature_evidence` is an array of `{name, value, source, evidence_kind}` records; distinguish observed build policy from upstream default.
 
-- [ ] **Step 1: Present the baseline capture proposal.** Show the exact JSON structure and the inspection commands, including the scope of source/header hashing, without dumping large manifests. Approval applies only to recording evidence.
-- [ ] **Step 2: Verify source identity and cleanliness.** Run `rtk git -C /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core rev-parse HEAD` and `rtk git -C /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core status --porcelain`. Expected: exact pinned commit and no tracked source changes. Inspect relevant ignored/generated files if they affect the source used for the audit.
-- [ ] **Step 3: Independently hash actual artifact/header bytes.** Read `Dist/lib/libairdcpp.a` and installed Core headers with Python `hashlib.sha256`. Compare the actual archive digest with the manifest claim `3e6b1d2be3e7d29e80b19a38633df7d3c9229730f25f1a50abf4f64b588462bb`. A mismatch stops baseline acceptance; explain the evidence rather than updating the pin silently.
-- [ ] **Step 4: Extract bounded metadata.** Read selected JSON fields for platform, definitions, source pin and link closure; record metadata file hashes. Avoid printing entire aggregate manifests. Cross-check NAT-PMP/TBB/module/updater availability against actual source exclusions and distribution evidence. A CMake default alone is insufficient evidence of the built configuration.
-- [ ] **Step 5: Write the approved baseline and verify it.** Assert exact commit, actual digest equality, `arm64`, `14.0`, C++20, libc++, and explicit Iconv. Expected: all assertions pass, or a recorded blocker prevents acceptance.
-- [ ] **Step 6: Commit the cohesive baseline evidence.** Use `rtk git add docs/core-baseline.json docs/core-integration.md` and `rtk git commit -m "docs: bind Core audit to verified inputs"` after relevant verification.
+- [x] **Step 1: Present the baseline capture proposal.** Show the exact JSON structure and the inspection commands, including the scope of source/header hashing, without dumping large manifests. Approval applies only to recording evidence.
+- [x] **Step 2: Verify source identity and cleanliness.** Run `rtk git -C /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core rev-parse HEAD` and `rtk git -C /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core status --porcelain`. Expected: exact pinned commit and no tracked source changes. Inspect relevant ignored/generated files if they affect the source used for the audit.
+- [x] **Step 3: Independently hash actual artifact/header bytes.** Read `Dist/lib/libairdcpp.a` and installed Core headers with Python `hashlib.sha256`. Compare the actual archive digest with the manifest claim `3e6b1d2be3e7d29e80b19a38633df7d3c9229730f25f1a50abf4f64b588462bb`. A mismatch stops baseline acceptance; explain the evidence rather than updating the pin silently.
+- [x] **Step 4: Extract bounded metadata.** Read selected JSON fields for platform, definitions, source pin and link closure; record metadata file hashes. Avoid printing entire aggregate manifests. Cross-check NAT-PMP/TBB/module/updater availability against actual source exclusions and distribution evidence. A CMake default alone is insufficient evidence of the built configuration.
+- [x] **Step 5: Write the approved baseline and verify it.** Assert exact commit, actual digest equality, `arm64`, `14.0`, C++20, libc++, and explicit Iconv. Expected: all assertions pass, or a recorded blocker prevents acceptance.
+- [x] **Step 6: Commit the cohesive baseline evidence.** Use `rtk git add docs/core-baseline.json docs/core-integration.md` and `rtk git commit -m "docs: bind Core audit to verified inputs"` after relevant verification.
 
 ### Task 2: Classify the complete structural surface
 
@@ -85,12 +85,12 @@ Prefer bounded discovery delegation for large API families and an independent re
 
 **Produces:** Complete structural classifications with stable header references and a schema for Task 3. Header inventory adds `classification_rationale`, `capability_ids` and `source_evidence` to its existing columns. Source accounting has schema version 1 and `files`: records `{path, sha256, kind, domain_ids, classification_rationale}` covering original `.cpp`/`.c` units and behavior-bearing registration/generated-input sites discovered in this audit.
 
-- [ ] **Step 1: Propose the inventory-column and ledger-schema changes.** Present the focused CSV header change and one full JSON record example. Retain existing source hashes and installed-byte evidence; do not overwrite historical input identities.
-- [ ] **Step 2: Inspect every header family.** Begin with the source anchors in `docs/core-coverage.md`; classify each header as public functionality, event, setting, internal helper, dependency detail or platform-specific implementation. Multiple roles require linked records rather than loss of behavior. Provide evidence and rationale; naming alone is insufficient.
-- [ ] **Step 3: Account for non-header behavior.** Enumerate pinned `.cpp`/`.c` units and settings/listener/module registrations. Link their behavior to domain IDs or justify an internal/dependency classification. Inspect enough call flow to avoid omitting externally meaningful source-only operations. The file ledger is discovery accounting, not proof of exhaustive methods by itself.
-- [ ] **Step 4: Explain all source/distribution differences.** The initial snapshot has 18 absent headers: 17 optional-module headers and ZipFile.h. Verify this observation against Task 1 and record each feature gap or implementation distinction; header presence never implies binary availability.
-- [ ] **Step 5: Verify structural coverage.** Assert no duplicate/missing pinned header paths, source hashes still match, no unclassified rows, every functionality row links capability IDs, and every source-accounting row has a rationale/domain reference. Expected: no unexplained structural gaps. Do not hardcode 263 for future pins; this pinned baseline must equal 263.
-- [ ] **Step 6: Commit the classified structural inventory.** `rtk git add docs/core-header-inventory.csv docs/coverage/source-accounting.json docs/coverage/ledger-format.md`; `rtk git commit -m "docs: classify Core source and header surface"`.
+- [x] **Step 1: Propose the inventory-column and ledger-schema changes.** Present the focused CSV header change and one full JSON record example. Retain existing source hashes and installed-byte evidence; do not overwrite historical input identities.
+- [x] **Step 2: Inspect every header family.** Begin with the source anchors in `docs/core-coverage.md`; classify each header as public functionality, event, setting, internal helper, dependency detail or platform-specific implementation. Multiple roles require linked records rather than loss of behavior. Provide evidence and rationale; naming alone is insufficient.
+- [x] **Step 3: Account for non-header behavior.** Enumerate pinned `.cpp`/`.c` units and settings/listener/module registrations. Link their behavior to domain IDs or justify an internal/dependency classification. Inspect enough call flow to avoid omitting externally meaningful source-only operations. The file ledger is discovery accounting, not proof of exhaustive methods by itself.
+- [x] **Step 4: Explain all source/distribution differences.** The initial snapshot has 18 absent headers: 17 optional-module headers and ZipFile.h. Verify this observation against Task 1 and record each feature gap or implementation distinction; header presence never implies binary availability.
+- [x] **Step 5: Verify structural coverage.** Assert no duplicate/missing pinned header paths, source hashes still match, no unclassified rows, every functionality row links capability IDs, and every source-accounting row has a rationale/domain reference. Expected: no unexplained structural gaps. Do not hardcode 263 for future pins; this pinned baseline must equal 263.
+- [x] **Step 6: Commit the classified structural inventory.** `rtk git add docs/core-header-inventory.csv docs/coverage/source-accounting.json docs/coverage/ledger-format.md`; `rtk git commit -m "docs: classify Core source and header surface"`.
 
 ### Task 3: Enumerate functional contracts domain by domain
 
@@ -140,32 +140,32 @@ This is a schema example, not accepted evidence: line numbers and behavior must 
 
 Controlled record kinds: `capability`, `operation`, `event`, `setting`, `internal`, `platform-implementation`. `compiled` values: `verified-present`, `verified-absent`, `unverified`; unverified availability must link an explicit unresolved evidence gap. Internal classifications require rationale in the behavior/evidence fields and cannot conceal a public capability.
 
-- [ ] **Step 1: Present the first domain-record proposal.** Show one fully inspected capability/operation/event/setting record where those kinds apply, with exact source locations and concrete Given/When/Then acceptance scenarios. Approval is for the record content, not product code.
-- [ ] **Step 2: Audit lifecycle and shared foundations first.** Trace startup/load/post-load/shutdown, exception paths, listener locking and object destruction. Enumerate every callback/hook and externally meaningful option. Record partial-startup/restart uncertainty as an explicit gap instead of promising cleanup semantics.
-- [ ] **Step 3: Repeat the reviewed audit sequence for each domain below, one implementation point at a time.** Each point reads relevant declarations/definitions/call sites, proposes the records, waits for approval, writes them, verifies references, and commits a cohesive unit. Do not batch domains without user authorization.
+- [x] **Step 1: Present the first domain-record proposal.** Show one fully inspected capability/operation/event/setting record where those kinds apply, with exact source locations and concrete Given/When/Then acceptance scenarios. Approval is for the record content, not product code.
+- [x] **Step 2: Audit lifecycle and shared foundations first.** Trace startup/load/post-load/shutdown, exception paths, listener locking and object destruction. Enumerate every callback/hook and externally meaningful option. Record partial-startup/restart uncertainty as an explicit gap instead of promising cleanup semantics.
+- [x] **Step 3: Repeat the reviewed audit sequence for each domain below, one implementation point at a time.** Each point reads relevant declarations/definitions/call sites, records the concrete proposal, applies the existing phase authorization, writes them, verifies references, and commits a cohesive unit. Do not batch domains without user authorization.
 
 Domain audit checklist:
 
-- [ ] `lifecycle` and common externally meaningful facilities.
-- [ ] `settings` with every setting/default/unit/persistence behavior.
-- [ ] `logs`, crypto/TLS/certificates and GeoIP.
-- [ ] Connections, throttling, connectivity and mapping.
-- [ ] Hub clients/users/identities/messages and protocol commands.
-- [ ] Search instances/results/filtering/cancellation.
-- [ ] Private chat.
-- [ ] Queues/items/bundles/sources/priorities/persistence.
-- [ ] Downloads, uploads/slots/limits and transfer information.
-- [ ] File lists and directory browsing/matching.
-- [ ] Hashes/trees/database and sharing/profiles/temporary shares.
-- [ ] Favorites/favorite users/reserved slots.
-- [ ] Ignore rules, recents, viewed files, user commands and activity.
-- [ ] AutoSearch/ADL/direct/directory-listing search modules.
-- [ ] Finished history, highlighting, hub lists, preview and RSS modules.
-- [ ] Update-related functionality and platform facilities, including ZIP/Windows mapping capability distinctions.
-- [ ] Every remaining structural row not accounted for above.
+- [x] `lifecycle` and common externally meaningful facilities.
+- [x] `settings` with every setting/default/unit/persistence behavior.
+- [x] `logs`, crypto/TLS/certificates and GeoIP.
+- [x] Connections, throttling, connectivity and mapping.
+- [x] Hub clients/users/identities/messages and protocol commands.
+- [x] Search instances/results/filtering/cancellation.
+- [x] Private chat.
+- [x] Queues/items/bundles/sources/priorities/persistence.
+- [x] Downloads, uploads/slots/limits and transfer information.
+- [x] File lists and directory browsing/matching.
+- [x] Hashes/trees/database and sharing/profiles/temporary shares.
+- [x] Favorites/favorite users/reserved slots.
+- [x] Ignore rules, recents, viewed files, user commands and activity.
+- [x] AutoSearch/ADL/direct/directory-listing search modules.
+- [x] Finished history, highlighting, hub lists, preview and RSS modules.
+- [x] Update-related functionality and platform facilities, including ZIP/Windows mapping capability distinctions.
+- [x] Every remaining structural row not accounted for above.
 
-- [ ] **Step 4: Verify each domain before its commit.** Assert unique IDs; valid pinned source lines; all referenced header/source rows exist; documented inputs/defaults/effects/errors/events; each functionality record has acceptance scenarios with Given/When/Then; internal classifications have rationale. Inspect overloads and event payload fields explicitly. Expected: no guessed source references or vague behavioral placeholders.
-- [ ] **Step 5: Commit each approved domain unit.** Use a meaningful domain-specific documentation commit. Preserve the same worker/reviewer pair for a non-trivial domain's routine review/fix loop until PASS.
+- [x] **Step 4: Verify each domain before its commit.** Assert unique IDs; valid pinned source lines; all referenced header/source rows exist; documented inputs/defaults/effects/errors/events; each functionality record has acceptance scenarios with Given/When/Then; internal classifications have rationale. Inspect overloads and event payload fields explicitly. Expected: no guessed source references or vague behavioral placeholders.
+- [x] **Step 5: Commit each approved domain unit.** Use a meaningful domain-specific documentation commit. Preserve the same worker/reviewer pair for a non-trivial domain's routine review/fix loop until PASS.
 
 ### Task 4: Resolve binary availability, runtime prerequisites and parity gaps
 
@@ -175,12 +175,12 @@ Domain audit checklist:
 
 **Produces:** Stable gap IDs, upstream semantics, observed availability, affected capabilities, proposed resolution, required project/approval, and status. A gap record separates verified absence from missing evidence.
 
-- [ ] **Step 1: Present the availability/resource audit proposal.** Limit actions to read-only configuration, selected manifest fields, symbols and source tracing. Do not run startup, network calls, new builds or destructive cleanup without a separate bounded proposal.
-- [ ] **Step 2: Bind compiled availability.** Inspect actual symbols and build policy as necessary, recognizing inline/header-only operations need different evidence. A missing standalone symbol is not proof an inline operation is unavailable. Record optional module/NAT-PMP/updater/platform exclusions explicitly.
-- [ ] **Step 3: Trace resource prerequisites.** Account for profiles/settings/storage, localization, certificates/trust, OpenSSL configuration/providers, GeoIP data, logs, module resources and preview/application integration. Record host-supplied versus framework-supplied resources with source evidence. Do not silently reuse a user's profile or invent bundled resources.
-- [ ] **Step 4: Present each functional-gap resolution.** Propose separate Core work, platform-equivalent capability, or an explicitly scoped decision. Only user-approved resolutions can change the scope; unavailable features remain gaps until actually verified. TBB is classified as execution strategy rather than automatically a missing user feature.
-- [ ] **Step 5: Verify gap linkage.** Every verified-absent or unverified functional availability record must link a gap; every gap links affected IDs and its exact evidence. Expected: no silent downgrade from ALL functionality to only compiled v1.0.0 functionality.
-- [ ] **Step 6: Commit the audited integration/gap documentation.** Preserve unresolved technical decisions as explicit blockers for their owning future phase, rather than fabricating their resolution.
+- [x] **Step 1: Present the availability/resource audit proposal.** Limit actions to read-only configuration, selected manifest fields, symbols and source tracing. Do not run startup, network calls, new builds or destructive cleanup without a separate bounded proposal.
+- [x] **Step 2: Bind compiled availability.** Inspect actual symbols and build policy as necessary, recognizing inline/header-only operations need different evidence. A missing standalone symbol is not proof an inline operation is unavailable. Record optional module/NAT-PMP/updater/platform exclusions explicitly.
+- [x] **Step 3: Trace resource prerequisites.** Account for profiles/settings/storage, localization, certificates/trust, OpenSSL configuration/providers, GeoIP data, logs, module resources and preview/application integration. Record host-supplied versus framework-supplied resources with source evidence. Do not silently reuse a user's profile or invent bundled resources.
+- [x] **Step 4: Present each functional-gap resolution.** Propose separate Core work, platform-equivalent capability, or an explicitly scoped decision. Only user-approved resolutions can change the scope; unavailable features remain gaps until actually verified. TBB is classified as execution strategy rather than automatically a missing user feature.
+- [x] **Step 5: Verify gap linkage.** Every verified-absent or unverified functional availability record must link a gap; every gap links affected IDs and its exact evidence. Expected: no silent downgrade from ALL functionality to only compiled v1.0.0 functionality.
+- [x] **Step 6: Commit the audited integration/gap documentation.** Preserve unresolved technical decisions as explicit blockers for their owning future phase, rather than fabricating their resolution.
 
 ### Task 5: Independent gate review and Phase 1 planning handoff
 
@@ -190,15 +190,15 @@ Domain audit checklist:
 
 **Produces:** Explicit Phase 0 PASS or blocker report, evidence references, reviewed limitations and requirements for the Phase 1 implementation plan.
 
-- [ ] **Step 1: Verify input freshness.** Recompute actual source/header/archive identities and compare with the accepted baseline. Fail on unexplained drift. Do not refresh the baseline to make stale records appear current.
-- [ ] **Step 2: Check all ledger references and coverage obligations.** No unclassified header/source behavior, duplicate IDs, invalid source lines, orphan capabilities, unexplained missing settings/events, or unsupported completion claims. Every externally meaningful record has specific future acceptance behavior and a domain owner.
-- [ ] **Step 3: Obtain independent review.** Reviewer samples source and follows omitted/optional/platform cases, callbacks, overloads and settings registrations, then checks complete accounting. Keep the same reviewer through fixes; Critical/Important findings require PASS before gate acceptance.
-- [ ] **Step 4: Report the actual gate result.** Phase 0 PASS means an accepted inventory and transparent gaps, not implemented framework parity. Source-only/unavailable capabilities may remain blocked for later separately approved work, but their existence and affected contracts must be fully accounted for.
+- [x] **Step 1: Verify input freshness.** Recompute actual source/header/archive identities and compare with the accepted baseline. Fail on unexplained drift. Do not refresh the baseline to make stale records appear current.
+- [x] **Step 2: Check all ledger references and coverage obligations.** No unclassified header/source behavior, duplicate IDs, invalid source lines, orphan capabilities, unexplained missing settings/events, or unsupported completion claims. Every externally meaningful record has specific future acceptance behavior and a domain owner.
+- [x] **Step 3: Obtain independent review.** Reviewer samples source and follows omitted/optional/platform cases, callbacks, overloads and settings registrations, then checks complete accounting. Keep the same reviewer through fixes; Critical/Important findings require PASS before gate acceptance.
+- [x] **Step 4: Report the actual gate result.** Phase 0 PASS means an accepted inventory and transparent gaps, not implemented framework parity. Source-only/unavailable capabilities may remain blocked for later separately approved work, but their existence and affected contracts must be fully accounted for.
 - [ ] **Step 5: Commit the reviewed report and progress update.** Integrate into `develop` according to GitFlow only when review and checks pass. Do not create a production release or tag.
-- [ ] **Step 6: Prepare the Phase 1 plan for user review.** Define exact workspace/target/source/test paths, public minimal API and imported Swift signatures, Core input acquisition/checksum contract, build settings, package manifest, Given/When/Then tests and real consumer commands. Use Phase 0 evidence; do not begin Phase 1 implementation before its proposal is approved.
+- [x] **Step 6: Prepare the Phase 1 plan for user review.** Define exact workspace/target/source/test paths, public minimal API and imported Swift signatures, Core input acquisition/checksum contract, build settings, package manifest, Given/When/Then tests and real consumer commands. Use Phase 0 evidence. The user has already approved the complete Phase 1 scope; begin its implementation after Gate 0 review and GitFlow integration, without another routine approval stop.
 
 ## Plan acceptance
 
 This plan implements roadmap Phase 0 only. Phases 1–11 remain required by the approved roadmap; their detailed plans are authored when prerequisite contracts are known. Nothing here reduces the full project scope.
 
-Review this plan and select execution mode before starting tasks. Recommended: bounded delegated discovery with persistent worker/reviewer ownership, while Root retains semantic decisions and per-point approval. Native execution is also supported; it still includes an independent final inventory review.
+Execution is authorized for all points of Phases 0 and 1. Bounded delegated discovery and persistent review ownership are in use; Root retains semantic and architectural authority. Task 1 baseline evidence was independently verified and committed as 77694fc. Tasks 1–4 have passed their checks and scoped independent reviews. Task 5 final documentation review returned PASS after the settings scope closed. Report commitment and GitFlow integration remain the final execution step. No runtime parity is implied.

@@ -1,0 +1,3123 @@
+{
+  "schema_version": 1,
+  "domain_id": "favorites",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "favorites.autoconnect-and-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FavoriteManager::autoConnect() noexcept",
+        "FavoriteManager::load() noexcept",
+        "FavoriteManager::shutdown() noexcept",
+        "FavoriteManager::hasActiveHubs() const noexcept",
+        "FavoriteManager::setDirty()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 40,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 48,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 150,
+          "end_line": 167
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 230,
+          "end_line": 235
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 345,
+          "end_line": 365
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 48,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 150,
+          "end_line": 168
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 230,
+          "end_line": 264
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 345,
+          "end_line": 362
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration exists; linked/runtime availability unverified."
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "autoConnect snapshots auto-connect hubs and creates missing clients. hasActiveHubs checks favorite hub incoming v4/v6 modes. load reads Favorites.xml hubs/directories, emits Load after those are loaded, records last-save tick and subscribes to timer. shutdown removes timer listener then calls save. Save is skipped when xmlDirty=false; successful serialization writes CID, hubs, directories and Save-listener data; Core Exception restores dirty=true."
+        ],
+        "events": [
+          "FavoriteHub load/save listener events are distinct from this load()/shutdown operation."
+        ],
+        "errors": [
+          "load and save wrappers are noexcept; SettingsManager file loader handles load-file errors. Save catches Core Exception and restores dirty state for a future attempt."
+        ],
+        "completion": "Synchronous load/shutdown and XML save; save timer waits until dirty state is at least 15 seconds old.",
+        "cancellation": "Not cancellable; shutdown detaches timer listener and attempts pending save.",
+        "persistence": [
+          "Favorites.xml stores favorite hubs, groups, directories, private ID, and FavoriteManagerListener Save payloads."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "autoConnect copies qualifying URLs under read lock and calls ClientManager after releasing it."
+      ],
+      "proposed_bridge_requirement": "Expose auto-connect as an explicit lifecycle operation and preserve no-duplicate-client behavior.",
+      "acceptance_scenarios": [
+        {
+          "given": "Favorites state is clean",
+          "when": "the one-second timer checks save",
+          "then": "no file write occurs; dirty state is serialized only after the 15-second delay or shutdown."
+        },
+        {
+          "given": "serialization throws a Core Exception",
+          "when": "FavoriteManager::save catches it",
+          "then": "xmlDirty is restored to true for retry."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "favorites.directories-and-groups",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FavoriteManager::setFavoriteDir(const string&, const string&) noexcept",
+        "FavoriteManager::removeFavoriteDir(const string&) noexcept",
+        "FavoriteManager::hasFavoriteDir(const string&) const noexcept",
+        "FavoriteManager::setFavoriteDirs(const FavoriteDirectoryMap&) noexcept",
+        "FavoriteManager::getFavoriteDirectory(const string&) const noexcept",
+        "FavoriteManager::getGroupedFavoriteDirs() const noexcept",
+        "FavoriteManager::getFavoriteDirs() const noexcept",
+        "FavoriteManager::setFavHubGroups(const FavHubGroups&) noexcept",
+        "FavoriteManager::getFavHubGroupsUnsafe() const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 53,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 53,
+          "end_line": 120
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 478,
+          "end_line": 481
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration exists; linked/runtime availability unverified."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Directory path/group and directory map; favorite-hub group map."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "setFavoriteDir assigns path->group, marks dirty and emits FavoriteDirectoriesUpdated even if value was unchanged; remove returns false when absent, otherwise erases, dirties and emits. setFavoriteDirs replaces map and emits/marks dirty. getFavoriteDirectory returns empty pair when absent. getGroupedFavoriteDirs groups path sets by exact group string. setFavHubGroups replaces map under lock but does not mark dirty or emit. getFavoriteHubs(group) filters case-insensitively without visible lock; unfiltered overload returns a locked copy."
+        ],
+        "events": [
+          "FavoriteDirectoriesUpdated is fired after set/remove/replace."
+        ],
+        "errors": [],
+        "completion": "Synchronous.",
+        "cancellation": "Not cancellable at this synchronous operation.",
+        "persistence": [
+          "Favorite directories/groups serialize in Favorites.xml; the group setter itself does not mark the manager dirty."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [
+        "Directory operations lock favoriteDirectories; getFavoriteHubs(group) has no internal lock at FavoriteManager.cpp:467-470 and requires external synchronization."
+      ],
+      "proposed_bridge_requirement": "Expose copied path/group maps and mark unsafe mutable group access as unavailable to bridge clients.",
+      "acceptance_scenarios": [
+        {
+          "given": "removeFavoriteDir receives an absent path",
+          "when": "it checks membership",
+          "then": "it returns false and emits no update; setting an existing path to the same group still emits FavoriteDirectoriesUpdated."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "contract_evidence": "source-traced"
+    },
+    {
+      "id": "favorites.event.favoriteDirectoriesUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(FavoriteDirectoriesUpdated) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 58,
+          "end_line": 94
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No payload."
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteDirectoriesUpdated is emitted after setFavoriteDir assignment, after successful removeFavoriteDir erase, and after setFavoriteDirs replacement. Remove of absent path returns false and emits nothing."
+        ],
+        "events": [
+          "FavoriteDirectoriesUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "No payload; listener object is registered by raw pointer in Speaker.",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a path is assigned to a favorite directory group, including an unchanged group value",
+          "when": "setFavoriteDir completes",
+          "then": "FavoriteDirectoriesUpdated fires after assignment; calling removeFavoriteDir for an absent path returns false and emits no event."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteHubAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(FavoriteHubAdded, const FavoriteHubEntryPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 125,
+          "end_line": 140
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const FavoriteHubEntryPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteHubAdded carries the shared entry after successful append and connect-state initialization; duplicate primary server rejects without event."
+        ],
+        "events": [
+          "FavoriteHubAdded"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const FavoriteHubEntryPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a favorite hub URL is unique",
+          "when": "addFavoriteHub appends it and initializes connect state",
+          "then": "FavoriteHubAdded fires once with that entry after connect state is set."
+        },
+        {
+          "given": "a case-insensitive duplicate primary server URL exists",
+          "when": "addFavoriteHub checks uniqueness",
+          "then": "it returns false and emits no FavoriteHubAdded."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteHubRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(FavoriteHubRemoved, const FavoriteHubEntryPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 169,
+          "end_line": 187
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const FavoriteHubEntryPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteHubRemoved carries the erased shared entry after map/vector mutation; missing token returns false and emits nothing."
+        ],
+        "events": [
+          "FavoriteHubRemoved"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const FavoriteHubEntryPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a favorite entry token exists",
+          "when": "removeFavoriteHub erases it",
+          "then": "FavoriteHubRemoved carries the removed shared entry after vector erasure; an unknown token returns false and emits nothing."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteHubUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(FavoriteHubUpdated, const FavoriteHubEntryPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 142,
+          "end_line": 148
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 216,
+          "end_line": 223
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 488,
+          "end_line": 501
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 539,
+          "end_line": 565
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const FavoriteHubEntryPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteHubUpdated carries the entry after explicit update/connect-state transition or per-hub settings update; profile reset emits this for every affected entry."
+        ],
+        "events": [
+          "FavoriteHubUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const FavoriteHubEntryPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "onFavoriteHubUpdated receives an entry",
+          "when": "it recomputes connect state",
+          "then": "it marks XML dirty then emits FavoriteHubUpdated with the entry."
+        },
+        {
+          "given": "a profile reset changes an entry",
+          "when": "the reset loop completes that entry mutation",
+          "then": "FavoriteHubUpdated fires for that entry before final FavoriteHubsUpdated."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteHubsUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(FavoriteHubsUpdated) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 205,
+          "end_line": 227
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "No payload."
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteHubsUpdated is a parameterless terminal notification after profile reset finishes emitting updates for affected hubs, including when the affected list is empty."
+        ],
+        "events": [
+          "FavoriteHubsUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "No payload; listener object is registered by raw pointer in Speaker.",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a share-profile default/removal reset is processed",
+          "when": "all changed hub entries have emitted FavoriteHubUpdated",
+          "then": "FavoriteHubsUpdated fires once, including when no entries needed reset."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteUserAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteUserManagerListener::on(FavoriteUserAdded, const FavoriteUser&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 89,
+          "end_line": 108
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const FavoriteUser&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteUserAdded carries the inserted FavoriteUser after insertion and User::FAVORITE flagging; self and duplicate CID are silent no-ops."
+        ],
+        "events": [
+          "FavoriteUserAdded"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const FavoriteUser&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a non-self user with a CID not already in favorites is added",
+          "when": "the record is inserted and User::FAVORITE is set",
+          "then": "FavoriteUserAdded carries the new FavoriteUser; self and duplicate CID produce no event."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteUserRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteUserManagerListener::on(FavoriteUserRemoved, const FavoriteUser&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 128,
+          "end_line": 140
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const FavoriteUser&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteUserRemoved carries the old FavoriteUser after User::FAVORITE is unset but before the entry is erased; this dispatch occurs inside the manager write-lock scope. Missing user emits nothing."
+        ],
+        "events": [
+          "FavoriteUserRemoved"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const FavoriteUser&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "the user has a favorite record",
+          "when": "removeFavoriteUser clears User::FAVORITE",
+          "then": "FavoriteUserRemoved fires with the previous FavoriteUser before map erase while the write-lock scope is active."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.favoriteUserUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteUserManagerListener::on(FavoriteUserUpdated, const UserPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 270,
+          "end_line": 294
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const UserPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "FavoriteUserUpdated carries UserPtr after client connected for a favorite user, and on disconnect for any favorite user; lastSeen is updated only if the user went fully offline."
+        ],
+        "events": [
+          "FavoriteUserUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const UserPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a favorite user disconnects",
+          "when": "ClientManager reports UserDisconnected",
+          "then": "FavoriteUserUpdated fires with UserPtr; LastSeen changes only when wentOffline=true."
+        },
+        {
+          "given": "a favorite user connects",
+          "when": "ClientManager reports UserConnected",
+          "then": "FavoriteUserUpdated fires with that UserPtr."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.load",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(Load, SimpleXML&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 345,
+          "end_line": 362
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 192,
+          "end_line": 221
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 299,
+          "end_line": 301
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: SimpleXML&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Load(SimpleXML&) is fired after FavoriteManager has loaded hub groups, hubs and directories, while the XML root is still stepped into; FavoriteUserManager consumes this callback to load favorite users."
+        ],
+        "events": [
+          "Load"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: SimpleXML&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "Favorites.xml contains hubs and directories",
+          "when": "FavoriteManager finishes parsing them inside the Favorites root",
+          "then": "Load(SimpleXML&) fires with the root context before the loader steps out."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.save",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteManagerListener::on(Save, SimpleXML&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 239,
+          "end_line": 264
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 160,
+          "end_line": 190
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 295,
+          "end_line": 297
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: SimpleXML&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Save(SimpleXML&) is fired after FavoriteManager writes its own hub/directory tags and before Favorites XML is written; FavoriteUserManager appends Users data during this callback."
+        ],
+        "events": [
+          "Save"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: SimpleXML&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "FavoriteManager is serializing dirty favorites",
+          "when": "it has written CID, hubs and directories but has not saved the XML file",
+          "then": "Save(SimpleXML&) fires so listeners can append their sections before file output."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.event.slotsUpdated",
+      "kind": "event",
+      "upstream_symbols": [
+        "FavoriteUserManagerListener::on(SlotsUpdated, const UserPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.cpp",
+          "start_line": 42,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 38,
+          "end_line": 42
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const UserPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "SlotsUpdated carries UserPtr after reservation insertion; after successful unreserve; and after expiry removals, which are collected under lock then notified after unlocking."
+        ],
+        "events": [
+          "SlotsUpdated"
+        ],
+        "errors": [],
+        "completion": "Synchronous event dispatch on the emitting manager/callback thread.",
+        "cancellation": "No cancellation API; lifecycle is controlled by Speaker/listener registration.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const UserPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "reserveSlot adds or refreshes a reservation",
+          "when": "it stores the deadline",
+          "then": "SlotsUpdated fires for that user before connectUser result is returned."
+        },
+        {
+          "given": "a reservation expires or an existing reservation is explicitly unreserved",
+          "when": "its entry is removed",
+          "then": "SlotsUpdated fires after the slot-map lock is released and carries that user."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "favorites.group-aliases",
+      "kind": "capability",
+      "upstream_symbols": [
+        "using FavHubGroups = std::unordered_map<string, HubSettings>;",
+        "using FavHubGroup = FavHubGroups::value_type;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavHubGroup.h",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "airdcpp/favorites/FavHubGroup.h",
+          "start_line": 29,
+          "end_line": 29
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FavHubGroups is unordered_map<string, HubSettings>; FavHubGroup is that map’s value_type. These are type aliases with no owned state or operations."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "an owner creates FavHubGroups",
+          "when": "it indexes hubs by group name",
+          "then": "the value type is a HubSettings record and group names are string keys."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavHubGroup.h:28:TypeAliasDecl:FavHubGroups",
+        "decl:airdcpp/favorites/FavHubGroup.h:29:TypeAliasDecl:FavHubGroup"
+      ]
+    },
+    {
+      "id": "favorites.hub-entry-model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class FavoriteHubEntry : public HubSettings {",
+        "using Ptr = FavoriteHubEntry *;",
+        "using List = vector<Ptr>;",
+        "enum ConnectState {",
+        "STATE_DISCONNECTED,",
+        "STATE_CONNECTING,",
+        "STATE_CONNECTED",
+        "GETSET(string, name, Name);",
+        "GETSET(string, description, Description);",
+        "GETSET(string, password, Password);",
+        "GETSET(string, server, Server);",
+        "GETSET(string, headerOrder, HeaderOrder);",
+        "GETSET(string, headerWidths, HeaderWidths);",
+        "GETSET(string, headerVisible, HeaderVisible);",
+        "IGETSET(uint16_t, bottom, Bottom, 0);",
+        "IGETSET(uint16_t, top, Top, 0);",
+        "IGETSET(uint16_t, left, Left, 0);",
+        "IGETSET(uint16_t, right, Right, 0);",
+        "IGETSET(int, chatUserSplit, ChatUserSplit, 0);",
+        "IGETSET(bool, userliststate, UserListState, true);",
+        "IGETSET(ConnectState, connectState, ConnectState, STATE_DISCONNECTED);",
+        "IGETSET(ClientToken, currentHubToken, CurrentHubToken, 0);",
+        "IGETSET(bool, autoConnect, AutoConnect, true);",
+        "GETSET(string, group, Group);",
+        "GETSET(FavoriteHubToken, token, Token);",
+        "bool isAdcHub() const noexcept;",
+        "string getShareProfileName() const noexcept;",
+        "GETSET(string, name, Name);",
+        "GETSET(string, description, Description);",
+        "GETSET(string, password, Password);",
+        "GETSET(string, server, Server);",
+        "GETSET(string, headerOrder, HeaderOrder);",
+        "GETSET(string, headerWidths, HeaderWidths);",
+        "GETSET(string, headerVisible, HeaderVisible);",
+        "IGETSET(uint16_t, bottom, Bottom, 0);",
+        "IGETSET(uint16_t, top, Top, 0);",
+        "IGETSET(uint16_t, left, Left, 0);",
+        "IGETSET(uint16_t, right, Right, 0);",
+        "IGETSET(int, chatUserSplit, ChatUserSplit, 0);",
+        "IGETSET(bool, userliststate, UserListState, true);",
+        "IGETSET(ConnectState, connectState, ConnectState, STATE_DISCONNECTED);",
+        "IGETSET(ClientToken, currentHubToken, CurrentHubToken, 0);",
+        "IGETSET(bool, autoConnect, AutoConnect, true);",
+        "GETSET(string, group, Group);",
+        "GETSET(FavoriteHubToken, token, Token);",
+        "\t\tFavoriteHubEntry() noexcept;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 33,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 38,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 71,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/HubEntry.cpp",
+          "start_line": 25,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 296,
+          "end_line": 360
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Constructor generates a random token; GUI layout fields default to zero/empty, userliststate=true, connectState=STATE_DISCONNECTED, currentHubToken=0, autoConnect=true. Name/description/password/server/header-order fields are strings; group and favorite token are stored values. isAdcHub delegates to LinkUtil on server. getShareProfileName resolves the entry ShareProfile and falls back to configured DEFAULT_SP display name if missing; callers require a usable default profile result."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "a FavoriteHubEntry is default-constructed",
+          "when": "its generated fields are read",
+          "then": "token is randomly generated, connect state is DISCONNECTED, auto-connect and userliststate are true, and hub token/layout coordinates are zero."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/HubEntry.h:33:ClassDecl:FavoriteHubEntry",
+        "decl:airdcpp/favorites/HubEntry.h:35:TypeAliasDecl:Ptr",
+        "decl:airdcpp/favorites/HubEntry.h:36:TypeAliasDecl:List",
+        "decl:airdcpp/favorites/HubEntry.h:38:EnumDecl:ConnectState",
+        "decl:airdcpp/favorites/HubEntry.h:39:EnumConstantDecl:STATE_DISCONNECTED",
+        "decl:airdcpp/favorites/HubEntry.h:40:EnumConstantDecl:STATE_CONNECTING",
+        "decl:airdcpp/favorites/HubEntry.h:41:EnumConstantDecl:STATE_CONNECTED",
+        "decl:airdcpp/favorites/HubEntry.h:46:FieldDecl:name",
+        "decl:airdcpp/favorites/HubEntry.h:47:FieldDecl:description",
+        "decl:airdcpp/favorites/HubEntry.h:48:FieldDecl:password",
+        "decl:airdcpp/favorites/HubEntry.h:49:FieldDecl:server",
+        "decl:airdcpp/favorites/HubEntry.h:52:FieldDecl:headerOrder",
+        "decl:airdcpp/favorites/HubEntry.h:53:FieldDecl:headerWidths",
+        "decl:airdcpp/favorites/HubEntry.h:54:FieldDecl:headerVisible",
+        "decl:airdcpp/favorites/HubEntry.h:55:FieldDecl:bottom",
+        "decl:airdcpp/favorites/HubEntry.h:56:FieldDecl:top",
+        "decl:airdcpp/favorites/HubEntry.h:57:FieldDecl:left",
+        "decl:airdcpp/favorites/HubEntry.h:58:FieldDecl:right",
+        "decl:airdcpp/favorites/HubEntry.h:60:FieldDecl:chatUserSplit",
+        "decl:airdcpp/favorites/HubEntry.h:61:FieldDecl:userliststate",
+        "decl:airdcpp/favorites/HubEntry.h:63:FieldDecl:connectState",
+        "decl:airdcpp/favorites/HubEntry.h:64:FieldDecl:currentHubToken",
+        "decl:airdcpp/favorites/HubEntry.h:66:FieldDecl:autoConnect",
+        "decl:airdcpp/favorites/HubEntry.h:67:FieldDecl:group",
+        "decl:airdcpp/favorites/HubEntry.h:68:FieldDecl:token",
+        "decl:airdcpp/favorites/HubEntry.h:70:CXXMethod:isAdcHub()",
+        "decl:airdcpp/favorites/HubEntry.h:71:CXXMethod:getShareProfileName()",
+        "decl:airdcpp/favorites/HubEntry.h:46:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:47:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:48:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:49:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:52:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:53:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:54:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:55:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:56:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:57:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:58:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:60:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:61:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:63:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:64:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:66:macro:IGETSET",
+        "decl:airdcpp/favorites/HubEntry.h:67:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:68:macro:GETSET",
+        "decl:airdcpp/favorites/HubEntry.h:44:CXCursor_Constructor:3996be5bd734"
+      ]
+    },
+    {
+      "id": "favorites.hubs-and-directories",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FavoriteManager::addFavoriteHub(const FavoriteHubEntryPtr&) noexcept",
+        "FavoriteManager::onFavoriteHubUpdated(const FavoriteHubEntryPtr&) noexcept",
+        "FavoriteManager::removeFavoriteHub(FavoriteHubToken) noexcept",
+        "FavoriteManager::isUnique(const string&, FavoriteHubToken) const noexcept",
+        "FavoriteManager::getFavoriteHubEntry(const string&) const noexcept",
+        "FavoriteManager::getFavoriteHubEntry(FavoriteHubToken) const noexcept",
+        "FavoriteManager::mergeHubSettings(const FavoriteHubEntryPtr&, HubSettings&) const noexcept",
+        "FavoriteManager::setHubSetting(const string&, HubSettings::HubBoolSetting, bool) noexcept",
+        "FavoriteManager::getFavoriteHubs(const string&) const noexcept",
+        "FavoriteManager::getFavoriteHubs() const noexcept",
+        "FavoriteManager::setFavoriteDir(const string&, const string&) noexcept",
+        "FavoriteManager::removeFavoriteDir(const string&) noexcept",
+        "FavoriteManager::hasFavoriteDir(const string&) const noexcept",
+        "FavoriteManager::getFavoriteDirectory(const string&) const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 43,
+          "end_line": 70
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Hub URL/token/group/settings or directory path and group."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Favorite hub insertion rejects duplicate server case-insensitively; successful add/update/remove sets connection state and emits matching event after mutation. isUnique respects excluded token. mergeHubSettings applies group then entry. autoConnect opens only missing clients. Directory and group operations and persistence are detailed in favorites.manager-source-contract."
+        ],
+        "events": [
+          "FavoriteHubAdded/Removed/Updated; FavoriteHubsUpdated after bulk profile reset; FavoriteDirectoriesUpdated after directory mutation."
+        ],
+        "errors": [],
+        "completion": "Synchronous state changes and client create requests.",
+        "cancellation": "No cancellation API; ClientManager owns resulting clients.",
+        "persistence": [
+          "Favorites.xml; save failure restores dirty state."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose snapshots and stable tokens; avoid unsafe mutable collection access.",
+      "acceptance_scenarios": [
+        {
+          "given": "a favorite hub already has a case-insensitive matching primary server",
+          "when": "addFavoriteHub tries to insert another entry",
+          "then": "it returns false and emits no FavoriteHubAdded event."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "favorites.manager-listener-events",
+      "kind": "event",
+      "upstream_symbols": [
+        "class FavoriteManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "typedef X<0> FavoriteHubAdded;",
+        "typedef X<1> FavoriteHubRemoved;",
+        "typedef X<2> FavoriteHubUpdated;",
+        "typedef X<3> FavoriteHubsUpdated;",
+        "typedef X<7> FavoriteDirectoriesUpdated;",
+        "typedef X<8> Load;",
+        "typedef X<9> Save;",
+        "virtual void on(FavoriteHubAdded, const FavoriteHubEntryPtr&) noexcept { }",
+        "virtual void on(FavoriteHubRemoved, const FavoriteHubEntryPtr&) noexcept {}",
+        "virtual void on(FavoriteHubUpdated, const FavoriteHubEntryPtr&) noexcept { }",
+        "virtual void on(FavoriteHubsUpdated) noexcept { }",
+        "virtual void on(FavoriteDirectoriesUpdated) noexcept { }",
+        "virtual void on(Load, SimpleXML&) noexcept {}",
+        "virtual void on(Save, SimpleXML&) noexcept {}",
+        "\tvirtual ~FavoriteManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 28,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 58,
+          "end_line": 148
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 205,
+          "end_line": 227
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 250,
+          "end_line": 264
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 345,
+          "end_line": 362
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/forward.h",
+          "start_line": 104,
+          "end_line": 105
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FavoriteDirectoriesUpdated is parameterless after directory set/remove/replace; FavoriteHubAdded/Updated/Removed carry FavoriteHubEntryPtr after their respective mutation; FavoriteHubsUpdated fires after bulk profile resets. Save(SimpleXML&) runs during persistence serialization; Load(SimpleXML&) runs after hubs/directories are loaded. Default callbacks are no-ops; Speaker dispatch is synchronous."
+        ],
+        "events": [],
+        "errors": [
+          "Core exceptions from profile/path/serialization dependency operations follow their source call sites; no additional manager exception conversion is implied."
+        ],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [
+          "Favorites.xml persists favorite hubs/groups/directories and favorite-user rows; reserved slots and hub connection states are transient."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "FavoriteManager successfully adds a nonduplicate hub",
+          "when": "listeners receive FavoriteHubAdded",
+          "then": "they receive the shared entry after insertion and connection state initialization."
+        },
+        {
+          "given": "FavoriteManager writes its XML",
+          "when": "Save listeners run",
+          "then": "they can append XML before file output; Load listeners run after hub/directory parsing."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:28:ClassDecl:FavoriteManagerListener",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:31:ClassTemplate:X<I>",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:31:EnumConstantDecl:TYPE",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:31:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/favorites/FavoriteManagerListener.h:31:29)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:33:TypedefDecl:FavoriteHubAdded",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:34:TypedefDecl:FavoriteHubRemoved",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:35:TypedefDecl:FavoriteHubUpdated",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:36:TypedefDecl:FavoriteHubsUpdated",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:38:TypedefDecl:FavoriteDirectoriesUpdated",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:40:TypedefDecl:Load",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:41:TypedefDecl:Save",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:43:CXXMethod:on(FavoriteHubAdded, const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:44:CXXMethod:on(FavoriteHubRemoved, const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:45:CXXMethod:on(FavoriteHubUpdated, const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:46:CXXMethod:on(FavoriteHubsUpdated)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:48:CXXMethod:on(FavoriteDirectoriesUpdated)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:50:CXXMethod:on(Load, SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:51:CXXMethod:on(Save, SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManagerListener.h:30:CXCursor_Destructor:955fccf168c5"
+      ]
+    },
+    {
+      "id": "favorites.manager-source-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class FavoriteManager : public Speaker<FavoriteManagerListener>, public Singleton<FavoriteManager>,",
+        "void autoConnect() noexcept;",
+        "FavoriteHubEntryList& getFavoriteHubsUnsafe() noexcept { return favoriteHubs; }",
+        "bool addFavoriteHub(const FavoriteHubEntryPtr& aEntry) noexcept;",
+        "void onFavoriteHubUpdated(const FavoriteHubEntryPtr& aEntry) noexcept;",
+        "bool removeFavoriteHub(FavoriteHubToken aToken) noexcept;",
+        "bool isUnique(const string& aUrl, FavoriteHubToken aExcludedEntryToken) const noexcept;",
+        "FavoriteHubEntryPtr getFavoriteHubEntry(const string& aServer) const noexcept;",
+        "FavoriteHubEntryPtr getFavoriteHubEntry(FavoriteHubToken aToken) const noexcept;",
+        "void mergeHubSettings(const FavoriteHubEntryPtr& entry, HubSettings& settings) const noexcept;",
+        "void setHubSetting(const string& aUrl, HubSettings::HubBoolSetting aSetting, bool newValue) noexcept;",
+        "const FavHubGroups& getFavHubGroupsUnsafe() const noexcept { return favHubGroups; }",
+        "void setFavHubGroups(const FavHubGroups& favHubGroups_) noexcept;",
+        "FavoriteHubEntryList getFavoriteHubs(const string& group) const noexcept;",
+        "FavoriteHubEntryList getFavoriteHubs() const noexcept;",
+        "using FavoriteDirectoryMap = map<string, string>;",
+        "bool setFavoriteDir(const string& aPath, const string& aGroupName) noexcept;",
+        "bool removeFavoriteDir(const string& aPath) noexcept;",
+        "bool hasFavoriteDir(const string& aPath) const noexcept;",
+        "void setFavoriteDirs(const FavoriteDirectoryMap& dirs) noexcept;",
+        "StringPair getFavoriteDirectory(const string& aPath) const noexcept;",
+        "GroupedDirectoryMap getGroupedFavoriteDirs() const noexcept;",
+        "FavoriteDirectoryMap getFavoriteDirs() const noexcept;",
+        "void load() noexcept;",
+        "void setDirty() { xmlDirty = true; }",
+        "void shutdown() noexcept;",
+        "bool hasActiveHubs() const noexcept;",
+        "SharedMutex& getCS() noexcept {\n\t\treturn cs;\n\t}",
+        "mutable SharedMutex cs;",
+        "FavoriteHubEntryList favoriteHubs;",
+        "FavHubGroups favHubGroups;",
+        "FavoriteDirectoryMap favoriteDirectories;",
+        "uint64_t lastXmlSave = 0;",
+        "atomic<bool> xmlDirty{ false };",
+        "void save() noexcept;",
+        "FavoriteHubEntryList::const_iterator getFavoriteHubUnsafe(const string& aServer) const noexcept;",
+        "FavoriteHubEntryList::const_iterator getFavoriteHubUnsafe(FavoriteHubToken aToken) const noexcept;",
+        "int resetProfile(ProfileToken oldProfile, ProfileToken newProfile, bool nmdcOnly) noexcept;",
+        "void on(TimerManagerListener::Second, uint64_t tick) noexcept override;",
+        "void on(ShareProfileManagerListener::DefaultProfileChanged, ProfileToken aOldDefault, ProfileToken aNewDefault) noexcept override;",
+        "void on(ShareProfileManagerListener::ProfileRemoved, ProfileToken aProfile) noexcept override;",
+        "void on(ClientManagerListener::ClientCreated, const ClientPtr& c) noexcept override;",
+        "void on(ClientManagerListener::ClientConnected, const ClientPtr& c) noexcept override;",
+        "void on(ClientManagerListener::ClientRemoved, const ClientPtr& c) noexcept override;",
+        "void on(ClientManagerListener::ClientRedirected, const ClientPtr& aOldClient, const ClientPtr& aNewClient) noexcept override;",
+        "void onConnectStateChanged(const ClientPtr& aClient, FavoriteHubEntry::ConnectState aState) noexcept;",
+        "void setConnectState(const FavoriteHubEntryPtr& aEntry) noexcept;",
+        "void on(SettingsManagerListener::Load, SimpleXML& xml) noexcept override;",
+        "void loadFavoriteHubs(SimpleXML& aXml);",
+        "void loadFavoriteDirectories(SimpleXML& aXml);",
+        "void saveFavoriteHubs(SimpleXML& aXml) const noexcept;",
+        "void saveFavoriteDirectories(SimpleXML& aXml) const noexcept;",
+        "static void loadCID() noexcept;",
+        "\tFavoriteManager();",
+        "\t~FavoriteManager() override;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 35,
+          "end_line": 128
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 66,
+          "end_line": 66
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 73,
+          "end_line": 73
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 74,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 76,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 78,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 82,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 84,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 85,
+          "end_line": 85
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 86,
+          "end_line": 86
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 88,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 89,
+          "end_line": 89
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 97,
+          "end_line": 97
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 98,
+          "end_line": 98
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 100,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 103,
+          "end_line": 103
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 106,
+          "end_line": 106
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 107,
+          "end_line": 107
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 110,
+          "end_line": 110
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 111,
+          "end_line": 111
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 112,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 113,
+          "end_line": 113
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 115,
+          "end_line": 115
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 116,
+          "end_line": 116
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 119,
+          "end_line": 119
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 121,
+          "end_line": 121
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 122,
+          "end_line": 122
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 124,
+          "end_line": 124
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 125,
+          "end_line": 125
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 127,
+          "end_line": 127
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 94,
+          "end_line": 94
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManager.cpp",
+          "start_line": 35,
+          "end_line": 586
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteManagerListener.h",
+          "start_line": 31,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/forward.h",
+          "start_line": 104,
+          "end_line": 105
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Favorite directory mutations hold SharedMutex, mark XML dirty and emit FavoriteDirectoriesUpdated; setFavoriteDir returns true after assign, remove returns false if path absent, setFavoriteDirs replaces map. Getters return copied maps/groups; getFavoriteDirectory returns empty StringPair if absent.",
+          "addFavoriteHub rejects a case-insensitive duplicate primary server; on success sets connect state, fires FavoriteHubAdded, marks dirty. update sets state, marks dirty then fires Updated. remove by token returns false when absent; otherwise erases, fires Removed, marks dirty. isUnique allows existing URL only when its token matches excluded token. Merge applies group HubSettings before entry settings.",
+          "autoConnect snapshots eligible server URLs under read lock and creates only missing clients. Client create/connect/remove/redirect transitions update hub state/current token and emit FavoriteHubUpdated. Profile default/removal callbacks reset matching share profiles (default change only non-NMDC, removal all) and emit per-entry updates then FavoriteHubsUpdated.",
+          "Favorite hubs, groups and directories persist in Favorites.xml. Timer saves dirty XML after 15 seconds; failed save catches Core Exception and restores dirty=true. Load ignores empty server URLs, strips failover suffix after semicolon, maps legacy HideShare to SP_HIDDEN, and resets invalid/non-ADC profile references to default. Directories version<2 is converted from legacy rows; v2 reads grouped targets. Save/Load events carry mutable SimpleXML by reference.",
+          "setFavHubGroups replaces map under lock but source does not mark dirty or emit event. getFavoriteHubs(group) performs case-insensitive group filtering without visible lock in its definition; treat concurrent access as unproven. getCS exposes manager SharedMutex by reference.",
+          "setHubSetting no-ops for absent URL; otherwise changes setting, calls ClientManager::myInfoUpdated and fires FavoriteHubUpdated, without marking XML dirty. resetProfile mutates entries under a read lock before emitting callbacks. Preserve these observed synchronization/persistence details."
+        ],
+        "events": [],
+        "errors": [
+          "Core exceptions from profile/path/serialization dependency operations follow their source call sites; no additional manager exception conversion is implied."
+        ],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [
+          "Favorites.xml persists favorite hubs/groups/directories and favorite-user rows; reserved slots and hub connection states are transient."
+        ],
+        "resources": [
+          "ClientManager, ShareProfileManager, SettingsManager, ConnectionManager, DownloadManager and UploadManager listeners/hooks."
+        ]
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "addFavoriteHub is called for a server matching an existing primary URL case-insensitively",
+          "when": "the duplicate check runs",
+          "then": "it returns false and leaves the original entry/events/persistence unchanged."
+        },
+        {
+          "given": "the save timer fires less than 15 seconds after a dirty update",
+          "when": "FavoriteManager checks its debounce",
+          "then": "it does not write XML yet."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavoriteManager.h:35:ClassDecl:FavoriteManager",
+        "decl:airdcpp/favorites/FavoriteManager.h:40:CXXMethod:autoConnect()",
+        "decl:airdcpp/favorites/FavoriteManager.h:41:CXXMethod:getFavoriteHubsUnsafe()",
+        "decl:airdcpp/favorites/FavoriteManager.h:43:CXXMethod:addFavoriteHub(const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:44:CXXMethod:onFavoriteHubUpdated(const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:45:CXXMethod:removeFavoriteHub(FavoriteHubToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:46:CXXMethod:isUnique(const string &, FavoriteHubToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:47:CXXMethod:getFavoriteHubEntry(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:48:CXXMethod:getFavoriteHubEntry(FavoriteHubToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:50:CXXMethod:mergeHubSettings(const FavoriteHubEntryPtr &, HubSettings &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:51:CXXMethod:setHubSetting(const string &, HubSettings::HubBoolSetting, bool)",
+        "decl:airdcpp/favorites/FavoriteManager.h:53:CXXMethod:getFavHubGroupsUnsafe()",
+        "decl:airdcpp/favorites/FavoriteManager.h:54:CXXMethod:setFavHubGroups(const FavHubGroups &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:56:CXXMethod:getFavoriteHubs(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:57:CXXMethod:getFavoriteHubs()",
+        "decl:airdcpp/favorites/FavoriteManager.h:60:TypeAliasDecl:FavoriteDirectoryMap",
+        "decl:airdcpp/favorites/FavoriteManager.h:63:CXXMethod:setFavoriteDir(const string &, const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:64:CXXMethod:removeFavoriteDir(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:65:CXXMethod:hasFavoriteDir(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:66:CXXMethod:setFavoriteDirs(const FavoriteDirectoryMap &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:67:CXXMethod:getFavoriteDirectory(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:69:CXXMethod:getGroupedFavoriteDirs()",
+        "decl:airdcpp/favorites/FavoriteManager.h:70:CXXMethod:getFavoriteDirs()",
+        "decl:airdcpp/favorites/FavoriteManager.h:72:CXXMethod:load()",
+        "decl:airdcpp/favorites/FavoriteManager.h:73:CXXMethod:setDirty()",
+        "decl:airdcpp/favorites/FavoriteManager.h:74:CXXMethod:shutdown()",
+        "decl:airdcpp/favorites/FavoriteManager.h:76:CXXMethod:hasActiveHubs()",
+        "decl:airdcpp/favorites/FavoriteManager.h:78:CXXMethod:getCS()",
+        "decl:airdcpp/favorites/FavoriteManager.h:82:FieldDecl:cs",
+        "decl:airdcpp/favorites/FavoriteManager.h:84:FieldDecl:favoriteHubs",
+        "decl:airdcpp/favorites/FavoriteManager.h:85:FieldDecl:favHubGroups",
+        "decl:airdcpp/favorites/FavoriteManager.h:86:FieldDecl:favoriteDirectories",
+        "decl:airdcpp/favorites/FavoriteManager.h:88:FieldDecl:lastXmlSave",
+        "decl:airdcpp/favorites/FavoriteManager.h:89:FieldDecl:xmlDirty",
+        "decl:airdcpp/favorites/FavoriteManager.h:90:CXXMethod:save()",
+        "decl:airdcpp/favorites/FavoriteManager.h:97:CXXMethod:getFavoriteHubUnsafe(const string &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:98:CXXMethod:getFavoriteHubUnsafe(FavoriteHubToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:100:CXXMethod:resetProfile(ProfileToken, ProfileToken, bool)",
+        "decl:airdcpp/favorites/FavoriteManager.h:103:CXXMethod:on(TimerManagerListener::Second, uint64_t)",
+        "decl:airdcpp/favorites/FavoriteManager.h:106:CXXMethod:on(ShareProfileManagerListener::DefaultProfileChanged, ProfileToken, ProfileToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:107:CXXMethod:on(ShareProfileManagerListener::ProfileRemoved, ProfileToken)",
+        "decl:airdcpp/favorites/FavoriteManager.h:110:CXXMethod:on(ClientManagerListener::ClientCreated, const ClientPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:111:CXXMethod:on(ClientManagerListener::ClientConnected, const ClientPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:112:CXXMethod:on(ClientManagerListener::ClientRemoved, const ClientPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:113:CXXMethod:on(ClientManagerListener::ClientRedirected, const ClientPtr &, const ClientPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:115:CXXMethod:onConnectStateChanged(const ClientPtr &, FavoriteHubEntry::ConnectState)",
+        "decl:airdcpp/favorites/FavoriteManager.h:116:CXXMethod:setConnectState(const FavoriteHubEntryPtr &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:119:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:121:CXXMethod:loadFavoriteHubs(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:122:CXXMethod:loadFavoriteDirectories(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:124:CXXMethod:saveFavoriteHubs(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:125:CXXMethod:saveFavoriteDirectories(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteManager.h:127:CXXMethod:loadCID()",
+        "decl:airdcpp/favorites/FavoriteManager.h:94:CXCursor_Constructor:674563e8c625",
+        "decl:airdcpp/favorites/FavoriteManager.h:95:CXCursor_Destructor:181e01e6d09f"
+      ]
+    },
+    {
+      "id": "favorites.reserved-slot-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ReservedSlotManager : private TimerManagerListener",
+        "optional<UserConnectResult> reserveSlot(const HintedUser& aUser, uint64_t aTime) noexcept;",
+        "void unreserveSlot(const UserPtr& aUser) noexcept;",
+        "bool hasReservedSlot(const UserPtr& aUser) const noexcept;",
+        "using SlotsUpdatedF = std::function<void (const UserPtr &)>;",
+        "mutable SharedMutex cs;",
+        "using SlotMap = unordered_map<UserPtr, uint64_t, User::Hash>;",
+        "SlotMap reservedSlots;",
+        "void on(TimerManagerListener::Minute, uint64_t aTick) noexcept override;",
+        "SlotsUpdatedF onSlotsUpdated;",
+        "\texplicit ReservedSlotManager(SlotsUpdatedF&& aSlotsUpdatedF) noexcept;",
+        "\t~ReservedSlotManager() override;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 31,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 47,
+          "end_line": 47
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.cpp",
+          "start_line": 34,
+          "end_line": 87
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Constructor stores callback and registers minute timer; destructor unregisters. reserveSlot stores expiry as GET_TICK()+seconds*1000 when aTime>0, otherwise zero (no expiry), invokes SlotsUpdated callback, then returns UploadQueueManager connectUser result. hasReservedSlot checks map membership. unreserve erases only present user and then notifies. Minute callback erases entries whose positive expiry is earlier than tick, then notifies each removed user after releasing lock."
+        ],
+        "events": [],
+        "errors": [
+          "Core exceptions from profile/path/serialization dependency operations follow their source call sites; no additional manager exception conversion is implied."
+        ],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [
+          "Favorites.xml persists favorite hubs/groups/directories and favorite-user rows; reserved slots and hub connection states are transient."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "reserveSlot receives aTime=0",
+          "when": "it records the reservation",
+          "then": "the deadline is zero (no expiry), SlotsUpdated fires, and the queue connection result is returned."
+        },
+        {
+          "given": "a positive reservation deadline is earlier than a Minute tick",
+          "when": "the timer expires it",
+          "then": "the entry is removed under lock and SlotsUpdated fires afterward."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/ReservedSlotManager.h:31:ClassDecl:ReservedSlotManager",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:36:CXXMethod:reserveSlot(const HintedUser &, uint64_t)",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:37:CXXMethod:unreserveSlot(const UserPtr &)",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:38:CXXMethod:hasReservedSlot(const UserPtr &)",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:40:TypeAliasDecl:SlotsUpdatedF",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:44:FieldDecl:cs",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:46:TypeAliasDecl:SlotMap",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:47:FieldDecl:reservedSlots",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:50:CXXMethod:on(TimerManagerListener::Minute, uint64_t)",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:52:FieldDecl:onSlotsUpdated",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:41:CXCursor_Constructor:802ebd4b4eb0",
+        "decl:airdcpp/favorites/ReservedSlotManager.h:42:CXCursor_Destructor:32bf8c0c8dc8"
+      ]
+    },
+    {
+      "id": "favorites.user-listener-events",
+      "kind": "event",
+      "upstream_symbols": [
+        "class FavoriteUserManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "template<int I>\tstruct X { enum { TYPE = I };  };",
+        "typedef X<0> FavoriteUserAdded;",
+        "typedef X<1> FavoriteUserRemoved;",
+        "typedef X<2> FavoriteUserUpdated;",
+        "typedef X<3> SlotsUpdated;",
+        "virtual void on(FavoriteUserAdded, const FavoriteUser&) noexcept { }",
+        "virtual void on(FavoriteUserRemoved, const FavoriteUser&) noexcept { }",
+        "virtual void on(FavoriteUserUpdated, const UserPtr&) noexcept { }",
+        "virtual void on(SlotsUpdated, const UserPtr&) noexcept { }",
+        "\tvirtual ~FavoriteUserManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 26,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 31,
+          "end_line": 31
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 28,
+          "end_line": 28
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 89,
+          "end_line": 108
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 128,
+          "end_line": 138
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 270,
+          "end_line": 293
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.cpp",
+          "start_line": 42,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FavoriteUserAdded carries FavoriteUser after insert/flag; FavoriteUserRemoved carries the previous FavoriteUser after user flag unset but before map erase. FavoriteUserUpdated carries UserPtr on connected favorite user and when a favorite user goes fully offline. SlotsUpdated carries UserPtr after reserve/unreserve/expiry state mutation. Default listener callbacks are no-ops and Speaker dispatch is synchronous."
+        ],
+        "events": [],
+        "errors": [
+          "Core exceptions from profile/path/serialization dependency operations follow their source call sites; no additional manager exception conversion is implied."
+        ],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [
+          "Favorites.xml persists favorite hubs/groups/directories and favorite-user rows; reserved slots and hub connection states are transient."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "a favorite user becomes fully offline",
+          "when": "ClientManager UserDisconnected is handled",
+          "then": "LastSeen updates and FavoriteUserUpdated carries its UserPtr."
+        },
+        {
+          "given": "a reserved slot expires",
+          "when": "SlotsUpdated fires",
+          "then": "the payload identifies the user whose reservation was removed."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:26:ClassDecl:FavoriteUserManagerListener",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:29:ClassTemplate:X<I>",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:29:EnumConstantDecl:TYPE",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:29:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/favorites/FavoriteUserManagerListener.h:29:29)",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:31:TypedefDecl:FavoriteUserAdded",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:32:TypedefDecl:FavoriteUserRemoved",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:33:TypedefDecl:FavoriteUserUpdated",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:35:TypedefDecl:SlotsUpdated",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:37:CXXMethod:on(FavoriteUserAdded, const FavoriteUser &)",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:38:CXXMethod:on(FavoriteUserRemoved, const FavoriteUser &)",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:39:CXXMethod:on(FavoriteUserUpdated, const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:41:CXXMethod:on(SlotsUpdated, const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManagerListener.h:28:CXCursor_Destructor:f484a08e76cc"
+      ]
+    },
+    {
+      "id": "favorites.user-manager-source-contract",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class FavoriteUserManager : public Speaker<FavoriteUserManagerListener>, public Singleton<FavoriteUserManager>,",
+        "using FavoriteMap = unordered_map<CID, FavoriteUser>;",
+        "void addFavoriteUser(const HintedUser& aUser) noexcept;",
+        "void removeFavoriteUser(const UserPtr& aUser) noexcept;",
+        "optional<FavoriteUser> getFavoriteUser(const UserPtr& aUser) const noexcept;",
+        "bool hasSlot(const UserPtr& aUser) const noexcept;",
+        "void setUserDescription(const UserPtr& aUser, const string& description) noexcept;",
+        "void setAutoGrant(const UserPtr& aUser, bool grant) noexcept;",
+        "time_t getLastSeen(const UserPtr& aUser) const noexcept;",
+        "void changeLimiterOverride(const UserPtr& aUser) noexcept;",
+        "void addSavedUser(const UserPtr& aUser) noexcept;",
+        "void setDirty() noexcept;",
+        "ReservedSlotManager& getReservedSlots() noexcept {\n\t\treturn *reservedSlots.get();\n\t}",
+        "mutable SharedMutex cs;",
+        "unique_ptr<ReservedSlotManager> reservedSlots;",
+        "FavoriteMap users;",
+        "unordered_set<UserPtr, User::Hash> savedUsers;",
+        "static FavoriteUser createUser(const UserPtr& aUser, const string& aUrl);",
+        "ActionHookResult<MessageHighlightList> onPrivateMessage(const ChatMessagePtr& aMessage, const ActionHookResultGetter<MessageHighlightList>& aResultGetter) noexcept;",
+        "ActionHookResult<MessageHighlightList> onHubMessage(const ChatMessagePtr& aMessage, const ActionHookResultGetter<MessageHighlightList>& aResultGetter) noexcept;",
+        "ActionHookResult<OptionalTransferSlot> onSlotType(const UserConnection& aUser, const ParsedUpload& aUploadInfo, const ActionHookResultGetter<OptionalTransferSlot>& aResultGetter) const noexcept;",
+        "ActionHookResult<MessageHighlightList> formatFavoriteUsers(const ChatMessagePtr& msg, const ActionHookResultGetter<MessageHighlightList>& aResultGetter) noexcept;",
+        "void on(ClientManagerListener::UserConnected, const OnlineUser& user, bool wasOffline) noexcept override;",
+        "void on(ClientManagerListener::UserDisconnected, const UserPtr& user, bool wentOffline) noexcept override;",
+        "void on(FavoriteManagerListener::Load, SimpleXML& xml) noexcept override;",
+        "void on(FavoriteManagerListener::Save, SimpleXML& xml) noexcept override;",
+        "void on(ConnectionManagerListener::UserSet, UserConnection* aCqi) noexcept override;",
+        "void on(DownloadManagerListener::Tick, const DownloadList& aDownloads, uint64_t aTick) noexcept override;",
+        "void loadFavoriteUsers(SimpleXML& aXml);",
+        "void saveFavoriteUsers(SimpleXML& aXml) noexcept;",
+        "\tFavoriteUserManager();",
+        "\t~FavoriteUserManager() override;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 38,
+          "end_line": 99
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 58,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 63,
+          "end_line": 63
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 70,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 72,
+          "end_line": 72
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 79,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 80,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 82,
+          "end_line": 82
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 84,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 87,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 88,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 91,
+          "end_line": 91
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 93,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 97,
+          "end_line": 97
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 98,
+          "end_line": 98
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 76,
+          "end_line": 76
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 77,
+          "end_line": 77
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 34,
+          "end_line": 372
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManagerListener.h",
+          "start_line": 31,
+          "end_line": 45
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "addFavoriteUser ignores self and existing CID; otherwise derives nick/URL/lastSeen from online or offline user data, inserts by CID, flags User::FAVORITE and fires FavoriteUserAdded. remove clears favorite flag and fires FavoriteUserRemoved inside the write-lock scope if present, then marks FavoriteManager dirty even when absent. getFavoriteUser returns optional copy.",
+          "hasSlot checks favorite auto-grant then reserved slots. setAutoGrant and setUserDescription no-op for absent favorite; existing records are mutated and manager dirtied. Source uses RLock while mutating these fields; this is not an exclusive lock guarantee. changeLimiterOverride toggles SUPERUSER under RLock but does not call setDirty or fire an event. getLastSeen returns zero when not favorite.",
+          "Favorite users persist under Favorites.xml Users with last-seen, grant, superuser, description, nick, URL, CID and Favorite flag. Saved users are serialized with Favorite=false; loadFavoriteUsers skips unresolved users and non-favorite entries, so those saved-only rows are not restored to savedUsers by this method. User connect/disconnect callbacks emit FavoriteUserUpdated; offline disconnect updates lastSeen.",
+          "Incoming PM/main-chat hook adds favorite-nick highlights for every occurrence. Upload slot hook returns USERSLOT for favorite grant or active reservation, else nullopt. Connection UserSet disables limiter for favorite superusers. Download Tick auto-favorites nonfavorites above FAV_DL_SPEED after 7 seconds and writes a fast-user description. ReservedSlotManager is owned uniquely and emits SlotsUpdated callback; FavoriteUserManager owns listener/hook lifecycle."
+        ],
+        "events": [],
+        "errors": [
+          "Core exceptions from profile/path/serialization dependency operations follow their source call sites; no additional manager exception conversion is implied."
+        ],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [
+          "Favorites.xml persists favorite hubs/groups/directories and favorite-user rows; reserved slots and hub connection states are transient."
+        ],
+        "resources": [
+          "ClientManager, ShareProfileManager, SettingsManager, ConnectionManager, DownloadManager and UploadManager listeners/hooks."
+        ]
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "addFavoriteUser receives the local user or an existing favorite CID",
+          "when": "it checks eligibility",
+          "then": "it returns without inserting or firing FavoriteUserAdded."
+        },
+        {
+          "given": "an absent user receives setAutoGrant or setUserDescription",
+          "when": "the manager looks up the favorite record",
+          "then": "it performs no mutation; an absent remove still marks FavoriteManager dirty."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavoriteUserManager.h:38:ClassDecl:FavoriteUserManager",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:42:TypeAliasDecl:FavoriteMap",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:44:CXXMethod:addFavoriteUser(const HintedUser &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:45:CXXMethod:removeFavoriteUser(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:46:CXXMethod:getFavoriteUser(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:48:CXXMethod:hasSlot(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:49:CXXMethod:setUserDescription(const UserPtr &, const string &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:50:CXXMethod:setAutoGrant(const UserPtr &, bool)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:51:CXXMethod:getLastSeen(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:52:CXXMethod:changeLimiterOverride(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:54:CXXMethod:addSavedUser(const UserPtr &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:56:CXXMethod:setDirty()",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:58:CXXMethod:getReservedSlots()",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:63:FieldDecl:cs",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:64:FieldDecl:reservedSlots",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:67:FieldDecl:users",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:70:FieldDecl:savedUsers",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:72:CXXMethod:createUser(const UserPtr &, const string &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:79:CXXMethod:onPrivateMessage(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:80:CXXMethod:onHubMessage(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:82:CXXMethod:onSlotType(const UserConnection &, const ParsedUpload &, const ActionHookResultGetter<OptionalTransferSlot> &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:84:CXXMethod:formatFavoriteUsers(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:87:CXXMethod:on(ClientManagerListener::UserConnected, const OnlineUser &, bool)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:88:CXXMethod:on(ClientManagerListener::UserDisconnected, const UserPtr &, bool)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:90:CXXMethod:on(FavoriteManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:91:CXXMethod:on(FavoriteManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:93:CXXMethod:on(ConnectionManagerListener::UserSet, UserConnection *)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:95:CXXMethod:on(DownloadManagerListener::Tick, const DownloadList &, uint64_t)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:97:CXXMethod:loadFavoriteUsers(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:98:CXXMethod:saveFavoriteUsers(SimpleXML &)",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:76:CXCursor_Constructor:1fb39c2af8bb",
+        "decl:airdcpp/favorites/FavoriteUserManager.h:77:CXCursor_Destructor:b37861cee1e1"
+      ]
+    },
+    {
+      "id": "favorites.user-model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class FavoriteUser : public Flags {",
+        "enum Flags {",
+        "FLAG_GRANTSLOT = 1 << 0,",
+        "FLAG_SUPERUSER = 1 << 1",
+        "UserPtr& getUser() { return user; }",
+        "GETSET(UserPtr, user, User);",
+        "GETSET(string, cid, Cid);",
+        "GETSET(string, nick, Nick);",
+        "GETSET(string, url, Url);",
+        "GETSET(time_t, lastSeen, LastSeen);",
+        "GETSET(string, description, Description);",
+        "GETSET(UserPtr, user, User);",
+        "GETSET(string, cid, Cid);",
+        "GETSET(string, nick, Nick);",
+        "GETSET(string, url, Url);",
+        "GETSET(time_t, lastSeen, LastSeen);",
+        "GETSET(string, description, Description);",
+        "\tFavoriteUser(const UserPtr& user_, const string& nick_, const string& hubUrl_, const string& aCid_) : user(user_), cid(aCid_), nick(nick_), url(hubUrl_), lastSeen(0) {}"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 28,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 32,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUser.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.cpp",
+          "start_line": 64,
+          "end_line": 88
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact source-spelled declarations are preserved in upstream_symbols and declaration_ids."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FavoriteUser stores shared UserPtr, CID string, nick, hub URL, lastSeen and description. Constructor initializes lastSeen=0 and leaves description default empty; FLAG_GRANTSLOT and FLAG_SUPERUSER are Flags bits. GETSET accessors mutate these model fields; manager serialization and notification semantics are traced in FavoriteUserManager source contract."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous state mutation and event dispatch; Favorites XML is saved synchronously by dirty timer/shutdown callbacks.",
+        "cancellation": "No cancellation API. Manager destructors unregister listeners; FavoriteManager shutdown saves dirty state.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Returned hub/user collections are copied unless an explicitly unsafe reference accessor is named; models expose shared UserPtr/entry ownership as specified."
+      ],
+      "threading_evidence": [
+        "FavoriteManager and FavoriteUserManager use SharedMutex on collections, but source contains identified reference access and RLock mutation caveats; ReservedSlotManager locks its map and calls notifications after releasing it."
+      ],
+      "proposed_bridge_requirement": "Preserve update/no-op results, exact event order/payloads, XML compatibility, profile fallback, grant/slot conditions and thread/ownership caveats.",
+      "acceptance_scenarios": [
+        {
+          "given": "FavoriteUser is constructed",
+          "when": "its flags/properties are read",
+          "then": "lastSeen is zero, description is default empty, and grant/superuser flags are clear unless later set."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/favorites/FavoriteUser.h:28:ClassDecl:FavoriteUser",
+        "decl:airdcpp/favorites/FavoriteUser.h:32:EnumDecl:Flags",
+        "decl:airdcpp/favorites/FavoriteUser.h:33:EnumConstantDecl:FLAG_GRANTSLOT",
+        "decl:airdcpp/favorites/FavoriteUser.h:34:EnumConstantDecl:FLAG_SUPERUSER",
+        "decl:airdcpp/favorites/FavoriteUser.h:37:CXXMethod:getUser()",
+        "decl:airdcpp/favorites/FavoriteUser.h:39:FieldDecl:user",
+        "decl:airdcpp/favorites/FavoriteUser.h:40:FieldDecl:cid",
+        "decl:airdcpp/favorites/FavoriteUser.h:41:FieldDecl:nick",
+        "decl:airdcpp/favorites/FavoriteUser.h:42:FieldDecl:url",
+        "decl:airdcpp/favorites/FavoriteUser.h:43:FieldDecl:lastSeen",
+        "decl:airdcpp/favorites/FavoriteUser.h:44:FieldDecl:description",
+        "decl:airdcpp/favorites/FavoriteUser.h:39:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:40:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:41:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:42:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:43:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:44:macro:GETSET",
+        "decl:airdcpp/favorites/FavoriteUser.h:30:CXCursor_Constructor:96b7c518d5e5"
+      ]
+    },
+    {
+      "id": "favorites.users-reserved-slots",
+      "kind": "operation",
+      "upstream_symbols": [
+        "FavoriteUserManager::addFavoriteUser(const HintedUser&) noexcept",
+        "FavoriteUserManager::removeFavoriteUser(const UserPtr&) noexcept",
+        "FavoriteUserManager::getFavoriteUser(const UserPtr&) const noexcept",
+        "FavoriteUserManager::hasSlot(const UserPtr&) const noexcept",
+        "FavoriteUserManager::setUserDescription(const UserPtr&, const string&) noexcept",
+        "FavoriteUserManager::setAutoGrant(const UserPtr&, bool) noexcept",
+        "FavoriteUserManager::getLastSeen(const UserPtr&) const noexcept",
+        "FavoriteUserManager::changeLimiterOverride(const UserPtr&) noexcept",
+        "FavoriteUserManager::addSavedUser(const UserPtr&) noexcept",
+        "ReservedSlotManager::reserveSlot(const HintedUser&, uint64_t) noexcept",
+        "ReservedSlotManager::unreserveSlot(const UserPtr&) noexcept",
+        "ReservedSlotManager::hasReservedSlot(const UserPtr&) const noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/favorites/FavoriteUserManager.h",
+          "start_line": 44,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/favorites/ReservedSlotManager.h",
+          "start_line": 36,
+          "end_line": 38
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User values, description, auto-grant flag and reservation time."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Favorite user/self/duplicate handling, optional lookup, grants, superuser limiter overrides, hook behavior, XML persistence and mutation locking are detailed in favorites.user-manager-source-contract. reserveSlot stores an expiry then immediately emits SlotsUpdated and returns UploadQueueManager connectUser result. Expiration removes positive deadlines once minute tick passes them."
+        ],
+        "events": [
+          "FavoriteUserAdded/Removed/Updated and SlotsUpdated, with exact timing in the source contract and event records."
+        ],
+        "errors": [
+          "reserveSlot returns the optional result of connectUser; no exception/error variant is added here."
+        ],
+        "completion": "Synchronous favorite state operations; slot reservation returns connect result while the minute timer expires reservations asynchronously.",
+        "cancellation": "unreserveSlot removes a reservation; no cancellation token.",
+        "persistence": [
+          "FavoriteUser records persist through FavoriteManager Save/Load. Reserved slots are transient."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Preserve optional reserve result and represent favorite-user data as snapshots.",
+      "acceptance_scenarios": [
+        {
+          "given": "a user is not a favorite",
+          "when": "setAutoGrant and setUserDescription are called",
+          "then": "both return without mutation; reserveSlot still records a transient reservation and returns the queue connection result."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    }
+  ]
+}

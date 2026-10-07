@@ -1,0 +1,456 @@
+{
+  "schema_version": 1,
+  "domain_id": "lifecycle",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "lifecycle.initialize-util",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::initializeUtil(const string& aConfigPath = \"\") noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/DCPlusPlus.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/DCPlusPlus.cpp",
+          "start_line": 64,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/util/AppUtil.cpp",
+          "start_line": 228,
+          "end_line": 260
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Config path string; defaults to empty."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "aConfigPath = \"\""
+        ],
+        "effects": [
+          "Initializes AppUtil paths, then ValueGenerator identity/random state, then Text encoding state, in that order. AppUtil uses the supplied config path and boot/local-mode settings to derive profile/resource paths and creates configured directories."
+        ],
+        "events": [],
+        "errors": [
+          "Entry point is noexcept and does not translate exceptions into an error result; failures escaping called code terminate rather than becoming a recoverable return value."
+        ],
+        "completion": "Synchronous return after AppUtil::initialize, ValueGenerator::initialize and Text::initialize at DCPlusPlus.cpp:64-68.",
+        "cancellation": "No cancellation token or interruption branch.",
+        "persistence": [],
+        "resources": [
+          "Host-selected profile/config/resource paths; AppUtil.cpp:228-260 includes HOME-dependent defaults and directory creation."
+        ]
+      },
+      "ownership_evidence": [
+        "Core managers are process-global singletons; these functions do not create an independently owned runtime instance. Callback arguments are value-owned for the call; StartupLoader borrows progress/message callback arguments while startup is executing."
+      ],
+      "threading_evidence": [
+        "The entry-point body executes on the caller thread without a global lifecycle lock. Started managers have their own workers; concurrent or repeated runtime calls are not established safe."
+      ],
+      "proposed_bridge_requirement": "Preserve ordering and keep repeated-call behavior unspecified until verified.",
+      "acceptance_scenarios": [
+        {
+          "given": "A configuration path is supplied",
+          "when": "initializeUtil is called",
+          "then": "AppUtil, ValueGenerator and Text initialize in source order."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "lifecycle.restart",
+        "resources.host-policy"
+      ],
+      "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:56:FunctionDecl:initializeUtil(const string &)",
+      "contract_evidence": "source-traced",
+      "surface_classification": "public functionality",
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+    },
+    {
+      "id": "lifecycle.shutdown",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::shutdown(StepFunction, ProgressFunction, ShutdownUnloadCallback = nullptr, Callback = nullptr)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/DCPlusPlus.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/DCPlusPlus.cpp",
+          "start_line": 189,
+          "end_line": 265
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Step/progress callbacks; optional module unload/destroy callbacks."
+        ],
+        "preconditions": [
+          "Fully initialized managers exist; this function dereferences singleton instances directly and is not a general partial-startup destructor."
+        ],
+        "defaults": [
+          "moduleUnloadF = nullptr; moduleDestroyF = nullptr"
+        ],
+        "effects": [
+          "Stops TimerManager, aborts refresh, shuts down hash/share/connections, closes connectivity and GeoIP and waits for BufferedSocket shutdown. Optional module-unload callback then runs before queue/recents/ignore/favorites/settings persistence. Optional module-destroy callback runs before singleton deletion; manager instances are deleted in source order; RUNNING flag deletion is attempted last without checking its boolean result."
+        ],
+        "events": [],
+        "errors": [
+          "The entry point has no general exception catch or aggregate error result. A throwing module-unload/destroy callback propagates and prevents the remaining sequence; errors swallowed/logged by individual persistence functions retain those domain contracts."
+        ],
+        "completion": "Returns after DCPlusPlus.cpp:189-265 shutdown barriers, saves, module callbacks, singleton deletion and flag-removal attempt; no value reports persistence success.",
+        "cancellation": "No cancellation token or interruption branch.",
+        "persistence": [
+          "Queue, recents, ignore, favorites, settings, hash and share state."
+        ],
+        "resources": [
+          "Buffered sockets are awaited before persistence."
+        ]
+      },
+      "ownership_evidence": [
+        "Core managers are process-global singletons; these functions do not create an independently owned runtime instance. Callback arguments are value-owned for the call; StartupLoader borrows progress/message callback arguments while startup is executing."
+      ],
+      "threading_evidence": [
+        "The entry-point body executes on the caller thread without a global lifecycle lock. Started managers have their own workers; concurrent or repeated runtime calls are not established safe."
+      ],
+      "proposed_bridge_requirement": "Expose completion only after shutdown barriers are verified and retain persistence failures.",
+      "acceptance_scenarios": [
+        {
+          "given": "Startup has completed",
+          "when": "shutdown is invoked",
+          "then": "services close and save in source order before singleton destruction and RUNNING flag removal."
+        },
+        {
+          "given": "A fully started runtime with a module-unload callback that throws",
+          "when": "shutdown reaches that callback after socket shutdown",
+          "then": "the exception propagates before queue/settings persistence and singleton deletion; this entry point provides no automatic remaining cleanup."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "lifecycle.restart",
+        "resources.host-policy",
+        "lifecycle.partial-startup"
+      ],
+      "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:54:FunctionDecl:shutdown(StepFunction, ProgressFunction, ShutdownUnloadCallback, Callback)",
+      "contract_evidence": "source-traced",
+      "surface_classification": "public functionality",
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+    },
+    {
+      "id": "lifecycle.startup",
+      "kind": "operation",
+      "upstream_symbols": [
+        "dcpp::startup(StepFunction, MessageFunction, Callback, ProgressFunction, Callback = nullptr, StartupLoadCallback = nullptr)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/DCPlusPlus.h",
+          "start_line": 51,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/DCPlusPlus.cpp",
+          "start_line": 70,
+          "end_line": 187
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Step/message/progress/wizard callbacks; optional module init and load callbacks."
+        ],
+        "preconditions": [
+          "Utility/path initialization precedes startup; manager singleton creation assumes there is no active runtime. Failure-safe partial cleanup is a later gap, not a guarantee of this function."
+        ],
+        "defaults": [
+          "moduleInitF = nullptr; moduleLoadF = nullptr"
+        ],
+        "effects": [
+          "Records an existing RUNNING flag as unclean shutdown, otherwise attempts flag creation without checking its boolean result. Creates process singleton managers in source order; optional module-init callback runs before settings load. Loads settings/favorites, free-slot matcher and localization; a pending wizard runs only when its callback exists, then clears WIZARD_PENDING. Loads configured language, certificates, hash database, queue, share, ignore and recents; initializes GeoIP only when GET_USER_COUNTRY is set; starts connectivity. Optional module-load callback runs after data/connectivity; queued post-load callbacks then run in insertion order."
+        ],
+        "events": [],
+        "errors": [
+          "HashManager::startup HashException is caught and rethrown as default Exception, despite the header comment mentioning AbortException. The function has no general catch, rollback or singleton cleanup; exceptions from other loaders/module/post-load callbacks propagate and can leave partially initialized state."
+        ],
+        "completion": "Returns after the complete DCPlusPlus.cpp:70-187 sequence, module-load callback and post-load callbacks. Return is not a guarantee of restart or rollback safety.",
+        "cancellation": "No cancellation token or cooperative abort branch in this entry point.",
+        "persistence": [],
+        "resources": [
+          "RUNNING flag and writable profile; settings, localization/language file, certificates, hash/queue/share stores, optional GeoIP database and connectivity resources."
+        ]
+      },
+      "ownership_evidence": [
+        "Core managers are process-global singletons; these functions do not create an independently owned runtime instance. Callback arguments are value-owned for the call; StartupLoader borrows progress/message callback arguments while startup is executing."
+      ],
+      "threading_evidence": [
+        "The entry-point body executes on the caller thread without a global lifecycle lock. Started managers have their own workers; concurrent or repeated runtime calls are not established safe."
+      ],
+      "proposed_bridge_requirement": "Preserve startup ordering and translate exceptions; do not promise retry safety without cleanup evidence.",
+      "acceptance_scenarios": [
+        {
+          "given": "A module-init callback and module-load callback append post-load callbacks to the loader during a successful isolated startup",
+          "when": "startup completes",
+          "then": "module initialization precedes settings load; module-load runs after connectivity, followed by post-load callbacks in insertion order."
+        },
+        {
+          "given": "Hash database startup throws HashException after singleton creation",
+          "when": "startup executes its hash startup catch",
+          "then": "default Exception is propagated, with no rollback in this function; the host must not advertise a clean retry."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "lifecycle.restart",
+        "resources.host-policy",
+        "lifecycle.partial-startup"
+      ],
+      "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:52:FunctionDecl:startup(StepFunction, MessageFunction, Callback, ProgressFunction, Callback, StartupLoadCallback)",
+      "contract_evidence": "source-traced",
+      "surface_classification": "public functionality",
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+    },
+    {
+      "id": "lifecycle.loader-callback-storage",
+      "kind": "internal",
+      "upstream_symbols": [
+        "ClassDecl StartupLoader: StartupLoader",
+        "FieldDecl stepF: stepF",
+        "FieldDecl progressF: progressF",
+        "FieldDecl messageF: messageF",
+        "CXXMethod addPostLoadTask: void (Callback &&) noexcept",
+        "CXXMethod getPostLoadTasks: const vector<Callback> &() const noexcept",
+        "FieldDecl postLoadTasks: postLoadTasks",
+        "TypeAliasDecl StartupLoadCallback: StartupLoadCallback",
+        "TypeAliasDecl ShutdownUnloadCallback: ShutdownUnloadCallback",
+        "Constructor StartupLoader: StartupLoader(const StepFunction &, const ProgressFunction &, const MessageFunction &) [void (const StepFunction &, const ProgressFunction &, const MessageFunction &)]"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/DCPlusPlus.h",
+          "start_line": 27,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/DCPlusPlus.cpp",
+          "start_line": 127,
+          "end_line": 136
+        },
+        {
+          "path": "airdcpp/DCPlusPlus.cpp",
+          "start_line": 178,
+          "end_line": 186
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callback/string/member signatures are retained in upstream_symbols."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "StartupLoader copies stepF but stores const references to progressF/messageF. Its postLoadTasks vector starts empty, owns moved Callback values, and getPostLoadTasks returns a borrowed const vector reference. addPostLoadTask appends without locking or removal; startup executes each callback after moduleLoadF, in insertion order. StartupLoadCallback borrows a mutable loader; ShutdownUnloadCallback borrows mutable step/progress callback values for the synchronous shutdown call."
+        ],
+        "events": [],
+        "errors": [
+          "Methods marked noexcept have no recoverable error translation; a failure escaping such a method terminates."
+        ],
+        "completion": "Synchronous state access/mutation; deferred loader callback execution occurs in the startup post-load loop.",
+        "cancellation": "No helper cancellation operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "stepF and stored task values are owned by StartupLoader; progressF/messageF and getPostLoadTasks result are borrowed. Callback captures and borrowed values must survive their use; loader itself is stack-local to startup."
+      ],
+      "threading_evidence": [
+        "No locking in helper storage; adding while reading/executing the task vector is not synchronized. Startup serially executes its post-load iteration on the caller thread."
+      ],
+      "proposed_bridge_requirement": "Keep helper storage and borrowed C++ references private; apply the concrete behavior through lifecycle/host configuration where required.",
+      "acceptance_scenarios": [
+        {
+          "given": "A loader holding live progress/message callbacks receives tasks A then B",
+          "when": "startup reaches its post-load loop after moduleLoadF",
+          "then": "A executes before B; getPostLoadTasks exposes the same owned tasks without transferring their lifetime."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "lifecycle.restart"
+      ],
+      "contract_evidence": "source-traced",
+      "surface_classification": "internal helper",
+      "surface_rationale": "Source-backed lifecycle orchestration helper; preserve behavior through the owning runtime/configuration contract rather than automatically expose a C++ helper object.",
+      "structural_declaration_ids": [
+        "decl:airdcpp/DCPlusPlus.h:27:ClassDecl:StartupLoader",
+        "decl:airdcpp/DCPlusPlus.h:31:FieldDecl:stepF",
+        "decl:airdcpp/DCPlusPlus.h:32:FieldDecl:progressF",
+        "decl:airdcpp/DCPlusPlus.h:33:FieldDecl:messageF",
+        "decl:airdcpp/DCPlusPlus.h:37:CXXMethod:addPostLoadTask(Callback &&)",
+        "decl:airdcpp/DCPlusPlus.h:41:CXXMethod:getPostLoadTasks()",
+        "decl:airdcpp/DCPlusPlus.h:45:FieldDecl:postLoadTasks",
+        "decl:airdcpp/DCPlusPlus.h:48:TypeAliasDecl:StartupLoadCallback",
+        "decl:airdcpp/DCPlusPlus.h:49:TypeAliasDecl:ShutdownUnloadCallback",
+        "decl:airdcpp/DCPlusPlus.h:29:CXCursor_Constructor:deda693e16ea"
+      ]
+    },
+    {
+      "id": "lifecycle.startup-parameters",
+      "kind": "internal",
+      "upstream_symbols": [
+        "ClassDecl StartupParams: StartupParams",
+        "TypeAliasDecl ParamList: ParamList",
+        "CXXMethod hasParam: bool (const string &, int) const noexcept",
+        "CXXMethod addParam: void (const string &) noexcept",
+        "CXXMethod removeParam: bool (const string &) noexcept",
+        "CXXMethod getValue: optional<string> (const string &) const noexcept",
+        "CXXMethod getParams: const ParamList &() const noexcept",
+        "CXXMethod formatParams: string (bool) const noexcept",
+        "CXXMethod size: size_t () const noexcept",
+        "CXXMethod pop_front: void () noexcept",
+        "FieldDecl params: params"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/core/classes/StartupParams.h",
+          "start_line": 26,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/util/AppUtil.cpp",
+          "start_line": 79,
+          "end_line": 131
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Binary symbol/runtime evidence not inspected for this operation."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callback/string/member signatures are retained in upstream_symbols."
+        ],
+        "preconditions": [
+          "pop_front requires nonempty deque; returned getParams reference is invalidated by owner destruction."
+        ],
+        "defaults": [
+          "hasParam aPos = -1"
+        ],
+        "effects": [
+          "Owns an initially empty deque of parameter strings. addParam ignores empty values and exact case-sensitive duplicates, preserving insertion order. hasParam uses exact comparison and optionally checks the index of the first match (default -1 means any index). removeParam removes the first case-insensitive full/key-prefix match and returns whether a match was removed; getValue returns the first matching value after = or nullopt using the source key-prefix comparison. formatParams joins values with spaces and optionally adds a leading space; getParams returns a borrowed const deque; size reads count; pop_front removes the first element without an empty check."
+        ],
+        "events": [],
+        "errors": [
+          "Methods marked noexcept have no recoverable error translation; a failure escaping such a method terminates."
+        ],
+        "completion": "Synchronous state access/mutation; deferred loader callback execution occurs in the startup post-load loop.",
+        "cancellation": "No helper cancellation operation.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Deque owns strings; optional getValue and formatParams results are owned values; getParams returns a reference valid only while its owner/storage remains valid."
+      ],
+      "threading_evidence": [
+        "No internal locking; host serializes mutation and borrowed reads. pop_front requires a nonempty deque."
+      ],
+      "proposed_bridge_requirement": "Keep helper storage and borrowed C++ references private; apply the concrete behavior through lifecycle/host configuration where required.",
+      "acceptance_scenarios": [
+        {
+          "given": "An empty parameter set receives cfg=one twice and CFG=two once",
+          "when": "hasParam(\"cfg=one\",0), formatParams(true), and getValue(\"cfg\") are called",
+          "then": "the exact duplicate is ignored, the two differently cased strings retain insertion order, format is \"cfg=one CFG=two\", and getValue returns \"one\"."
+        },
+        {
+          "given": "The parameters cfg=one and other=two are stored in order",
+          "when": "removeParam(\"CFG\") is called",
+          "then": "the first key-prefix case-insensitive match cfg=one is removed and true is returned."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "lifecycle.restart"
+      ],
+      "contract_evidence": "source-traced",
+      "surface_classification": "internal helper",
+      "surface_rationale": "Source-backed lifecycle orchestration helper; preserve behavior through the owning runtime/configuration contract rather than automatically expose a C++ helper object.",
+      "structural_declaration_ids": [
+        "decl:airdcpp/core/classes/StartupParams.h:26:ClassDecl:StartupParams",
+        "decl:airdcpp/core/classes/StartupParams.h:28:TypeAliasDecl:ParamList",
+        "decl:airdcpp/core/classes/StartupParams.h:30:CXXMethod:hasParam(const string &, int)",
+        "decl:airdcpp/core/classes/StartupParams.h:31:CXXMethod:addParam(const string &)",
+        "decl:airdcpp/core/classes/StartupParams.h:32:CXXMethod:removeParam(const string &)",
+        "decl:airdcpp/core/classes/StartupParams.h:33:CXXMethod:getValue(const string &)",
+        "decl:airdcpp/core/classes/StartupParams.h:35:CXXMethod:getParams()",
+        "decl:airdcpp/core/classes/StartupParams.h:39:CXXMethod:formatParams(bool)",
+        "decl:airdcpp/core/classes/StartupParams.h:40:CXXMethod:size()",
+        "decl:airdcpp/core/classes/StartupParams.h:44:CXXMethod:pop_front()",
+        "decl:airdcpp/core/classes/StartupParams.h:48:FieldDecl:params"
+      ]
+    }
+  ]
+}

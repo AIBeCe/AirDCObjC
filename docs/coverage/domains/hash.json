@@ -1,0 +1,2190 @@
+{
+  "schema_version": 1,
+  "domain_id": "hash",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "hash.current-file-index",
+      "kind": "operation",
+      "upstream_symbols": [
+        "HashManager::checkTTH",
+        "HashManager::getFileInfo",
+        "HashManager::renameFileThrow",
+        "HashManager::addFile"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 51,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 69,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 113,
+          "end_line": 139
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 163,
+          "end_line": 164
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 116,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 292,
+          "end_line": 307
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 92,
+          "end_line": 147
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 328,
+          "end_line": 352
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Lowercased file path and HashedFile metadata."
+        ],
+        "preconditions": [
+          "Hash database must be open."
+        ],
+        "defaults": [],
+        "effects": [
+          "File index is keyed by lowercased path. checkTTH accepts when stored timestamp and size match; otherwise queues background hash and returns false. getFileInfo fetches cached metadata or tries to stat and queue a hash, then throws HashException on missing index even when queueing succeeded. rename checks source index entry, checks new filesystem size matches, updates timestamp, removes old key and adds new. addFile requires current file size match; sub-64KiB file gets a one-root tree stored; larger file requires tree already in DB; false if size/tree precondition fails."
+        ],
+        "events": [],
+        "errors": [
+          "HashStore DB write failures become HashException; DB reads log and return false; rename fails for missing old entry or changed target size."
+        ],
+        "completion": "Synchronous index access; a cache miss can enqueue a background hash.",
+        "cancellation": "Not applicable.",
+        "persistence": [
+          "File metadata and trees persist in LevelDB FileIndex/HashData directories."
+        ],
+        "resources": [
+          "Local filesystem metadata, two persistent LevelDB stores, background hasher."
+        ]
+      },
+      "ownership_evidence": [
+        "HashStore owns LevelDB file/hash indexes; HashedFile is copied binary value."
+      ],
+      "threading_evidence": [
+        "Index calls may schedule work under Hasher::hcs; DB access is through HashStore."
+      ],
+      "proposed_bridge_requirement": "Expose TTH/index lookup as value results with a separate asynchronous hash request state; preserve case-normalized key and timestamp+size cache validity.",
+      "acceptance_scenarios": [
+        "Given cached path timestamp and size match the current file, when checkTTH runs, then it returns true without queueing hash work.",
+        "Given file metadata is absent, when getFileInfo runs, then it queues a hash if file exists but still throws HashException for this lookup.",
+        "Given an indexed large file has a matching size but its tree is absent, when addFile runs, then it returns false."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManager.h:42:ClassDecl:HashManager",
+        "decl:airdcpp/hash/HashManager.h:51:CXXMethod:checkTTH(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:53:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/HashManager.h:54:CXXMethod:setPriority(Thread::Priority)",
+        "decl:airdcpp/hash/HashManager.h:59:CXXMethod:getFileInfo(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:61:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:64:CXXMethod:getBlockSize(const TTHValue &)",
+        "decl:airdcpp/hash/HashManager.h:66:CXXMethod:getMinBlockSize()",
+        "decl:airdcpp/hash/HashManager.h:69:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashManager.h:71:StructDecl:HashStats",
+        "decl:airdcpp/hash/HashManager.h:72:FieldDecl:curFile",
+        "decl:airdcpp/hash/HashManager.h:73:FieldDecl:bytesLeft",
+        "decl:airdcpp/hash/HashManager.h:74:FieldDecl:filesLeft",
+        "decl:airdcpp/hash/HashManager.h:75:FieldDecl:speed",
+        "decl:airdcpp/hash/HashManager.h:76:FieldDecl:filesAdded",
+        "decl:airdcpp/hash/HashManager.h:77:FieldDecl:bytesAdded",
+        "decl:airdcpp/hash/HashManager.h:78:FieldDecl:hashersRunning",
+        "decl:airdcpp/hash/HashManager.h:79:FieldDecl:isPaused",
+        "decl:airdcpp/hash/HashManager.h:81:CXXMethod:operator==(const HashStats &)",
+        "decl:airdcpp/hash/HashManager.h:94:CXXMethod:getStats()",
+        "decl:airdcpp/hash/HashManager.h:98:CXXMethod:getFileTTH(const string &, int64_t, bool, TTHValue &, int64_t &, const bool &, std::function<void (int64_t, const string &)>)",
+        "decl:airdcpp/hash/HashManager.h:103:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:106:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/hash/HashManager.h:107:CXXMethod:stop()",
+        "decl:airdcpp/hash/HashManager.h:108:CXXMethod:shutdown(ProgressFunction)",
+        "decl:airdcpp/hash/HashManager.h:110:StructDecl:HashPauser",
+        "decl:airdcpp/hash/HashManager.h:116:CXXMethod:pauseHashing()",
+        "decl:airdcpp/hash/HashManager.h:117:CXXMethod:resumeHashing(bool)",
+        "decl:airdcpp/hash/HashManager.h:118:CXXMethod:isHashingPaused(bool)",
+        "decl:airdcpp/hash/HashManager.h:120:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashManager.h:121:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashManager.h:123:CXXMethod:close()",
+        "decl:airdcpp/hash/HashManager.h:124:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashManager.h:125:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashManager.h:126:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashManager.h:127:CXXMethod:maintenanceRunning()",
+        "decl:airdcpp/hash/HashManager.h:130:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:133:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:135:FieldDecl:pausers",
+        "decl:airdcpp/hash/HashManager.h:139:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HashManager.h:140:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManager.h:141:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:142:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:143:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:144:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HashManager.h:146:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashManager.h:148:CXXMethod:createHasher()",
+        "decl:airdcpp/hash/HashManager.h:149:CXXMethod:getFileHasher(int64_t, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:150:CXXMethod:isPathQueued(const string &)",
+        "decl:airdcpp/hash/HashManager.h:152:CXXMethod:hashFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:153:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/HashManager.h:155:TypeAliasDecl:HasherList",
+        "decl:airdcpp/hash/HashManager.h:156:FieldDecl:hashers",
+        "decl:airdcpp/hash/HashManager.h:158:FieldDecl:store",
+        "decl:airdcpp/hash/HashManager.h:161:VarDecl:SMALL_TREE",
+        "decl:airdcpp/hash/HashManager.h:163:ClassDecl:Optimizer",
+        "decl:airdcpp/hash/HashManager.h:168:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:169:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/HashManager.h:171:FieldDecl:verify",
+        "decl:airdcpp/hash/HashManager.h:172:FieldDecl:running",
+        "decl:airdcpp/hash/HashManager.h:173:CXXMethod:run()",
+        "decl:airdcpp/hash/HashManager.h:176:FieldDecl:optimizer",
+        "decl:airdcpp/hash/HashManager.h:45:CXCursor_Constructor:0e9d9810a0f9",
+        "decl:airdcpp/hash/HashManager.h:46:CXCursor_Destructor:971a3a52c9c3",
+        "decl:airdcpp/hash/HashManager.h:111:CXCursor_Constructor:c9333b140382",
+        "decl:airdcpp/hash/HashManager.h:112:CXCursor_Destructor:23e1940c57f5",
+        "decl:airdcpp/hash/HashManager.h:165:CXCursor_Constructor:9bfd2b0014a8",
+        "decl:airdcpp/hash/HashManager.h:166:CXCursor_Destructor:9c0e41d14114",
+        "decl:airdcpp/hash/HashedFile.h:28:ClassDecl:HashedFile",
+        "decl:airdcpp/hash/HashedFile.h:36:FieldDecl:root",
+        "decl:airdcpp/hash/HashedFile.h:37:FieldDecl:timeStamp",
+        "decl:airdcpp/hash/HashedFile.h:38:FieldDecl:size",
+        "decl:airdcpp/hash/HashedFile.h:41:TypeAliasDecl:RenameList",
+        "decl:airdcpp/hash/HashedFile.h:36:macro:GETSET",
+        "decl:airdcpp/hash/HashedFile.h:37:macro:GETSET",
+        "decl:airdcpp/hash/HashedFile.h:38:macro:GETSET",
+        "decl:airdcpp/hash/HashedFile.h:30:CXCursor_Constructor:fad808119fc8",
+        "decl:airdcpp/hash/HashedFile.h:31:CXCursor_Constructor:86a5019ed567",
+        "decl:airdcpp/hash/HashedFile.h:34:CXCursor_Destructor:986da2e36c23"
+      ]
+    },
+    {
+      "id": "hash.compute-tth",
+      "kind": "operation",
+      "upstream_symbols": [
+        "HashManager::getFileTTH",
+        "TigerTree::update/finalize"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 94,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 242,
+          "end_line": 290
+        },
+        {
+          "path": "airdcpp/hash/value/MerkleTree.h",
+          "start_line": 93,
+          "end_line": 162
+        },
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 228,
+          "end_line": 318
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "File path, size, addStore flag, mutable output root/sizeLeft, cancellation bool ref and optional progress callback."
+        ],
+        "preconditions": [
+          "File must be readable and modification timestamp nonnegative; caller-supplied size must correspond to input."
+        ],
+        "defaults": [
+          "Tiger leaf base block 1024 bytes; file block size calculated for max 10 tree levels and at least 64KiB."
+        ],
+        "effects": [
+          "Uses a current cached file index if timestamp/size match; otherwise opens file, validates modification timestamp, computes Tiger tree and returns root through out arg. Progress callback runs only when >1s elapsed; decrements sizeLeft by bytes processed in that interval and passes estimated seconds remaining and path. Optional addStore stores only if addStore=true and cancellation flag is false."
+        ],
+        "events": [],
+        "errors": [
+          "FileException on open/read/date failure. Cancellation stops reader callback but code still finalizes and returns a root for bytes read; it does not store when canceled, and there is no explicit canceled result."
+        ],
+        "completion": "Synchronous call over async file reader; progress callback is invoked from reader callback thread.",
+        "cancellation": "Cancellation is polled by reference for each read callback; cancellation may produce a partial-data root, not a cancellation exception.",
+        "persistence": [
+          "Stores tree/file info only when addStore and not canceled."
+        ],
+        "resources": [
+          "FileReader async mode, local file, Merkle leaf vector."
+        ]
+      },
+      "ownership_evidence": [
+        "The method owns local TigerTree/reader; output root written after finalize."
+      ],
+      "threading_evidence": [
+        "Synchronous caller waits while FileReader::ASYNC invokes read callback; callback runs as part of reader operation."
+      ],
+      "proposed_bridge_requirement": "Provide cancellable async hashing with explicit completion/cancel/error result; do not expose the source routine\u2019s partial-root result as completed TTH.",
+      "acceptance_scenarios": [
+        "Given cached index matches size and modified time, when getFileTTH runs, then it returns cached root without reading file.",
+        "Given a noncached file is canceled during read, when getFileTTH returns, then result is not stored and no explicit canceled status is returned; bridge must not represent the partial root as a valid completed hash.",
+        "Given update callback is supplied and a read interval exceeds one second, when progress is reported, then callback receives estimated seconds-left and file path."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManager.h:42:ClassDecl:HashManager",
+        "decl:airdcpp/hash/HashManager.h:51:CXXMethod:checkTTH(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:53:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/HashManager.h:54:CXXMethod:setPriority(Thread::Priority)",
+        "decl:airdcpp/hash/HashManager.h:59:CXXMethod:getFileInfo(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:61:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:64:CXXMethod:getBlockSize(const TTHValue &)",
+        "decl:airdcpp/hash/HashManager.h:66:CXXMethod:getMinBlockSize()",
+        "decl:airdcpp/hash/HashManager.h:69:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashManager.h:71:StructDecl:HashStats",
+        "decl:airdcpp/hash/HashManager.h:72:FieldDecl:curFile",
+        "decl:airdcpp/hash/HashManager.h:73:FieldDecl:bytesLeft",
+        "decl:airdcpp/hash/HashManager.h:74:FieldDecl:filesLeft",
+        "decl:airdcpp/hash/HashManager.h:75:FieldDecl:speed",
+        "decl:airdcpp/hash/HashManager.h:76:FieldDecl:filesAdded",
+        "decl:airdcpp/hash/HashManager.h:77:FieldDecl:bytesAdded",
+        "decl:airdcpp/hash/HashManager.h:78:FieldDecl:hashersRunning",
+        "decl:airdcpp/hash/HashManager.h:79:FieldDecl:isPaused",
+        "decl:airdcpp/hash/HashManager.h:81:CXXMethod:operator==(const HashStats &)",
+        "decl:airdcpp/hash/HashManager.h:94:CXXMethod:getStats()",
+        "decl:airdcpp/hash/HashManager.h:98:CXXMethod:getFileTTH(const string &, int64_t, bool, TTHValue &, int64_t &, const bool &, std::function<void (int64_t, const string &)>)",
+        "decl:airdcpp/hash/HashManager.h:103:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:106:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/hash/HashManager.h:107:CXXMethod:stop()",
+        "decl:airdcpp/hash/HashManager.h:108:CXXMethod:shutdown(ProgressFunction)",
+        "decl:airdcpp/hash/HashManager.h:110:StructDecl:HashPauser",
+        "decl:airdcpp/hash/HashManager.h:116:CXXMethod:pauseHashing()",
+        "decl:airdcpp/hash/HashManager.h:117:CXXMethod:resumeHashing(bool)",
+        "decl:airdcpp/hash/HashManager.h:118:CXXMethod:isHashingPaused(bool)",
+        "decl:airdcpp/hash/HashManager.h:120:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashManager.h:121:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashManager.h:123:CXXMethod:close()",
+        "decl:airdcpp/hash/HashManager.h:124:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashManager.h:125:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashManager.h:126:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashManager.h:127:CXXMethod:maintenanceRunning()",
+        "decl:airdcpp/hash/HashManager.h:130:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:133:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:135:FieldDecl:pausers",
+        "decl:airdcpp/hash/HashManager.h:139:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HashManager.h:140:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManager.h:141:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:142:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:143:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:144:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HashManager.h:146:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashManager.h:148:CXXMethod:createHasher()",
+        "decl:airdcpp/hash/HashManager.h:149:CXXMethod:getFileHasher(int64_t, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:150:CXXMethod:isPathQueued(const string &)",
+        "decl:airdcpp/hash/HashManager.h:152:CXXMethod:hashFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:153:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/HashManager.h:155:TypeAliasDecl:HasherList",
+        "decl:airdcpp/hash/HashManager.h:156:FieldDecl:hashers",
+        "decl:airdcpp/hash/HashManager.h:158:FieldDecl:store",
+        "decl:airdcpp/hash/HashManager.h:161:VarDecl:SMALL_TREE",
+        "decl:airdcpp/hash/HashManager.h:163:ClassDecl:Optimizer",
+        "decl:airdcpp/hash/HashManager.h:168:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:169:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/HashManager.h:171:FieldDecl:verify",
+        "decl:airdcpp/hash/HashManager.h:172:FieldDecl:running",
+        "decl:airdcpp/hash/HashManager.h:173:CXXMethod:run()",
+        "decl:airdcpp/hash/HashManager.h:176:FieldDecl:optimizer",
+        "decl:airdcpp/hash/value/MerkleTree.h:39:ClassTemplate:MerkleTree<Hasher, baseBlockSize>",
+        "decl:airdcpp/hash/value/MerkleTree.h:42:VarDecl:BITS",
+        "decl:airdcpp/hash/value/MerkleTree.h:43:VarDecl:BYTES",
+        "decl:airdcpp/hash/value/MerkleTree.h:44:VarDecl:BASE_BLOCK_SIZE",
+        "decl:airdcpp/hash/value/MerkleTree.h:46:TypedefDecl:MerkleValue",
+        "decl:airdcpp/hash/value/MerkleTree.h:47:TypedefDecl:MerkleList",
+        "decl:airdcpp/hash/value/MerkleTree.h:48:TypedefDecl:MerkleIter",
+        "decl:airdcpp/hash/value/MerkleTree.h:61:VarDecl:n",
+        "decl:airdcpp/hash/value/MerkleTree.h:62:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:76:CXXMethod:operator==(const MerkleTree<Hasher, baseBlockSize> &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:77:CXXMethod:operator<(const MerkleTree<Hasher, baseBlockSize> &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:79:CXXMethod:calcBlockSize(int64_t, int)",
+        "decl:airdcpp/hash/value/MerkleTree.h:80:VarDecl:tmp",
+        "decl:airdcpp/hash/value/MerkleTree.h:81:VarDecl:maxHashes",
+        "decl:airdcpp/hash/value/MerkleTree.h:87:CXXMethod:calcBlocks(int64_t, int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:90:CXXMethod:calcBlocks(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:99:CXXMethod:update(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:100:VarDecl:buf",
+        "decl:airdcpp/hash/value/MerkleTree.h:101:VarDecl:zero",
+        "decl:airdcpp/hash/value/MerkleTree.h:102:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:109:VarDecl:n",
+        "decl:airdcpp/hash/value/MerkleTree.h:110:VarDecl:h",
+        "decl:airdcpp/hash/value/MerkleTree.h:124:CXXMethod:finalize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:130:VarDecl:a",
+        "decl:airdcpp/hash/value/MerkleTree.h:131:VarDecl:b",
+        "decl:airdcpp/hash/value/MerkleTree.h:143:CXXMethod:getRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:144:CXXMethod:getRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:145:CXXMethod:getLeaves()",
+        "decl:airdcpp/hash/value/MerkleTree.h:146:CXXMethod:getLeaves()",
+        "decl:airdcpp/hash/value/MerkleTree.h:148:CXXMethod:getBlockSize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:149:CXXMethod:setBlockSize(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:151:CXXMethod:getFileSize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:152:CXXMethod:setFileSize(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:154:CXXMethod:verifyRoot(const uint8_t *)",
+        "decl:airdcpp/hash/value/MerkleTree.h:158:CXXMethod:calcRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:162:CXXMethod:getLeafData()",
+        "decl:airdcpp/hash/value/MerkleTree.h:163:VarDecl:buf",
+        "decl:airdcpp/hash/value/MerkleTree.h:164:VarDecl:p",
+        "decl:airdcpp/hash/value/MerkleTree.h:165:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:173:TypedefDecl:MerkleBlock",
+        "decl:airdcpp/hash/value/MerkleTree.h:174:TypedefDecl:MBList",
+        "decl:airdcpp/hash/value/MerkleTree.h:176:FieldDecl:blocks",
+        "decl:airdcpp/hash/value/MerkleTree.h:178:FieldDecl:leaves",
+        "decl:airdcpp/hash/value/MerkleTree.h:180:FieldDecl:root",
+        "decl:airdcpp/hash/value/MerkleTree.h:182:FieldDecl:fileSize",
+        "decl:airdcpp/hash/value/MerkleTree.h:184:FieldDecl:blockSize",
+        "decl:airdcpp/hash/value/MerkleTree.h:186:CXXMethod:getHash(int64_t, int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:192:VarDecl:l",
+        "decl:airdcpp/hash/value/MerkleTree.h:199:CXXMethod:combine(const MerkleValue &, const MerkleValue &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:200:VarDecl:one",
+        "decl:airdcpp/hash/value/MerkleTree.h:201:VarDecl:h",
+        "decl:airdcpp/hash/value/MerkleTree.h:208:CXXMethod:reduceBlocks()",
+        "decl:airdcpp/hash/value/MerkleTree.h:210:VarDecl:a",
+        "decl:airdcpp/hash/value/MerkleTree.h:211:VarDecl:b",
+        "decl:airdcpp/hash/value/MerkleTree.h:229:TypedefDecl:TigerTree",
+        "decl:airdcpp/hash/value/MerkleTree.h:230:TypedefDecl:TTHValue",
+        "decl:airdcpp/hash/value/MerkleTree.h:232:ClassTemplate:TTFilter<aBlockSize>",
+        "decl:airdcpp/hash/value/MerkleTree.h:235:CXXMethod:operator()(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:236:CXXMethod:getTree()",
+        "decl:airdcpp/hash/value/MerkleTree.h:238:FieldDecl:tt",
+        "decl:airdcpp/hash/value/MerkleTree.h:50:CXCursor_Constructor:69c2715168c5",
+        "decl:airdcpp/hash/value/MerkleTree.h:51:CXCursor_Constructor:8f9b6a154bfd",
+        "decl:airdcpp/hash/value/MerkleTree.h:58:CXCursor_Constructor:e7717d5c26eb",
+        "decl:airdcpp/hash/value/MerkleTree.h:69:CXCursor_Constructor:19961690259b",
+        "decl:airdcpp/hash/value/MerkleTree.h:73:CXCursor_Destructor:adf2cec06260",
+        "decl:airdcpp/hash/value/MerkleTree.h:234:CXCursor_Constructor:c3c467ab73b9",
+        "decl:airdcpp/hash/HashManager.h:45:CXCursor_Constructor:0e9d9810a0f9",
+        "decl:airdcpp/hash/HashManager.h:46:CXCursor_Destructor:971a3a52c9c3",
+        "decl:airdcpp/hash/HashManager.h:111:CXCursor_Constructor:c9333b140382",
+        "decl:airdcpp/hash/HashManager.h:112:CXCursor_Destructor:23e1940c57f5",
+        "decl:airdcpp/hash/HashManager.h:165:CXCursor_Constructor:9bfd2b0014a8",
+        "decl:airdcpp/hash/HashManager.h:166:CXCursor_Destructor:9c0e41d14114"
+      ]
+    },
+    {
+      "id": "hash.tree-access",
+      "kind": "operation",
+      "upstream_symbols": [
+        "getTree",
+        "getBlockSize",
+        "getMinBlockSize",
+        "addTree"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 69,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 163,
+          "end_line": 164
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 88,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 88,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 142,
+          "end_line": 152
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 149,
+          "end_line": 205
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 328,
+          "end_line": 352
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 81,
+          "end_line": 91
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "TTH root or complete TigerTree."
+        ],
+        "preconditions": [
+          "Hash DB is open."
+        ],
+        "defaults": [],
+        "effects": [
+          "addTree stores tree keyed by root; getTree returns false on missing or DB read failure; getBlockSize returns stored root block size or zero when no entry; minimum block size is 64KiB. Trees with one leaf store metadata without leaf data; larger trees store contiguous leaf hashes with version, file size and block size.",
+          "HashStats equality compares filesAdded to the other operand\u2019s filesLeft (HashManager.h:81-91); preserve this source-observed comparison until upstream behavior is separately resolved."
+        ],
+        "events": [],
+        "errors": [
+          "addTree DB errors throw HashException; getTree logs DB failure and returns false; corrupted value can be rejected by loadTree."
+        ],
+        "completion": "Synchronous DB operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [
+          "Tree nodes persisted in HashData keyed by raw TTH bytes."
+        ],
+        "resources": [
+          "HashData LevelDB."
+        ]
+      },
+      "ownership_evidence": [
+        "HashStore owns serialized tree bytes; API fills caller TigerTree."
+      ],
+      "threading_evidence": [
+        "Synchronous store operation; no manager-level lock shown around tree queries."
+      ],
+      "proposed_bridge_requirement": "Expose copyable TTH/tree values and distinguish missing/corrupt/DB-error outcomes where practical.",
+      "acceptance_scenarios": [
+        "Given a stored tree root, when getTree runs, then it returns tree size/block data and true.",
+        "Given unknown root, when getBlockSize runs, then it returns zero.",
+        "Given DB read failure, when getTree runs, then it returns false and logs rather than throwing.",
+        "Given HashStats values where filesAdded differs from the other value\u2019s filesLeft, when equality is evaluated, then the result follows the implemented cross-field comparison rather than comparing filesAdded fields."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManager.h:42:ClassDecl:HashManager",
+        "decl:airdcpp/hash/HashManager.h:51:CXXMethod:checkTTH(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:53:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/HashManager.h:54:CXXMethod:setPriority(Thread::Priority)",
+        "decl:airdcpp/hash/HashManager.h:59:CXXMethod:getFileInfo(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:61:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:64:CXXMethod:getBlockSize(const TTHValue &)",
+        "decl:airdcpp/hash/HashManager.h:66:CXXMethod:getMinBlockSize()",
+        "decl:airdcpp/hash/HashManager.h:69:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashManager.h:71:StructDecl:HashStats",
+        "decl:airdcpp/hash/HashManager.h:72:FieldDecl:curFile",
+        "decl:airdcpp/hash/HashManager.h:73:FieldDecl:bytesLeft",
+        "decl:airdcpp/hash/HashManager.h:74:FieldDecl:filesLeft",
+        "decl:airdcpp/hash/HashManager.h:75:FieldDecl:speed",
+        "decl:airdcpp/hash/HashManager.h:76:FieldDecl:filesAdded",
+        "decl:airdcpp/hash/HashManager.h:77:FieldDecl:bytesAdded",
+        "decl:airdcpp/hash/HashManager.h:78:FieldDecl:hashersRunning",
+        "decl:airdcpp/hash/HashManager.h:79:FieldDecl:isPaused",
+        "decl:airdcpp/hash/HashManager.h:81:CXXMethod:operator==(const HashStats &)",
+        "decl:airdcpp/hash/HashManager.h:94:CXXMethod:getStats()",
+        "decl:airdcpp/hash/HashManager.h:98:CXXMethod:getFileTTH(const string &, int64_t, bool, TTHValue &, int64_t &, const bool &, std::function<void (int64_t, const string &)>)",
+        "decl:airdcpp/hash/HashManager.h:103:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:106:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/hash/HashManager.h:107:CXXMethod:stop()",
+        "decl:airdcpp/hash/HashManager.h:108:CXXMethod:shutdown(ProgressFunction)",
+        "decl:airdcpp/hash/HashManager.h:110:StructDecl:HashPauser",
+        "decl:airdcpp/hash/HashManager.h:116:CXXMethod:pauseHashing()",
+        "decl:airdcpp/hash/HashManager.h:117:CXXMethod:resumeHashing(bool)",
+        "decl:airdcpp/hash/HashManager.h:118:CXXMethod:isHashingPaused(bool)",
+        "decl:airdcpp/hash/HashManager.h:120:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashManager.h:121:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashManager.h:123:CXXMethod:close()",
+        "decl:airdcpp/hash/HashManager.h:124:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashManager.h:125:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashManager.h:126:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashManager.h:127:CXXMethod:maintenanceRunning()",
+        "decl:airdcpp/hash/HashManager.h:130:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:133:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:135:FieldDecl:pausers",
+        "decl:airdcpp/hash/HashManager.h:139:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HashManager.h:140:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManager.h:141:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:142:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:143:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:144:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HashManager.h:146:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashManager.h:148:CXXMethod:createHasher()",
+        "decl:airdcpp/hash/HashManager.h:149:CXXMethod:getFileHasher(int64_t, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:150:CXXMethod:isPathQueued(const string &)",
+        "decl:airdcpp/hash/HashManager.h:152:CXXMethod:hashFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:153:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/HashManager.h:155:TypeAliasDecl:HasherList",
+        "decl:airdcpp/hash/HashManager.h:156:FieldDecl:hashers",
+        "decl:airdcpp/hash/HashManager.h:158:FieldDecl:store",
+        "decl:airdcpp/hash/HashManager.h:161:VarDecl:SMALL_TREE",
+        "decl:airdcpp/hash/HashManager.h:163:ClassDecl:Optimizer",
+        "decl:airdcpp/hash/HashManager.h:168:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:169:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/HashManager.h:171:FieldDecl:verify",
+        "decl:airdcpp/hash/HashManager.h:172:FieldDecl:running",
+        "decl:airdcpp/hash/HashManager.h:173:CXXMethod:run()",
+        "decl:airdcpp/hash/HashManager.h:176:FieldDecl:optimizer",
+        "decl:airdcpp/hash/value/MerkleTree.h:39:ClassTemplate:MerkleTree<Hasher, baseBlockSize>",
+        "decl:airdcpp/hash/value/MerkleTree.h:42:VarDecl:BITS",
+        "decl:airdcpp/hash/value/MerkleTree.h:43:VarDecl:BYTES",
+        "decl:airdcpp/hash/value/MerkleTree.h:44:VarDecl:BASE_BLOCK_SIZE",
+        "decl:airdcpp/hash/value/MerkleTree.h:46:TypedefDecl:MerkleValue",
+        "decl:airdcpp/hash/value/MerkleTree.h:47:TypedefDecl:MerkleList",
+        "decl:airdcpp/hash/value/MerkleTree.h:48:TypedefDecl:MerkleIter",
+        "decl:airdcpp/hash/value/MerkleTree.h:61:VarDecl:n",
+        "decl:airdcpp/hash/value/MerkleTree.h:62:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:76:CXXMethod:operator==(const MerkleTree<Hasher, baseBlockSize> &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:77:CXXMethod:operator<(const MerkleTree<Hasher, baseBlockSize> &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:79:CXXMethod:calcBlockSize(int64_t, int)",
+        "decl:airdcpp/hash/value/MerkleTree.h:80:VarDecl:tmp",
+        "decl:airdcpp/hash/value/MerkleTree.h:81:VarDecl:maxHashes",
+        "decl:airdcpp/hash/value/MerkleTree.h:87:CXXMethod:calcBlocks(int64_t, int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:90:CXXMethod:calcBlocks(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:99:CXXMethod:update(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:100:VarDecl:buf",
+        "decl:airdcpp/hash/value/MerkleTree.h:101:VarDecl:zero",
+        "decl:airdcpp/hash/value/MerkleTree.h:102:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:109:VarDecl:n",
+        "decl:airdcpp/hash/value/MerkleTree.h:110:VarDecl:h",
+        "decl:airdcpp/hash/value/MerkleTree.h:124:CXXMethod:finalize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:130:VarDecl:a",
+        "decl:airdcpp/hash/value/MerkleTree.h:131:VarDecl:b",
+        "decl:airdcpp/hash/value/MerkleTree.h:143:CXXMethod:getRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:144:CXXMethod:getRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:145:CXXMethod:getLeaves()",
+        "decl:airdcpp/hash/value/MerkleTree.h:146:CXXMethod:getLeaves()",
+        "decl:airdcpp/hash/value/MerkleTree.h:148:CXXMethod:getBlockSize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:149:CXXMethod:setBlockSize(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:151:CXXMethod:getFileSize()",
+        "decl:airdcpp/hash/value/MerkleTree.h:152:CXXMethod:setFileSize(int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:154:CXXMethod:verifyRoot(const uint8_t *)",
+        "decl:airdcpp/hash/value/MerkleTree.h:158:CXXMethod:calcRoot()",
+        "decl:airdcpp/hash/value/MerkleTree.h:162:CXXMethod:getLeafData()",
+        "decl:airdcpp/hash/value/MerkleTree.h:163:VarDecl:buf",
+        "decl:airdcpp/hash/value/MerkleTree.h:164:VarDecl:p",
+        "decl:airdcpp/hash/value/MerkleTree.h:165:VarDecl:i",
+        "decl:airdcpp/hash/value/MerkleTree.h:173:TypedefDecl:MerkleBlock",
+        "decl:airdcpp/hash/value/MerkleTree.h:174:TypedefDecl:MBList",
+        "decl:airdcpp/hash/value/MerkleTree.h:176:FieldDecl:blocks",
+        "decl:airdcpp/hash/value/MerkleTree.h:178:FieldDecl:leaves",
+        "decl:airdcpp/hash/value/MerkleTree.h:180:FieldDecl:root",
+        "decl:airdcpp/hash/value/MerkleTree.h:182:FieldDecl:fileSize",
+        "decl:airdcpp/hash/value/MerkleTree.h:184:FieldDecl:blockSize",
+        "decl:airdcpp/hash/value/MerkleTree.h:186:CXXMethod:getHash(int64_t, int64_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:192:VarDecl:l",
+        "decl:airdcpp/hash/value/MerkleTree.h:199:CXXMethod:combine(const MerkleValue &, const MerkleValue &)",
+        "decl:airdcpp/hash/value/MerkleTree.h:200:VarDecl:one",
+        "decl:airdcpp/hash/value/MerkleTree.h:201:VarDecl:h",
+        "decl:airdcpp/hash/value/MerkleTree.h:208:CXXMethod:reduceBlocks()",
+        "decl:airdcpp/hash/value/MerkleTree.h:210:VarDecl:a",
+        "decl:airdcpp/hash/value/MerkleTree.h:211:VarDecl:b",
+        "decl:airdcpp/hash/value/MerkleTree.h:229:TypedefDecl:TigerTree",
+        "decl:airdcpp/hash/value/MerkleTree.h:230:TypedefDecl:TTHValue",
+        "decl:airdcpp/hash/value/MerkleTree.h:232:ClassTemplate:TTFilter<aBlockSize>",
+        "decl:airdcpp/hash/value/MerkleTree.h:235:CXXMethod:operator()(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleTree.h:236:CXXMethod:getTree()",
+        "decl:airdcpp/hash/value/MerkleTree.h:238:FieldDecl:tt",
+        "decl:airdcpp/hash/value/MerkleTree.h:50:CXCursor_Constructor:69c2715168c5",
+        "decl:airdcpp/hash/value/MerkleTree.h:51:CXCursor_Constructor:8f9b6a154bfd",
+        "decl:airdcpp/hash/value/MerkleTree.h:58:CXCursor_Constructor:e7717d5c26eb",
+        "decl:airdcpp/hash/value/MerkleTree.h:69:CXCursor_Constructor:19961690259b",
+        "decl:airdcpp/hash/value/MerkleTree.h:73:CXCursor_Destructor:adf2cec06260",
+        "decl:airdcpp/hash/value/MerkleTree.h:234:CXCursor_Constructor:c3c467ab73b9",
+        "decl:airdcpp/hash/HashManager.h:45:CXCursor_Constructor:0e9d9810a0f9",
+        "decl:airdcpp/hash/HashManager.h:46:CXCursor_Destructor:971a3a52c9c3",
+        "decl:airdcpp/hash/HashManager.h:111:CXCursor_Constructor:c9333b140382",
+        "decl:airdcpp/hash/HashManager.h:112:CXCursor_Destructor:23e1940c57f5",
+        "decl:airdcpp/hash/HashManager.h:165:CXCursor_Constructor:9bfd2b0014a8",
+        "decl:airdcpp/hash/HashManager.h:166:CXCursor_Destructor:9c0e41d14114"
+      ]
+    },
+    {
+      "id": "hash.background-queue",
+      "kind": "operation",
+      "upstream_symbols": [
+        "HashManager::stopHashing/setPriority/getStats/stop",
+        "Hasher::hashFile/pause/resume/clear/stopHashing"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 50,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 107,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 135,
+          "end_line": 137
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 97,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 154,
+          "end_line": 211
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 212,
+          "end_line": 241
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 309,
+          "end_line": 338
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 397,
+          "end_line": 432
+        },
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 45,
+          "end_line": 220
+        },
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 319,
+          "end_line": 450
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Path, lowercased key, file size/device ID (internal), pause/stop actions."
+        ],
+        "preconditions": [
+          "Manager must not be shutting down to accept new work."
+        ],
+        "defaults": [],
+        "effects": [
+          "Hash requests deduplicate by lowercased path. Manager chooses active hasher by volume/least remaining bytes, creating a new hasher as needed; same-device hasher grouping and settings MAX_HASHING_THREADS/HASHERS_PER_VOLUME constrain reuse. Hasher work queue is path-sorted and tracks device/ref counts. stopHashing removes queued work under path subtree; stop clears pending work and marks worker stopping. Pause/resume is reference-counted in manager; forced resume clears all pausers. Stats aggregate current file, bytes/files left, speed, added counts, running hashers and paused state."
+        ],
+        "events": [],
+        "errors": [
+          "Queue duplicate returns false; scheduling while shutting down returns false. Worker-reported file read/hash errors emit FileFailed."
+        ],
+        "completion": "Queue submission synchronous; hashing executes on worker thread; finish events fire after queues drain.",
+        "cancellation": "stopHashing removes queued matching paths only; stop clears queues and stops workers; an already-running file is interrupted according to worker checks.",
+        "persistence": [],
+        "resources": [
+          "Worker threads, per-device load, path queues, global Hasher::hcs."
+        ]
+      },
+      "ownership_evidence": [
+        "HashManager owns Hasher pointers and per-worker queues; Hasher callbacks report results to manager."
+      ],
+      "threading_evidence": [
+        "Hasher::hcs serializes worker/vector access; file work and callbacks occur on Hasher worker thread."
+      ],
+      "proposed_bridge_requirement": "Expose hash job IDs with explicit queued/running/canceled/completed/failed state rather than raw Hasher controls.",
+      "acceptance_scenarios": [
+        "Given a path is already queued for hashing, when another request is submitted, then it returns false and work is not duplicated.",
+        "Given queued paths include a subtree and sibling, when stopHashing is called for subtree, then only queued descendants are removed.",
+        "Given two pause owners exist, when one resumes, then hashing remains paused until last pause owner resumes.",
+        "Given hashing is active, when stats are read, then counts and current work reflect the worker snapshot."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManager.h:42:ClassDecl:HashManager",
+        "decl:airdcpp/hash/HashManager.h:51:CXXMethod:checkTTH(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:53:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/HashManager.h:54:CXXMethod:setPriority(Thread::Priority)",
+        "decl:airdcpp/hash/HashManager.h:59:CXXMethod:getFileInfo(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:61:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:64:CXXMethod:getBlockSize(const TTHValue &)",
+        "decl:airdcpp/hash/HashManager.h:66:CXXMethod:getMinBlockSize()",
+        "decl:airdcpp/hash/HashManager.h:69:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashManager.h:71:StructDecl:HashStats",
+        "decl:airdcpp/hash/HashManager.h:72:FieldDecl:curFile",
+        "decl:airdcpp/hash/HashManager.h:73:FieldDecl:bytesLeft",
+        "decl:airdcpp/hash/HashManager.h:74:FieldDecl:filesLeft",
+        "decl:airdcpp/hash/HashManager.h:75:FieldDecl:speed",
+        "decl:airdcpp/hash/HashManager.h:76:FieldDecl:filesAdded",
+        "decl:airdcpp/hash/HashManager.h:77:FieldDecl:bytesAdded",
+        "decl:airdcpp/hash/HashManager.h:78:FieldDecl:hashersRunning",
+        "decl:airdcpp/hash/HashManager.h:79:FieldDecl:isPaused",
+        "decl:airdcpp/hash/HashManager.h:81:CXXMethod:operator==(const HashStats &)",
+        "decl:airdcpp/hash/HashManager.h:94:CXXMethod:getStats()",
+        "decl:airdcpp/hash/HashManager.h:98:CXXMethod:getFileTTH(const string &, int64_t, bool, TTHValue &, int64_t &, const bool &, std::function<void (int64_t, const string &)>)",
+        "decl:airdcpp/hash/HashManager.h:103:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:106:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/hash/HashManager.h:107:CXXMethod:stop()",
+        "decl:airdcpp/hash/HashManager.h:108:CXXMethod:shutdown(ProgressFunction)",
+        "decl:airdcpp/hash/HashManager.h:110:StructDecl:HashPauser",
+        "decl:airdcpp/hash/HashManager.h:116:CXXMethod:pauseHashing()",
+        "decl:airdcpp/hash/HashManager.h:117:CXXMethod:resumeHashing(bool)",
+        "decl:airdcpp/hash/HashManager.h:118:CXXMethod:isHashingPaused(bool)",
+        "decl:airdcpp/hash/HashManager.h:120:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashManager.h:121:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashManager.h:123:CXXMethod:close()",
+        "decl:airdcpp/hash/HashManager.h:124:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashManager.h:125:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashManager.h:126:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashManager.h:127:CXXMethod:maintenanceRunning()",
+        "decl:airdcpp/hash/HashManager.h:130:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:133:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:135:FieldDecl:pausers",
+        "decl:airdcpp/hash/HashManager.h:139:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HashManager.h:140:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManager.h:141:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:142:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:143:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:144:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HashManager.h:146:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashManager.h:148:CXXMethod:createHasher()",
+        "decl:airdcpp/hash/HashManager.h:149:CXXMethod:getFileHasher(int64_t, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:150:CXXMethod:isPathQueued(const string &)",
+        "decl:airdcpp/hash/HashManager.h:152:CXXMethod:hashFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:153:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/HashManager.h:155:TypeAliasDecl:HasherList",
+        "decl:airdcpp/hash/HashManager.h:156:FieldDecl:hashers",
+        "decl:airdcpp/hash/HashManager.h:158:FieldDecl:store",
+        "decl:airdcpp/hash/HashManager.h:161:VarDecl:SMALL_TREE",
+        "decl:airdcpp/hash/HashManager.h:163:ClassDecl:Optimizer",
+        "decl:airdcpp/hash/HashManager.h:168:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:169:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/HashManager.h:171:FieldDecl:verify",
+        "decl:airdcpp/hash/HashManager.h:172:FieldDecl:running",
+        "decl:airdcpp/hash/HashManager.h:173:CXXMethod:run()",
+        "decl:airdcpp/hash/HashManager.h:176:FieldDecl:optimizer",
+        "decl:airdcpp/hash/Hasher.h:33:TypeAliasDecl:devid",
+        "decl:airdcpp/hash/Hasher.h:36:ClassDecl:Hasher",
+        "decl:airdcpp/hash/Hasher.h:39:VarDecl:MIN_BLOCK_SIZE",
+        "decl:airdcpp/hash/Hasher.h:43:CXXMethod:hashFile(const string &, const string &, int64_t, devid)",
+        "decl:airdcpp/hash/Hasher.h:46:CXXMethod:pause()",
+        "decl:airdcpp/hash/Hasher.h:47:CXXMethod:resume()",
+        "decl:airdcpp/hash/Hasher.h:48:CXXMethod:isPaused()",
+        "decl:airdcpp/hash/Hasher.h:49:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/Hasher.h:51:CXXMethod:clear()",
+        "decl:airdcpp/hash/Hasher.h:52:CXXMethod:stop()",
+        "decl:airdcpp/hash/Hasher.h:54:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/Hasher.h:55:CXXMethod:run()",
+        "decl:airdcpp/hash/Hasher.h:56:CXXMethod:getStats(string &, int64_t &, size_t &, int64_t &, size_t &, int64_t &)",
+        "decl:airdcpp/hash/Hasher.h:57:CXXMethod:shutdown()",
+        "decl:airdcpp/hash/Hasher.h:59:CXXMethod:hasFile(const string &)",
+        "decl:airdcpp/hash/Hasher.h:60:CXXMethod:hasDevice(int64_t)",
+        "decl:airdcpp/hash/Hasher.h:61:CXXMethod:hasDevices()",
+        "decl:airdcpp/hash/Hasher.h:62:CXXMethod:getTimeLeft()",
+        "decl:airdcpp/hash/Hasher.h:64:CXXMethod:getBytesLeft()",
+        "decl:airdcpp/hash/Hasher.h:66:FieldDecl:hasherID",
+        "decl:airdcpp/hash/Hasher.h:67:VarDecl:hcs",
+        "decl:airdcpp/hash/Hasher.h:69:FieldDecl:manager",
+        "decl:airdcpp/hash/Hasher.h:71:CXXMethod:clearStats()",
+        "decl:airdcpp/hash/Hasher.h:73:ClassDecl:WorkItem",
+        "decl:airdcpp/hash/Hasher.h:84:CXXMethod:operator=(WorkItem &&)",
+        "decl:airdcpp/hash/Hasher.h:86:CXXMethod:operator=(const WorkItem &)",
+        "decl:airdcpp/hash/Hasher.h:88:FieldDecl:filePath",
+        "decl:airdcpp/hash/Hasher.h:89:FieldDecl:fileSize",
+        "decl:airdcpp/hash/Hasher.h:90:FieldDecl:deviceId",
+        "decl:airdcpp/hash/Hasher.h:91:FieldDecl:filePathLower",
+        "decl:airdcpp/hash/Hasher.h:93:StructDecl:NameLower",
+        "decl:airdcpp/hash/Hasher.h:94:CXXMethod:operator()(const WorkItem &)",
+        "decl:airdcpp/hash/Hasher.h:98:CXXMethod:processQueue()",
+        "decl:airdcpp/hash/Hasher.h:99:CXXMethod:hashFile(const WorkItem &, HasherStats &, const DirSFVReader &)",
+        "decl:airdcpp/hash/Hasher.h:101:FieldDecl:w",
+        "decl:airdcpp/hash/Hasher.h:103:FieldDecl:s",
+        "decl:airdcpp/hash/Hasher.h:104:CXXMethod:removeDevice(devid)",
+        "decl:airdcpp/hash/Hasher.h:106:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/Hasher.h:107:FieldDecl:stopping",
+        "decl:airdcpp/hash/Hasher.h:108:FieldDecl:running",
+        "decl:airdcpp/hash/Hasher.h:109:FieldDecl:paused",
+        "decl:airdcpp/hash/Hasher.h:111:FieldDecl:currentFile",
+        "decl:airdcpp/hash/Hasher.h:112:FieldDecl:totalBytesLeft",
+        "decl:airdcpp/hash/Hasher.h:113:FieldDecl:totalBytesAdded",
+        "decl:airdcpp/hash/Hasher.h:114:FieldDecl:lastSpeed",
+        "decl:airdcpp/hash/Hasher.h:115:FieldDecl:totalFilesAdded",
+        "decl:airdcpp/hash/Hasher.h:117:CXXMethod:instantPause()",
+        "decl:airdcpp/hash/Hasher.h:119:FieldDecl:devices",
+        "decl:airdcpp/hash/Hasher.h:121:CXXMethod:logHasher(const string &, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/Hasher.h:123:CXXMethod:logHashedDirectory(const string &, const string &, const HasherStats &)",
+        "decl:airdcpp/hash/Hasher.h:124:CXXMethod:logHashedFile(const string &, int64_t)",
+        "decl:airdcpp/hash/Hasher.h:125:CXXMethod:logFailedFile(const string &, const string &)",
+        "decl:airdcpp/hash/HasherManager.h:29:StructDecl:HasherManager",
+        "decl:airdcpp/hash/HasherManager.h:30:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HasherManager.h:31:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HasherManager.h:32:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HasherManager.h:33:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HasherManager.h:34:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HasherManager.h:35:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:45:CXCursor_Constructor:0e9d9810a0f9",
+        "decl:airdcpp/hash/HashManager.h:46:CXCursor_Destructor:971a3a52c9c3",
+        "decl:airdcpp/hash/HashManager.h:111:CXCursor_Constructor:c9333b140382",
+        "decl:airdcpp/hash/HashManager.h:112:CXCursor_Destructor:23e1940c57f5",
+        "decl:airdcpp/hash/HashManager.h:165:CXCursor_Constructor:9bfd2b0014a8",
+        "decl:airdcpp/hash/HashManager.h:166:CXCursor_Destructor:9c0e41d14114",
+        "decl:airdcpp/hash/Hasher.h:41:CXCursor_Constructor:8c657433cb6d",
+        "decl:airdcpp/hash/Hasher.h:75:CXCursor_Constructor:59d2f7df8c5c",
+        "decl:airdcpp/hash/Hasher.h:81:CXCursor_Constructor:05ec95ee99fb",
+        "decl:airdcpp/hash/Hasher.h:83:CXCursor_Constructor:88dcaf57e980",
+        "decl:airdcpp/hash/Hasher.h:85:CXCursor_Constructor:ee8f91bdf464"
+      ]
+    },
+    {
+      "id": "hash.single-file-outcomes",
+      "kind": "event",
+      "upstream_symbols": [
+        "HashManagerListener::FileHashed",
+        "FileFailed",
+        "DirectoryHashed",
+        "HasherFinished"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManagerListener.h",
+          "start_line": 31,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 55,
+          "end_line": 74
+        },
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 82,
+          "end_line": 132
+        },
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 319,
+          "end_line": 429
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "FileHashed fires before HashStore addHashedFile; if persistence throws, error is logged after successful event. FileFailed carries path/error ID/human message/hasher ID. DirectoryHashed carries path/stats; HasherFinished carries directory count/stats/hasher ID."
+        ],
+        "events": [
+          "FileHashed(path, HashedFile&, hasherID)",
+          "FileFailed(path,errorID,message,hasherID)",
+          "DirectoryHashed(path,HasherStats&,hasherID)",
+          "HasherFinished(directoryCount,HasherStats&,hasherID)"
+        ],
+        "errors": [],
+        "completion": "Synchronous callback on hashing worker.",
+        "cancellation": "No event cancellation.",
+        "persistence": [],
+        "resources": [
+          "HashedFile and HasherStats references are callback-scoped; copy values."
+        ]
+      },
+      "ownership_evidence": [
+        "Listener receives const HashedFile/HasherStats refs (FileHashed reference is mutable in signature but lifetime is callback)."
+      ],
+      "threading_evidence": [
+        "Callbacks execute directly from Hasher worker thread; Speaker callbacks synchronous."
+      ],
+      "proposed_bridge_requirement": "Copy callback metadata immediately; represent file computation and persistence failure as separate outcomes.",
+      "acceptance_scenarios": [
+        "Given file hash computation succeeds, when worker reports FileHashed, then event precedes database persistence and a later store write failure is logged separately.",
+        "Given file hashing fails, when worker reports FileFailed, then error identifier and message are delivered with the hasher ID.",
+        "Given all queued work completes, when worker exits, then HasherFinished reports accumulated directory statistics."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManagerListener.h:28:ClassDecl:HashManagerListener",
+        "decl:airdcpp/hash/HashManagerListener.h:31:ClassTemplate:X<I>",
+        "decl:airdcpp/hash/HashManagerListener.h:31:EnumConstantDecl:TYPE",
+        "decl:airdcpp/hash/HashManagerListener.h:31:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hash/HashManagerListener.h:31:29)",
+        "decl:airdcpp/hash/HashManagerListener.h:33:TypedefDecl:FileHashed",
+        "decl:airdcpp/hash/HashManagerListener.h:34:TypedefDecl:FileFailed",
+        "decl:airdcpp/hash/HashManagerListener.h:35:TypedefDecl:MaintananceFinished",
+        "decl:airdcpp/hash/HashManagerListener.h:36:TypedefDecl:MaintananceStarted",
+        "decl:airdcpp/hash/HashManagerListener.h:37:TypedefDecl:DirectoryHashed",
+        "decl:airdcpp/hash/HashManagerListener.h:38:TypedefDecl:HasherFinished",
+        "decl:airdcpp/hash/HashManagerListener.h:40:CXXMethod:on(FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:41:CXXMethod:on(FileFailed, const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:42:CXXMethod:on(MaintananceStarted)",
+        "decl:airdcpp/hash/HashManagerListener.h:43:CXXMethod:on(MaintananceFinished)",
+        "decl:airdcpp/hash/HashManagerListener.h:44:CXXMethod:on(DirectoryHashed, const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:45:CXXMethod:on(HasherFinished, int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:30:CXCursor_Destructor:5b4ba9272a15"
+      ]
+    },
+    {
+      "id": "hash.maintenance-and-lifecycle",
+      "kind": "operation",
+      "upstream_symbols": [
+        "startup/shutdown/close",
+        "startMaintenance/compact/onScheduleRepair/getDbStats/getDbSizes"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 44,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 111,
+          "end_line": 124
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 149,
+          "end_line": 160
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 96,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/hash/HashManager.h",
+          "start_line": 83,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 37,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 339,
+          "end_line": 404
+        },
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 397,
+          "end_line": 440
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 47,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 353,
+          "end_line": 529
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Startup loader, shutdown progress callback, maintenance verify bool, DB repair toggle."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Startup creates worker 0 and opens/migrates HashData and FileIndex LevelDBs; DB open errors abort startup. shutdown rejects new hashes, asks workers to shutdown, then waits in 50ms intervals until all remove themselves. stop clears/stops workers but does not close DB; close resets DB handles. startMaintenance is a no-op if already running; optimize/verify runs asynchronously and emits misspelled MaintananceStarted/Finished. Repair scheduling creates/deletes two DB repair marker files; isRepairScheduled requires both. compact compacts both DBs. Maintenance removes unshared file entries, unused trees unless queued, optionally verifies trees; removes file-index entries whose tree is missing/corrupt; updates removed counters and compacts when deleted ratio exceeds 5% or valid count zero."
+        ],
+        "events": [],
+        "errors": [
+          "DB open failure becomes AbortException; optimize catches DbException, logs maintenance failure and stops early."
+        ],
+        "completion": "Maintenance executes optimizer worker; shutdown blocks until hashers exit.",
+        "cancellation": "stopHashing/stop/shutdown are different operations; shutdown waits and prevents future queueing.",
+        "persistence": [
+          "Persistent LevelDB under user config HashData and FileIndex; repair marker files."
+        ],
+        "resources": [
+          "Two LevelDB stores, filesystem migration/compaction, ShareManager shared roots, QueueManager queued roots."
+        ]
+      },
+      "ownership_evidence": [
+        "HashStore owns two LevelDB handles and marker files; HashManager owns optimizer and hasher objects."
+      ],
+      "threading_evidence": [
+        "Workers and optimizer are separate threads; shutdown synchronously waits for worker removal."
+      ],
+      "proposed_bridge_requirement": "Preserve separate stop/close/shutdown semantics, persistence paths, verification/repair behavior and asynchronous maintenance events.",
+      "acceptance_scenarios": [
+        "Given DB open fails at startup, when HashManager starts, then startup aborts with DB error.",
+        "Given optimize finds tree roots neither shared nor queued, when maintenance runs, then unused trees and associated stale entries are removed.",
+        "Given maintenance has deleted entries over 5% of valid database entries, when it completes, then the store compacts and resets the deleted-entry counter.",
+        "Given shutdown begins with active hasher, when it runs, then it waits until worker callbacks remove all hashers."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashManager.h:42:ClassDecl:HashManager",
+        "decl:airdcpp/hash/HashManager.h:51:CXXMethod:checkTTH(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:53:CXXMethod:stopHashing(const string &)",
+        "decl:airdcpp/hash/HashManager.h:54:CXXMethod:setPriority(Thread::Priority)",
+        "decl:airdcpp/hash/HashManager.h:59:CXXMethod:getFileInfo(const string &, const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:61:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:64:CXXMethod:getBlockSize(const TTHValue &)",
+        "decl:airdcpp/hash/HashManager.h:66:CXXMethod:getMinBlockSize()",
+        "decl:airdcpp/hash/HashManager.h:69:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashManager.h:71:StructDecl:HashStats",
+        "decl:airdcpp/hash/HashManager.h:72:FieldDecl:curFile",
+        "decl:airdcpp/hash/HashManager.h:73:FieldDecl:bytesLeft",
+        "decl:airdcpp/hash/HashManager.h:74:FieldDecl:filesLeft",
+        "decl:airdcpp/hash/HashManager.h:75:FieldDecl:speed",
+        "decl:airdcpp/hash/HashManager.h:76:FieldDecl:filesAdded",
+        "decl:airdcpp/hash/HashManager.h:77:FieldDecl:bytesAdded",
+        "decl:airdcpp/hash/HashManager.h:78:FieldDecl:hashersRunning",
+        "decl:airdcpp/hash/HashManager.h:79:FieldDecl:isPaused",
+        "decl:airdcpp/hash/HashManager.h:81:CXXMethod:operator==(const HashStats &)",
+        "decl:airdcpp/hash/HashManager.h:94:CXXMethod:getStats()",
+        "decl:airdcpp/hash/HashManager.h:98:CXXMethod:getFileTTH(const string &, int64_t, bool, TTHValue &, int64_t &, const bool &, std::function<void (int64_t, const string &)>)",
+        "decl:airdcpp/hash/HashManager.h:103:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:106:CXXMethod:startup(StartupLoader &)",
+        "decl:airdcpp/hash/HashManager.h:107:CXXMethod:stop()",
+        "decl:airdcpp/hash/HashManager.h:108:CXXMethod:shutdown(ProgressFunction)",
+        "decl:airdcpp/hash/HashManager.h:110:StructDecl:HashPauser",
+        "decl:airdcpp/hash/HashManager.h:116:CXXMethod:pauseHashing()",
+        "decl:airdcpp/hash/HashManager.h:117:CXXMethod:resumeHashing(bool)",
+        "decl:airdcpp/hash/HashManager.h:118:CXXMethod:isHashingPaused(bool)",
+        "decl:airdcpp/hash/HashManager.h:120:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashManager.h:121:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashManager.h:123:CXXMethod:close()",
+        "decl:airdcpp/hash/HashManager.h:124:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashManager.h:125:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashManager.h:126:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashManager.h:127:CXXMethod:maintenanceRunning()",
+        "decl:airdcpp/hash/HashManager.h:130:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashManager.h:133:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashManager.h:135:FieldDecl:pausers",
+        "decl:airdcpp/hash/HashManager.h:139:CXXMethod:onFileHashed(const string &, HashedFile &, const TigerTree &, int)",
+        "decl:airdcpp/hash/HashManager.h:140:CXXMethod:onFileFailed(const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManager.h:141:CXXMethod:onDirectoryHashed(const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:142:CXXMethod:onHasherFinished(int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManager.h:143:CXXMethod:removeHasher(int)",
+        "decl:airdcpp/hash/HashManager.h:144:CXXMethod:logHasher(const string &, int, LogMessage::Severity, bool)",
+        "decl:airdcpp/hash/HashManager.h:146:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashManager.h:148:CXXMethod:createHasher()",
+        "decl:airdcpp/hash/HashManager.h:149:CXXMethod:getFileHasher(int64_t, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:150:CXXMethod:isPathQueued(const string &)",
+        "decl:airdcpp/hash/HashManager.h:152:CXXMethod:hashFile(const string &, const string &, int64_t)",
+        "decl:airdcpp/hash/HashManager.h:153:FieldDecl:isShutdown",
+        "decl:airdcpp/hash/HashManager.h:155:TypeAliasDecl:HasherList",
+        "decl:airdcpp/hash/HashManager.h:156:FieldDecl:hashers",
+        "decl:airdcpp/hash/HashManager.h:158:FieldDecl:store",
+        "decl:airdcpp/hash/HashManager.h:161:VarDecl:SMALL_TREE",
+        "decl:airdcpp/hash/HashManager.h:163:ClassDecl:Optimizer",
+        "decl:airdcpp/hash/HashManager.h:168:CXXMethod:startMaintenance(bool)",
+        "decl:airdcpp/hash/HashManager.h:169:CXXMethod:isRunning()",
+        "decl:airdcpp/hash/HashManager.h:171:FieldDecl:verify",
+        "decl:airdcpp/hash/HashManager.h:172:FieldDecl:running",
+        "decl:airdcpp/hash/HashManager.h:173:CXXMethod:run()",
+        "decl:airdcpp/hash/HashManager.h:176:FieldDecl:optimizer",
+        "decl:airdcpp/hash/HashManagerListener.h:28:ClassDecl:HashManagerListener",
+        "decl:airdcpp/hash/HashManagerListener.h:31:ClassTemplate:X<I>",
+        "decl:airdcpp/hash/HashManagerListener.h:31:EnumConstantDecl:TYPE",
+        "decl:airdcpp/hash/HashManagerListener.h:31:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hash/HashManagerListener.h:31:29)",
+        "decl:airdcpp/hash/HashManagerListener.h:33:TypedefDecl:FileHashed",
+        "decl:airdcpp/hash/HashManagerListener.h:34:TypedefDecl:FileFailed",
+        "decl:airdcpp/hash/HashManagerListener.h:35:TypedefDecl:MaintananceFinished",
+        "decl:airdcpp/hash/HashManagerListener.h:36:TypedefDecl:MaintananceStarted",
+        "decl:airdcpp/hash/HashManagerListener.h:37:TypedefDecl:DirectoryHashed",
+        "decl:airdcpp/hash/HashManagerListener.h:38:TypedefDecl:HasherFinished",
+        "decl:airdcpp/hash/HashManagerListener.h:40:CXXMethod:on(FileHashed, const string &, HashedFile &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:41:CXXMethod:on(FileFailed, const string &, const string &, const string &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:42:CXXMethod:on(MaintananceStarted)",
+        "decl:airdcpp/hash/HashManagerListener.h:43:CXXMethod:on(MaintananceFinished)",
+        "decl:airdcpp/hash/HashManagerListener.h:44:CXXMethod:on(DirectoryHashed, const string &, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:45:CXXMethod:on(HasherFinished, int, const HasherStats &, int)",
+        "decl:airdcpp/hash/HashManagerListener.h:30:CXCursor_Destructor:5b4ba9272a15",
+        "decl:airdcpp/hash/HashManager.h:45:CXCursor_Constructor:0e9d9810a0f9",
+        "decl:airdcpp/hash/HashManager.h:46:CXCursor_Destructor:971a3a52c9c3",
+        "decl:airdcpp/hash/HashManager.h:111:CXCursor_Constructor:c9333b140382",
+        "decl:airdcpp/hash/HashManager.h:112:CXCursor_Destructor:23e1940c57f5",
+        "decl:airdcpp/hash/HashManager.h:165:CXCursor_Constructor:9bfd2b0014a8",
+        "decl:airdcpp/hash/HashManager.h:166:CXCursor_Destructor:9c0e41d14114"
+      ]
+    },
+    {
+      "id": "hash.setting-use.max-hashing-threads",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(MAX_HASHING_THREADS)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 186,
+          "end_line": 186
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Maximum total hasher worker threshold used when choosing whether to reuse/create a hasher. Unit: worker count."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read at worker selection, DB open or hash loop.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "Consumer site is source referenced."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Settings ledger owns default/persistence; hash contract records the consumer condition and units.",
+      "acceptance_scenarios": [
+        "Given the setting is positive / reaches its consumer, when the relevant hasher/store path executes, then the documented cap, throttle, cache or logging behavior applies."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.setting-use.hashers-per-volume",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(HASHERS_PER_VOLUME)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashManager.cpp",
+          "start_line": 199,
+          "end_line": 199
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Maximum hasher count sharing a filesystem volume before reuse policy is applied; zero disables this per-volume limit. Unit: workers per device."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read at worker selection, DB open or hash loop.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "Consumer site is source referenced."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Settings ledger owns default/persistence; hash contract records the consumer condition and units.",
+      "acceptance_scenarios": [
+        "Given the setting is positive / reaches its consumer, when the relevant hasher/store path executes, then the documented cap, throttle, cache or logging behavior applies."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.setting-use.db-cache-size",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(DB_CACHE_SIZE)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 62,
+          "end_line": 62
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "LevelDB cache converted from at least 1 MiB for each store. Unit: MiB."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read at worker selection, DB open or hash loop.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "Consumer site is source referenced."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Settings ledger owns default/persistence; hash contract records the consumer condition and units.",
+      "acceptance_scenarios": [
+        "Given the setting is positive / reaches its consumer, when the relevant hasher/store path executes, then the documented cap, throttle, cache or logging behavior applies."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.setting-use.log-hashing",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(LOG_HASHING)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 110,
+          "end_line": 110
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Controls per-file hash success logging. Unit: boolean."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read at worker selection, DB open or hash loop.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "Consumer site is source referenced."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Settings ledger owns default/persistence; hash contract records the consumer condition and units.",
+      "acceptance_scenarios": [
+        "Given the setting is positive / reaches its consumer, when the relevant hasher/store path executes, then the documented cap, throttle, cache or logging behavior applies."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.setting-use.max-hash-speed",
+      "kind": "setting",
+      "upstream_symbols": [
+        "SETTING(MAX_HASH_SPEED)"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/Hasher.cpp",
+          "start_line": 256,
+          "end_line": 256
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "When positive, throttles hashing to configured MiB/s by sleeping based on processed bytes. Unit: MiB/s."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Read at worker selection, DB open or hash loop.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "SettingsManager value."
+        ]
+      },
+      "ownership_evidence": [
+        "Consumer site is source referenced."
+      ],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Settings ledger owns default/persistence; hash contract records the consumer condition and units.",
+      "acceptance_scenarios": [
+        "Given the setting is positive / reaches its consumer, when the relevant hasher/store path executes, then the documented cap, throttle, cache or logging behavior applies."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.accepted-store-key-validation",
+      "kind": "platform-implementation",
+      "upstream_symbols": [
+        "Private accepted macOS Core patch for HashStore tree-key validation"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashStore.cpp",
+          "start_line": 400,
+          "end_line": 406
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "HashStore key byte count in corrupted or incompatible DB."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Pinned original optimize callback memcpy copies key_len bytes directly into TTHValue without checking length. Accepted private Core patch adds a key_len == sizeof(curRoot.data) guard and throws DbException for malformed key lengths, then copies exactly data bytes. Therefore source contract and accepted build differ on malformed/corrupt hash database keys; patched build aborts optimize callback through maintenance error handling instead of unchecked copy."
+        ],
+        "events": [],
+        "errors": [
+          "Original source has no key-length validation; malformed key length is unsafe. Accepted patch throws DbException that optimize catches/logs as maintenance failure."
+        ],
+        "completion": "Only relevant during maintenance hash-DB iteration.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "HashData persistent LevelDB key bytes."
+        ]
+      },
+      "ownership_evidence": [
+        "Patch file Config/patches/airdcpp-core-55d51ceb-private-build.patch hunk lines 1-6, digest a2a0454ec5c77460d99f642e8d52e2aded1efc90968b07e2b9a0f53e33874219 (root baseline finding)."
+      ],
+      "threading_evidence": [
+        "Runs in optimizer worker thread; exception caught by HashStore::optimize DbException handler."
+      ],
+      "proposed_bridge_requirement": "Document the accepted private-build safety patch as a distribution delta; preserve source authority and characterize patched runtime separately.",
+      "acceptance_scenarios": [
+        "Given an old/corrupt hash database key has wrong byte length, when pinned source maintenance processes it, then no validation occurs before memcpy; when accepted patched build processes it, then DbException aborts maintenance safely."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": []
+    },
+    {
+      "id": "hash.internal.value-HashBloom",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/HashBloom.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/HashBloom.h",
+          "start_line": 35,
+          "end_line": 57
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/HashBloom.h:35:ClassDecl:HashBloom",
+        "decl:airdcpp/hash/value/HashBloom.h:40:CXXMethod:get_k(size_t, size_t)",
+        "decl:airdcpp/hash/value/HashBloom.h:42:CXXMethod:get_m(size_t, size_t)",
+        "decl:airdcpp/hash/value/HashBloom.h:44:CXXMethod:add(const TTHValue &)",
+        "decl:airdcpp/hash/value/HashBloom.h:45:CXXMethod:match(const TTHValue &)",
+        "decl:airdcpp/hash/value/HashBloom.h:46:CXXMethod:reset(size_t, size_t, size_t)",
+        "decl:airdcpp/hash/value/HashBloom.h:47:CXXMethod:push_back(bool)",
+        "decl:airdcpp/hash/value/HashBloom.h:49:CXXMethod:copy_to(ByteVector &)",
+        "decl:airdcpp/hash/value/HashBloom.h:52:CXXMethod:pos(const TTHValue &, size_t)",
+        "decl:airdcpp/hash/value/HashBloom.h:54:FieldDecl:bloom",
+        "decl:airdcpp/hash/value/HashBloom.h:55:FieldDecl:k",
+        "decl:airdcpp/hash/value/HashBloom.h:56:FieldDecl:h",
+        "decl:airdcpp/hash/value/HashBloom.h:37:CXCursor_Constructor:4cee0d75a96b"
+      ]
+    },
+    {
+      "id": "hash.internal.value-TigerHash",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/TigerHash.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/TigerHash.h",
+          "start_line": 39,
+          "end_line": 72
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/TigerHash.h:39:ClassDecl:TigerHash",
+        "decl:airdcpp/hash/value/TigerHash.h:42:VarDecl:BITS",
+        "decl:airdcpp/hash/value/TigerHash.h:43:VarDecl:BYTES",
+        "decl:airdcpp/hash/value/TigerHash.h:55:CXXMethod:update(const void *, size_t)",
+        "decl:airdcpp/hash/value/TigerHash.h:57:CXXMethod:finalize()",
+        "decl:airdcpp/hash/value/TigerHash.h:59:CXXMethod:getResult()",
+        "decl:airdcpp/hash/value/TigerHash.h:61:EnumConstantDecl:BLOCK_SIZE",
+        "decl:airdcpp/hash/value/TigerHash.h:61:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hash/value/TigerHash.h:61:2)",
+        "decl:airdcpp/hash/value/TigerHash.h:63:FieldDecl:tmp",
+        "decl:airdcpp/hash/value/TigerHash.h:65:FieldDecl:res",
+        "decl:airdcpp/hash/value/TigerHash.h:67:FieldDecl:pos",
+        "decl:airdcpp/hash/value/TigerHash.h:69:VarDecl:table",
+        "decl:airdcpp/hash/value/TigerHash.h:71:CXXMethod:tigerCompress(const uint64_t *, uint64_t *)",
+        "decl:airdcpp/hash/value/TigerHash.h:45:CXCursor_Constructor:42749ec5e394",
+        "decl:airdcpp/hash/value/TigerHash.h:51:CXCursor_Destructor:7784aa0c7bf4"
+      ]
+    },
+    {
+      "id": "hash.internal.value-HashValue",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/HashValue.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/HashValue.h",
+          "start_line": 27,
+          "end_line": 75
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/HashValue.h:27:ClassTemplate:HashValue<Hasher>",
+        "decl:airdcpp/hash/value/HashValue.h:29:VarDecl:BITS",
+        "decl:airdcpp/hash/value/HashValue.h:30:VarDecl:BYTES",
+        "decl:airdcpp/hash/value/HashValue.h:37:CXXMethod:operator!=(const HashValue<Hasher> &)",
+        "decl:airdcpp/hash/value/HashValue.h:38:CXXMethod:operator==(const HashValue<Hasher> &)",
+        "decl:airdcpp/hash/value/HashValue.h:39:CXXMethod:operator<(const HashValue<Hasher> &)",
+        "decl:airdcpp/hash/value/HashValue.h:41:CXXMethod:toBase32()",
+        "decl:airdcpp/hash/value/HashValue.h:42:CXXMethod:toBase32(std::string &)",
+        "decl:airdcpp/hash/value/HashValue.h:47:FieldDecl:data",
+        "decl:airdcpp/hash/value/HashValue.h:53:ClassTemplatePartialSpecialization:hash<dcpp::HashValue<T>>",
+        "decl:airdcpp/hash/value/HashValue.h:55:CXXMethod:operator()(const dcpp::HashValue<T> &)",
+        "decl:airdcpp/hash/value/HashValue.h:57:VarDecl:hvHash",
+        "decl:airdcpp/hash/value/HashValue.h:63:ClassTemplatePartialSpecialization:hash<dcpp::HashValue<T> *>",
+        "decl:airdcpp/hash/value/HashValue.h:65:CXXMethod:operator()(const dcpp::HashValue<T> *)",
+        "decl:airdcpp/hash/value/HashValue.h:70:ClassTemplatePartialSpecialization:equal_to<dcpp::HashValue<T> *>",
+        "decl:airdcpp/hash/value/HashValue.h:72:CXXMethod:operator()(const dcpp::HashValue<T> *, const dcpp::HashValue<T> *)",
+        "decl:airdcpp/hash/value/HashValue.h:32:CXCursor_Constructor:c03dc5c31f2f",
+        "decl:airdcpp/hash/value/HashValue.h:34:CXCursor_Constructor:22a9fb7da527",
+        "decl:airdcpp/hash/value/HashValue.h:35:CXCursor_Constructor:a651550f2e6c",
+        "decl:airdcpp/hash/value/HashValue.h:43:CXCursor_ConversionFunction:ab0a850bd89c",
+        "decl:airdcpp/hash/value/HashValue.h:45:CXCursor_ConversionFunction:8105bd73c06e"
+      ]
+    },
+    {
+      "id": "hash.internal.HasherStats",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/HasherStats.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HasherStats.h",
+          "start_line": 26,
+          "end_line": 43
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HasherStats.h:26:ClassDecl:HasherStats",
+        "decl:airdcpp/hash/HasherStats.h:30:FieldDecl:sizeHashed",
+        "decl:airdcpp/hash/HasherStats.h:31:FieldDecl:hashTime",
+        "decl:airdcpp/hash/HasherStats.h:32:FieldDecl:filesHashed",
+        "decl:airdcpp/hash/HasherStats.h:34:CXXMethod:formatDuration()",
+        "decl:airdcpp/hash/HasherStats.h:35:CXXMethod:formatSpeed()",
+        "decl:airdcpp/hash/HasherStats.h:36:CXXMethod:formatSize()",
+        "decl:airdcpp/hash/HasherStats.h:38:CXXMethod:addFile(int64_t, uint64_t)",
+        "decl:airdcpp/hash/HasherStats.h:42:FieldDecl:parent",
+        "decl:airdcpp/hash/HasherStats.h:28:CXCursor_Constructor:10b0cc58db1d",
+        "decl:airdcpp/hash/HasherStats.h:40:CXCursor_Constructor:132433f4fbf3"
+      ]
+    },
+    {
+      "id": "hash.internal.value-Encoder",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/Encoder.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/Encoder.h",
+          "start_line": 29,
+          "end_line": 43
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/Encoder.h:29:ClassDecl:Encoder",
+        "decl:airdcpp/hash/value/Encoder.h:32:CXXMethod:toBase32(const uint8_t *, size_t, string &)",
+        "decl:airdcpp/hash/value/Encoder.h:33:CXXMethod:toBase32(const uint8_t *, size_t)",
+        "decl:airdcpp/hash/value/Encoder.h:34:VarDecl:tmp",
+        "decl:airdcpp/hash/value/Encoder.h:37:CXXMethod:fromBase32(const char *, uint8_t *, size_t)",
+        "decl:airdcpp/hash/value/Encoder.h:38:CXXMethod:isBase32(const char *)",
+        "decl:airdcpp/hash/value/Encoder.h:39:CXXMethod:fromBase16(const char *, uint8_t *, size_t)",
+        "decl:airdcpp/hash/value/Encoder.h:41:VarDecl:base32Table",
+        "decl:airdcpp/hash/value/Encoder.h:42:VarDecl:base32Alphabet"
+      ]
+    },
+    {
+      "id": "hash.internal.HashStore",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/HashStore.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/HashStore.h",
+          "start_line": 33,
+          "end_line": 84
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/HashStore.h:33:ClassDecl:HashStore",
+        "decl:airdcpp/hash/HashStore.h:38:CXXMethod:addHashedFile(const string &, const TigerTree &, const HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:39:CXXMethod:addFile(const string &, const HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:40:CXXMethod:removeFile(const string &)",
+        "decl:airdcpp/hash/HashStore.h:44:CXXMethod:renameFileThrow(const string &, const string &)",
+        "decl:airdcpp/hash/HashStore.h:46:CXXMethod:load(StartupLoader &)",
+        "decl:airdcpp/hash/HashStore.h:48:CXXMethod:optimize(bool)",
+        "decl:airdcpp/hash/HashStore.h:50:CXXMethod:checkTTH(const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:52:CXXMethod:addTree(const TigerTree &)",
+        "decl:airdcpp/hash/HashStore.h:53:CXXMethod:getFileInfo(const string &, HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:54:CXXMethod:getTree(const TTHValue &, TigerTree &)",
+        "decl:airdcpp/hash/HashStore.h:55:CXXMethod:hasTree(const TTHValue &)",
+        "decl:airdcpp/hash/HashStore.h:57:EnumDecl:InfoType",
+        "decl:airdcpp/hash/HashStore.h:58:EnumConstantDecl:TYPE_FILESIZE",
+        "decl:airdcpp/hash/HashStore.h:59:EnumConstantDecl:TYPE_BLOCKSIZE",
+        "decl:airdcpp/hash/HashStore.h:61:CXXMethod:getRootInfo(const TTHValue &, InfoType)",
+        "decl:airdcpp/hash/HashStore.h:63:CXXMethod:getDbStats()",
+        "decl:airdcpp/hash/HashStore.h:65:CXXMethod:openDb(StartupLoader &)",
+        "decl:airdcpp/hash/HashStore.h:66:CXXMethod:closeDb()",
+        "decl:airdcpp/hash/HashStore.h:68:CXXMethod:onScheduleRepair(bool)",
+        "decl:airdcpp/hash/HashStore.h:69:CXXMethod:isRepairScheduled()",
+        "decl:airdcpp/hash/HashStore.h:71:CXXMethod:getDbSizes(int64_t &, int64_t &)",
+        "decl:airdcpp/hash/HashStore.h:72:CXXMethod:compact()",
+        "decl:airdcpp/hash/HashStore.h:74:CXXMethod:log(const string &, LogMessage::Severity)",
+        "decl:airdcpp/hash/HashStore.h:76:FieldDecl:fileDb",
+        "decl:airdcpp/hash/HashStore.h:77:FieldDecl:hashDb",
+        "decl:airdcpp/hash/HashStore.h:79:CXXMethod:loadTree(const void *, size_t, const TTHValue &, TigerTree &, bool)",
+        "decl:airdcpp/hash/HashStore.h:81:CXXMethod:loadFileInfo(const void *, size_t, HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:82:CXXMethod:saveFileInfo(void *, const HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:83:CXXMethod:getFileInfoSize(const HashedFile &)",
+        "decl:airdcpp/hash/HashStore.h:35:CXCursor_Constructor:e1bf3e8b2f05",
+        "decl:airdcpp/hash/HashStore.h:36:CXCursor_Destructor:b0777bdadec1"
+      ]
+    },
+    {
+      "id": "hash.internal.value-HashCalc",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/HashCalc.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/HashCalc.h",
+          "start_line": 43,
+          "end_line": 121
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/HashCalc.h:43:ClassTemplate:SimpleHasher<Hash>",
+        "decl:airdcpp/hash/value/HashCalc.h:50:CXXMethod:getHash(const string &, bool)",
+        "decl:airdcpp/hash/value/HashCalc.h:51:VarDecl:hash",
+        "decl:airdcpp/hash/value/HashCalc.h:58:CXXMethod:fromString(const string &)",
+        "decl:airdcpp/hash/value/HashCalc.h:66:CXXMethod:fromFile(const string &)",
+        "decl:airdcpp/hash/value/HashCalc.h:67:VarDecl:buf",
+        "decl:airdcpp/hash/value/HashCalc.h:71:VarDecl:f",
+        "decl:airdcpp/hash/value/HashCalc.h:75:VarDecl:read",
+        "decl:airdcpp/hash/value/HashCalc.h:91:CXXMethod:update(const void *, size_t)",
+        "decl:airdcpp/hash/value/HashCalc.h:92:CXXMethod:finalize()",
+        "decl:airdcpp/hash/value/HashCalc.h:93:CXXMethod:getResult()",
+        "decl:airdcpp/hash/value/HashCalc.h:95:CXXMethod:toString()",
+        "decl:airdcpp/hash/value/HashCalc.h:96:VarDecl:buf",
+        "decl:airdcpp/hash/value/HashCalc.h:98:VarDecl:ret",
+        "decl:airdcpp/hash/value/HashCalc.h:101:VarDecl:i",
+        "decl:airdcpp/hash/value/HashCalc.h:111:FieldDecl:hash",
+        "decl:airdcpp/hash/value/HashCalc.h:112:FieldDecl:base32",
+        "decl:airdcpp/hash/value/HashCalc.h:114:CXXMethod:updateBlockSize(int64_t)",
+        "decl:airdcpp/hash/value/HashCalc.h:117:CXXMethod:getResult()",
+        "decl:airdcpp/hash/value/HashCalc.h:120:CXXMethod:updateBlockSize(int64_t)",
+        "decl:airdcpp/hash/value/HashCalc.h:47:CXCursor_Constructor:ceb75cb7e422",
+        "decl:airdcpp/hash/value/HashCalc.h:48:CXCursor_Destructor:cd05b24ce4e1"
+      ]
+    },
+    {
+      "id": "hash.internal.value-MerkleCheckOutputStream",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/MerkleCheckOutputStream.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/MerkleCheckOutputStream.h",
+          "start_line": 28,
+          "end_line": 128
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:28:ClassTemplate:MerkleCheckOutputStream<TreeType, managed>",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:37:VarDecl:nBlocks",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:50:CXXMethod:flushBuffers(bool)",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:65:CXXMethod:commitBytes(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:66:VarDecl:xb",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:67:VarDecl:pos",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:70:VarDecl:bytes",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:83:VarDecl:left",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:84:VarDecl:part",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:95:CXXMethod:write(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:101:CXXMethod:verifiedBytes()",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:105:CXXMethod:releaseRootStream()",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:106:VarDecl:as",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:110:FieldDecl:s",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:111:FieldDecl:real",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:112:FieldDecl:cur",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:113:FieldDecl:verified",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:115:FieldDecl:buf",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:116:FieldDecl:bufPos",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:118:CXXMethod:checkTrees()",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:31:CXCursor_Constructor:ee63aad5c68e",
+        "decl:airdcpp/hash/value/MerkleCheckOutputStream.h:45:CXCursor_Destructor:ccab4ee246ec"
+      ]
+    },
+    {
+      "id": "hash.internal.value-MerkleTreeOutputStream",
+      "kind": "internal",
+      "upstream_symbols": [
+        "Remaining declarations in airdcpp/hash/value/MerkleTreeOutputStream.h"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hash/value/MerkleTreeOutputStream.h",
+          "start_line": 27,
+          "end_line": 61
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "Remaining declarations are Tiger/TTH value, stream, check-output, Bloom-filter, encoder, file metadata or private worker/store implementation details supporting the explicitly inventoried hash operations. No independent user behavior is inferred from declarations alone."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "No independent operation.",
+        "cancellation": "Not applicable.",
+        "persistence": [],
+        "resources": [
+          "Hash values, tree/stream buffers, database or worker state by file role."
+        ]
+      },
+      "ownership_evidence": [
+        "Source/header scope is linked for structural accounting."
+      ],
+      "threading_evidence": [
+        "See worker/store operation records for synchronization."
+      ],
+      "proposed_bridge_requirement": "Account full hash declaration surface while limiting external API to characterized value operations.",
+      "acceptance_scenarios": [
+        "Given bridge code needs a hash result, when translating Core hash state, then it copies value objects and keeps streams, workers and DB internals private."
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:27:ClassTemplate:MerkleTreeOutputStream<TreeType>",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:32:CXXMethod:write(const void *, size_t)",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:33:VarDecl:pos",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:34:VarDecl:b",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:36:VarDecl:left",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:41:VarDecl:bytes",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:54:CXXMethod:flushBuffers(bool)",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:58:FieldDecl:tree",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:59:FieldDecl:buf",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:60:FieldDecl:bufPos",
+        "decl:airdcpp/hash/value/MerkleTreeOutputStream.h:30:CXCursor_Constructor:cc092495837e"
+      ]
+    }
+  ]
+}

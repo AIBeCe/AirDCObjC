@@ -1,0 +1,662 @@
+{
+  "schema_version": 1,
+  "domain_id": "user-commands",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "user-commands.manage",
+      "kind": "operation",
+      "upstream_symbols": [
+        "UserCommandManager::addUserCommand(int, int, Flags::MaskType, const string&, const string&, const string&, const string&) noexcept",
+        "UserCommandManager::getUserCommand(int, UserCommand&) noexcept",
+        "UserCommandManager::findUserCommand(const string&, const string&) noexcept",
+        "UserCommandManager::moveUserCommand(int, int) noexcept",
+        "UserCommandManager::updateUserCommand(const UserCommand&) noexcept",
+        "UserCommandManager::removeUserCommand(int) noexcept",
+        "UserCommandManager::removeUserCommand(const string&) noexcept",
+        "UserCommandManager::removeHubUserCommands(int, const string&) noexcept",
+        "UserCommandManager::userCommand(const HintedUser&, const UserCommand&, ParamMap&, bool) const noexcept",
+        "UserCommandManager::getUserCommands() noexcept",
+        "UserCommandManager::getUserCommands(int, const StringList&, bool&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 34,
+          "end_line": 51
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Command properties, context/flags/hub, target hinted user, parameters and compatibility flag."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "UserCommand default ctor sets id/type/context=0; manager accepts exact values without API-level validation except source-side branches described."
+        ],
+        "effects": [
+          "CRUD uses IDs under SharedMutex; find returns -1 when absent; get returns false when absent; move swaps adjacent entries for pos -1/+1 (caller contract asserts those values); update/remove of absent IDs are no-ops. FLAG_NOSAVE commands are not persisted; externally received commands deduplicate and cap at 2000 per hub. userCommand picks a connected command hub or hinted hub, no-ops when user offline, otherwise expands user/hub/my parameters and sends. Listing filters context, protocol and hub/op scope; op output is set true if any selected hub has op status and is otherwise left as passed by caller."
+        ],
+        "events": [
+          "ClientUserCommand obeys HUB_USER_COMMANDS and performs ephemeral add/remove/clear; redirects/disconnects remove external commands. Favorite Load adds built-in NMDC op commands and loads saved XML; Favorite Save serializes saved commands."
+        ],
+        "errors": [],
+        "completion": "Synchronous operations; outbound execution is handed to the selected Client sendUserCmd path.",
+        "cancellation": "No cancellation API.",
+        "persistence": [
+          "FavoriteManager XML stores non-FLAG_NOSAVE command fields; mutations of saved commands mark FavoriteManager dirty."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Use explicit command values and preserve ordering, context, flags and hub association.",
+      "acceptance_scenarios": [
+        {
+          "given": "An ID exists",
+          "when": "getUserCommand(id, out) is called",
+          "then": "it returns true and fills the matching command."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "user-commands.manager-operations",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class UserCommandManager : public Singleton<UserCommandManager>, public FavoriteManagerListener, public ClientManagerListener",
+        "UserCommand addUserCommand(int type, int ctx, Flags::MaskType flags, const string& name, const string& command, const string& to, const string& hub) noexcept;",
+        "bool getUserCommand(int cid, UserCommand& uc) noexcept;",
+        "int findUserCommand(const string& aName, const string& aUrl) noexcept;",
+        "bool moveUserCommand(int cid, int pos) noexcept;",
+        "void updateUserCommand(const UserCommand& uc) noexcept;",
+        "void removeUserCommand(int cid) noexcept;",
+        "void removeUserCommand(const string& srv) noexcept;",
+        "void removeHubUserCommands(int ctx, const string& hub) noexcept;",
+        "void userCommand(const HintedUser& aUser, const UserCommand& uc, ParamMap& params_, bool aCompatibility) const noexcept;",
+        "UserCommand::List getUserCommands() noexcept { RLock l(cs); return userCommands; }",
+        "UserCommand::List getUserCommands() noexcept { RLock l(cs); return userCommands; }",
+        "UserCommand::List getUserCommands(int ctx, const StringList& hub, bool& op) noexcept;",
+        "void setDirty() noexcept;",
+        "void loadUserCommands(SimpleXML& aXml);",
+        "void saveUserCommands(SimpleXML& aXml) const noexcept;",
+        "mutable SharedMutex cs;",
+        "UserCommand::List userCommands;",
+        "int lastId = 0;",
+        "void on(FavoriteManagerListener::Load, SimpleXML& xml) noexcept override;",
+        "void on(FavoriteManagerListener::Save, SimpleXML& xml) noexcept override;",
+        "void on(ClientManagerListener::ClientUserCommand, const Client*, int, int, const string&, const string&) noexcept override;",
+        "void on(ClientManagerListener::ClientRedirected, const ClientPtr& aOldClient, const ClientPtr& aNewClient) noexcept override;",
+        "void on(ClientManagerListener::ClientDisconnected, const string& aHubUrl) noexcept override;",
+        "\tUserCommandManager();",
+        "\t~UserCommandManager();"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 31,
+          "end_line": 70
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 34,
+          "end_line": 34
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 37,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 38,
+          "end_line": 38
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 46,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 48,
+          "end_line": 48
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 56,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 64,
+          "end_line": 64
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 65,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 67,
+          "end_line": 67
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 68,
+          "end_line": 68
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 69,
+          "end_line": 69
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.cpp",
+          "start_line": 28,
+          "end_line": 326
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.h",
+          "start_line": 34,
+          "end_line": 51
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "add creates next ID; externally supplied FLAG_NOSAVE commands are deduplicated by hub/name/context/type/flag/to, replacing command body. More than 2000 external commands per hub causes it to return the current last command rather than append. Saved commands mark FavoriteManager dirty. get searches by ID and copies out. find returns matching name/hub ID or -1. move accepts the intended adjacent positions -1/+1 and swaps on match. update replaces by ID; remove by ID, URL external commands, or context+hub external commands.",
+          "userCommand chooses command hub only if a connected client exists, otherwise hinted hub; if target user is not online it does nothing. Otherwise expands user/hub/my parameters and sends via client. Listing filters context and hub schemes; ADC commands match ADC hubs, op-scoped commands require op, chat commands can cross protocol-class filtering. `op` is an output accumulator, not initialized by this method.",
+          "Favorite Load inserts built-in NMDC op commands, then loads saved XML. Save serializes only commands without FLAG_NOSAVE. Client hub command input is gated by HUB_USER_COMMANDS and handles remove/clear/add; redirect/disconnect removes ephemeral commands. Manager listens to ClientManager and FavoriteManager for lifetime. SharedMutex guards vector mutations/reads except some edge accesses that remain outside lock."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "a hub supplies external commands with FLAG_NOSAVE",
+          "when": "an equivalent name/context/type/flags/to command arrives",
+          "then": "the existing command body is replaced; after 2000 existing external commands for that hub, an additional unique command is not appended."
+        },
+        {
+          "given": "userCommand targets an offline user",
+          "when": "execution is requested",
+          "then": "it returns without sending; for an online user it expands user/hub/my parameters and sends through that client."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:31:ClassDecl:UserCommandManager",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:34:CXXMethod:addUserCommand(int, int, Flags::MaskType, const string &, const string &, const string &, const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:35:CXXMethod:getUserCommand(int, UserCommand &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:36:CXXMethod:findUserCommand(const string &, const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:37:CXXMethod:moveUserCommand(int, int)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:38:CXXMethod:updateUserCommand(const UserCommand &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:39:CXXMethod:removeUserCommand(int)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:40:CXXMethod:removeUserCommand(const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:41:CXXMethod:removeHubUserCommands(int, const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:43:CXXMethod:userCommand(const HintedUser &, const UserCommand &, ParamMap &, bool)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:45:CXXMethod:getUserCommands()",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:45:VarDecl:l",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:46:CXXMethod:getUserCommands(int, const StringList &, bool &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:48:CXXMethod:setDirty()",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:50:CXXMethod:loadUserCommands(SimpleXML &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:51:CXXMethod:saveUserCommands(SimpleXML &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:53:FieldDecl:cs",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:55:FieldDecl:userCommands",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:56:FieldDecl:lastId",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:64:CXXMethod:on(FavoriteManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:65:CXXMethod:on(FavoriteManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:67:CXXMethod:on(ClientManagerListener::ClientUserCommand, const Client *, int, int, const string &, const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:68:CXXMethod:on(ClientManagerListener::ClientRedirected, const ClientPtr &, const ClientPtr &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:69:CXXMethod:on(ClientManagerListener::ClientDisconnected, const string &)",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:60:CXCursor_Constructor:6175d614db28",
+        "decl:airdcpp/hub/user_command/UserCommandManager.h:61:CXCursor_Destructor:5f9741ab4ee0"
+      ]
+    },
+    {
+      "id": "user-commands.model",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class UserCommand : public Flags {",
+        "typedef vector<UserCommand> List;",
+        "enum {",
+        "TYPE_SEPARATOR,",
+        "TYPE_RAW,",
+        "TYPE_RAW_ONCE,",
+        "TYPE_REMOVE,",
+        "TYPE_CHAT,",
+        "TYPE_CHAT_ONCE,",
+        "TYPE_CLEAR = 255\t\t// In a momentary lapse of reason, 255 was chosen in the nmdc version of usercommand for clearing them all",
+        "enum {",
+        "CONTEXT_HUB = 0x01,",
+        "CONTEXT_USER = 0x02,",
+        "CONTEXT_SEARCH = 0x04,",
+        "CONTEXT_FILELIST = 0x08,",
+        "CONTEXT_MASK = CONTEXT_HUB | CONTEXT_USER | CONTEXT_SEARCH | CONTEXT_FILELIST",
+        "enum {",
+        "FLAG_NOSAVE = 0x01",
+        "UserCommand& operator=(const UserCommand& rhs) {\n\t\tcid = rhs.cid; type = rhs.type; ctx = rhs.ctx;\n\t\tname = rhs.name; command = rhs.command; to = rhs.to; hub = rhs.hub;\n\t\t*((Flags*)this) = rhs;\n\t\tdisplayName.clear();\n\t\tsetDisplayName();\n\t\treturn *this;\n\t}",
+        "inline bool isRaw() const {\n\t\treturn type == TYPE_RAW || type == TYPE_RAW_ONCE;\n\t}",
+        "inline bool isChat() const {\n\t\treturn type == TYPE_CHAT || type == TYPE_CHAT_ONCE;\n\t}",
+        "inline bool once() const {\n\t\treturn type == TYPE_RAW_ONCE || type == TYPE_CHAT_ONCE;\n\t}",
+        "static bool adc(const string& h);",
+        "inline bool adc() const { return adc(hub); }",
+        "const StringList& getDisplayName() const;",
+        "void setDisplayName();",
+        "GETSET(int, cid, Id);",
+        "GETSET(int, type, Type);",
+        "GETSET(int, ctx, Ctx);",
+        "GETSET(string, name, Name);",
+        "GETSET(string, command, Command);",
+        "GETSET(string, to, To);",
+        "GETSET(string, hub, Hub);",
+        "StringList displayName;",
+        "GETSET(int, cid, Id);",
+        "GETSET(int, type, Type);",
+        "GETSET(int, ctx, Ctx);",
+        "GETSET(string, name, Name);",
+        "GETSET(string, command, Command);",
+        "GETSET(string, to, To);",
+        "GETSET(string, hub, Hub);",
+        "\tUserCommand() : cid(0), type(0), ctx(0) { }",
+        "\tUserCommand(int aId, int aType, int aCtx, Flags::MaskType aFlags, const string& aName, const string& aCommand, const string& aTo, const string& aHub) noexcept\n\t\t: Flags(aFlags), cid(aId), type(aType), ctx(aCtx), name(aName), command(aCommand), to(aTo), hub(aHub) \n\t{ \n\t\tsetDisplayName();\n\t}",
+        "\tUserCommand(const UserCommand& rhs) : Flags(rhs), cid(rhs.cid), type(rhs.type), \n\t\tctx(rhs.ctx), name(rhs.name), command(rhs.command), to(rhs.to), hub(rhs.hub)\n\t{\n\t\tsetDisplayName();\n\t}"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 34,
+          "end_line": 108
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 38,
+          "end_line": 46
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 39,
+          "end_line": 39
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 40,
+          "end_line": 40
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 41,
+          "end_line": 41
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 42,
+          "end_line": 42
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 43,
+          "end_line": 43
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 44,
+          "end_line": 44
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 45,
+          "end_line": 45
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 48,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 49,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 51,
+          "end_line": 51
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 52,
+          "end_line": 52
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 56,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 57,
+          "end_line": 57
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 73,
+          "end_line": 80
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 82,
+          "end_line": 84
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 85,
+          "end_line": 87
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 88,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 92,
+          "end_line": 92
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 93,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 96,
+          "end_line": 96
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 98,
+          "end_line": 98
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 99,
+          "end_line": 99
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 100,
+          "end_line": 100
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 101,
+          "end_line": 101
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 102,
+          "end_line": 102
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 103,
+          "end_line": 103
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 104,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 107,
+          "end_line": 107
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 61,
+          "end_line": 65
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommand.h",
+          "start_line": 67,
+          "end_line": 71
+        },
+        {
+          "path": "airdcpp/hub/user_command/UserCommandManager.cpp",
+          "start_line": 190,
+          "end_line": 223
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [
+          "Default constructor initializes id/type/context to 0."
+        ],
+        "effects": [
+          "Default constructor sets id/type/context to zero. Full/copy constructors copy properties and recompute display name; assignment copies id/type/context/name/command/to/hub/flags, clears and rebuilds displayName. isRaw/isChat/once classify the two respective type variants. ADC helper recognizes hub scheme. The model carries command type/context masks and FLAG_NOSAVE; displayName is derived and not copied verbatim."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "UserCommand is copied or assigned",
+          "when": "the destination is created",
+          "then": "properties and flags are copied and derived displayName is recomputed rather than copied as stored state."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/hub/user_command/UserCommand.h:34:ClassDecl:UserCommand",
+        "decl:airdcpp/hub/user_command/UserCommand.h:36:TypedefDecl:List",
+        "decl:airdcpp/hub/user_command/UserCommand.h:38:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hub/user_command/UserCommand.h:38:2)",
+        "decl:airdcpp/hub/user_command/UserCommand.h:39:EnumConstantDecl:TYPE_SEPARATOR",
+        "decl:airdcpp/hub/user_command/UserCommand.h:40:EnumConstantDecl:TYPE_RAW",
+        "decl:airdcpp/hub/user_command/UserCommand.h:41:EnumConstantDecl:TYPE_RAW_ONCE",
+        "decl:airdcpp/hub/user_command/UserCommand.h:42:EnumConstantDecl:TYPE_REMOVE",
+        "decl:airdcpp/hub/user_command/UserCommand.h:43:EnumConstantDecl:TYPE_CHAT",
+        "decl:airdcpp/hub/user_command/UserCommand.h:44:EnumConstantDecl:TYPE_CHAT_ONCE",
+        "decl:airdcpp/hub/user_command/UserCommand.h:45:EnumConstantDecl:TYPE_CLEAR",
+        "decl:airdcpp/hub/user_command/UserCommand.h:48:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hub/user_command/UserCommand.h:48:2)",
+        "decl:airdcpp/hub/user_command/UserCommand.h:49:EnumConstantDecl:CONTEXT_HUB",
+        "decl:airdcpp/hub/user_command/UserCommand.h:50:EnumConstantDecl:CONTEXT_USER",
+        "decl:airdcpp/hub/user_command/UserCommand.h:51:EnumConstantDecl:CONTEXT_SEARCH",
+        "decl:airdcpp/hub/user_command/UserCommand.h:52:EnumConstantDecl:CONTEXT_FILELIST",
+        "decl:airdcpp/hub/user_command/UserCommand.h:53:EnumConstantDecl:CONTEXT_MASK",
+        "decl:airdcpp/hub/user_command/UserCommand.h:56:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/hub/user_command/UserCommand.h:56:2)",
+        "decl:airdcpp/hub/user_command/UserCommand.h:57:EnumConstantDecl:FLAG_NOSAVE",
+        "decl:airdcpp/hub/user_command/UserCommand.h:73:CXXMethod:operator=(const UserCommand &)",
+        "decl:airdcpp/hub/user_command/UserCommand.h:82:CXXMethod:isRaw()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:85:CXXMethod:isChat()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:88:CXXMethod:once()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:92:CXXMethod:adc(const string &)",
+        "decl:airdcpp/hub/user_command/UserCommand.h:93:CXXMethod:adc()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:95:CXXMethod:getDisplayName()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:96:CXXMethod:setDisplayName()",
+        "decl:airdcpp/hub/user_command/UserCommand.h:98:FieldDecl:cid",
+        "decl:airdcpp/hub/user_command/UserCommand.h:99:FieldDecl:type",
+        "decl:airdcpp/hub/user_command/UserCommand.h:100:FieldDecl:ctx",
+        "decl:airdcpp/hub/user_command/UserCommand.h:101:FieldDecl:name",
+        "decl:airdcpp/hub/user_command/UserCommand.h:102:FieldDecl:command",
+        "decl:airdcpp/hub/user_command/UserCommand.h:103:FieldDecl:to",
+        "decl:airdcpp/hub/user_command/UserCommand.h:104:FieldDecl:hub",
+        "decl:airdcpp/hub/user_command/UserCommand.h:107:FieldDecl:displayName",
+        "decl:airdcpp/hub/user_command/UserCommand.h:98:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:99:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:100:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:101:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:102:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:103:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:104:macro:GETSET",
+        "decl:airdcpp/hub/user_command/UserCommand.h:60:CXCursor_Constructor:4cfd8b6715d4",
+        "decl:airdcpp/hub/user_command/UserCommand.h:61:CXCursor_Constructor:3179057ffb3b",
+        "decl:airdcpp/hub/user_command/UserCommand.h:67:CXCursor_Constructor:e656c9cdb494"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "domain_id": "ignore",
+  "upstream_commit": "55d51ceb817ec006d4ec844d9e3788e1b0ccc352",
+  "records": [
+    {
+      "id": "ignore.event.ignoreAdded",
+      "kind": "event",
+      "upstream_symbols": [
+        "IgnoreManagerListener::on(IgnoreAdded, const UserPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const UserPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "IgnoreAdded"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const UserPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for IgnoreAdded",
+          "when": "the owning Core manager emits IgnoreAdded",
+          "then": "the callback receives the payload defined by `IgnoreManagerListener::on(IgnoreAdded, const UserPtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "ignore.event.ignoreRemoved",
+      "kind": "event",
+      "upstream_symbols": [
+        "IgnoreManagerListener::on(IgnoreRemoved, const UserPtr&) noexcept"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Installed declaration and linked/runtime behavior are not independently verified for this listener event."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Callback payload signature: const UserPtr&"
+        ],
+        "preconditions": [
+          "A listener is registered with the owning Speaker."
+        ],
+        "defaults": [],
+        "effects": [
+          "Speaker invokes this callback synchronously when the owning manager emits the event; exact emitter condition/order is not traced."
+        ],
+        "events": [
+          "IgnoreRemoved"
+        ],
+        "errors": [
+          "Callback is declared noexcept; emitter-specific failure and filtering behavior are not traced."
+        ],
+        "completion": "The callback signature/payload types are source-backed; manager-specific trigger, ordering and payload value meaning remain to be inspected.",
+        "cancellation": "Unsubscribe/removal guarantees must be validated against emitter path and callback thread; not established here.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Callback receives: const UserPtr&",
+        "Speaker stores Listener* values and calls them before fire returns (Speaker.h:31-47)."
+      ],
+      "threading_evidence": [
+        "Speaker::fire holds listenerCS while invoking callbacks (Speaker.h:40-47); the emitter thread is manager-specific and not traced."
+      ],
+      "proposed_bridge_requirement": "Copy any required payload before returning from the Core callback; deliver to client code outside Core listener locks and preserve the event identity/payload.",
+      "acceptance_scenarios": [
+        {
+          "given": "a listener is registered for IgnoreRemoved",
+          "when": "the owning Core manager emits IgnoreRemoved",
+          "then": "the callback receives the payload defined by `IgnoreManagerListener::on(IgnoreRemoved, const UserPtr&) noexcept`"
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified",
+        "events.delivery-contract"
+      ]
+    },
+    {
+      "id": "ignore.filter-and-user-state",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class ChatFilterItem {",
+        "enum Context {",
+        "PM, // Private chat",
+        "MC, // Main chat",
+        "ALL // Both",
+        "const string& getNickPattern() const { return nickMatcher.pattern; }",
+        "const string&  getTextPattern() const { return textMatcher.pattern; }",
+        "StringMatch::Method getNickMethod() const { return nickMatcher.getMethod(); }",
+        "StringMatch::Method getTextMethod() const { return textMatcher.getMethod(); }",
+        "bool match(const string& aNick, const string& aText, Context aContext) const noexcept {\n\t\t\tif (!getEnabled())\n\t\t\t\treturn false;\n\n\t\t\tif ((aContext == PM && !matchPM) || (aContext == MC && !matchMainchat))\n\t\t\t\treturn false;\n\n\t\t\tif (!nickMatcher.pattern.empty() && nickMatcher.match(aNick)) {\n\t\t\t\t//nick matched, match the text in case we just want to ignore some messages of the user\n\t\t\t\treturn (textMatcher.pattern.empty() || textMatcher.match(aText));\n\t\t\t}\n\t\t\t//General text match ignore type, no nick pattern just match the text\n\t\t\tif (nickMatcher.pattern.empty() && !textMatcher.pattern.empty() && textMatcher.match(aText))\n\t\t\t\treturn true;\n\n\t\t\treturn false;\n\t\t}",
+        "void updateItem(const string& aNickMatch, const string& aTextMatch, StringMatch::Method aNickMethod, StringMatch::Method aTextMethod) {\n\t\t\tnickMatcher.setMethod(aNickMethod);\n\t\t\tnickMatcher.pattern = aNickMatch;\n\t\t\tnickMatcher.prepare();\n\n\t\t\ttextMatcher.setMethod(aTextMethod);\n\t\t\ttextMatcher.pattern = aTextMatch;\n\t\t\ttextMatcher.prepare();\n\t\t}",
+        "GETSET(bool, enabled, Enabled)",
+        "bool matchPM;",
+        "bool matchMainchat;",
+        "StringMatch nickMatcher;",
+        "StringMatch textMatcher;",
+        "class IgnoreManager : public Speaker<IgnoreManagerListener>, public Singleton<IgnoreManager>, private SettingsManagerListener {",
+        "using IgnoreMap = unordered_map<UserPtr, int, User::Hash>;",
+        "using UserSet = unordered_set<UserPtr, User::Hash>;",
+        "using ChatFilterItemList = vector<ChatFilterItem>;",
+        "IgnoreMap getIgnoredUsers() const noexcept;",
+        "bool storeIgnore(const UserPtr& aUser) noexcept;",
+        "bool removeIgnore(const UserPtr& aUser) noexcept;",
+        "ChatFilterItemList& getIgnoreList() { return ChatFilterItems; }",
+        "void replaceList(const ChatFilterItemList& newList) {\n\t\t\tChatFilterItems = newList;\n\t\t}",
+        "void save();",
+        "void load();",
+        "ActionHookResult<MessageHighlightList> onPrivateMessage(const ChatMessagePtr& aMessage, const ActionHookResultGetter<MessageHighlightList>& aResultGetter) noexcept;",
+        "ActionHookResult<MessageHighlightList> onHubMessage(const ChatMessagePtr& aMessage, const ActionHookResultGetter<MessageHighlightList>& aResultGetter) noexcept;",
+        "mutable SharedMutex cs;",
+        "IgnoreMap ignoredUsers;",
+        "bool checkIgnored(const OnlineUserPtr& aUser, bool aPM) noexcept;",
+        "bool dirty = false;",
+        "ChatFilterItemList ChatFilterItems;",
+        "ActionHookResult<MessageHighlightList> isIgnoredOrFiltered(const ChatMessagePtr& msg, const ActionHookResultGetter<MessageHighlightList>& aResultGetter, bool aPM) noexcept;",
+        "bool isChatFiltered(const string& aNick, const string& aText, ChatFilterItem::Context aContext = ChatFilterItem::ALL) const noexcept;",
+        "void on(SettingsManagerListener::Load, SimpleXML& xml) noexcept override;",
+        "void on(SettingsManagerListener::Save, SimpleXML& xml) noexcept override;",
+        "GETSET(bool, enabled, Enabled)",
+        "\t\tChatFilterItem(const string& aNickMatch, const string& aTextMatch, StringMatch::Method aNickMethod,\n\t\t\tStringMatch::Method aTextMethod, bool aMainchat, bool aPM, bool aEnabled = true) : enabled(aEnabled), matchPM(aPM), matchMainchat(aMainchat)\n\t\t{\n\t\t\tnickMatcher.setMethod(aNickMethod);\n\t\t\tnickMatcher.pattern = aNickMatch;\n\t\t\tnickMatcher.prepare();\n\n\t\t\ttextMatcher.setMethod(aTextMethod);\n\t\t\ttextMatcher.pattern = aTextMatch;\n\t\t\ttextMatcher.prepare();\n\t\t}",
+        "\t\t~ChatFilterItem() = default;",
+        "\t\tIgnoreManager() noexcept;",
+        "\t\t~IgnoreManager() noexcept;"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 37,
+          "end_line": 97
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 52,
+          "end_line": 56
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 53,
+          "end_line": 53
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 54,
+          "end_line": 54
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 55,
+          "end_line": 55
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 58,
+          "end_line": 58
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 59,
+          "end_line": 59
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 60,
+          "end_line": 60
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 61,
+          "end_line": 61
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 63,
+          "end_line": 79
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 80,
+          "end_line": 88
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 90,
+          "end_line": 90
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 92,
+          "end_line": 92
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 93,
+          "end_line": 93
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 95,
+          "end_line": 95
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 96,
+          "end_line": 96
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 101,
+          "end_line": 146
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 104,
+          "end_line": 104
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 109,
+          "end_line": 109
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 110,
+          "end_line": 110
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 112,
+          "end_line": 112
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 113,
+          "end_line": 113
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 114,
+          "end_line": 114
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 116,
+          "end_line": 116
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 117,
+          "end_line": 119
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 122,
+          "end_line": 122
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 123,
+          "end_line": 123
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 126,
+          "end_line": 126
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 127,
+          "end_line": 127
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 129,
+          "end_line": 129
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 131,
+          "end_line": 131
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 132,
+          "end_line": 132
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 134,
+          "end_line": 134
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 136,
+          "end_line": 136
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 138,
+          "end_line": 138
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 141,
+          "end_line": 141
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 144,
+          "end_line": 144
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 145,
+          "end_line": 145
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 39,
+          "end_line": 49
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 50,
+          "end_line": 50
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 106,
+          "end_line": 106
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 107,
+          "end_line": 107
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.cpp",
+          "start_line": 28,
+          "end_line": 253
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 31,
+          "end_line": 40
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "Exact callable signatures and source-spelled declaration forms are retained in upstream_symbols and declaration_ids. Inputs and effects below are traced from implementation and inline bodies."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "ChatFilterItem defaults enabled=true. Matching requires enabled and selected PM/MC context; if nick pattern is nonempty it must match and text must either be empty or match. With empty nick pattern, non-empty text alone may match; both empty do not match. Updating matcher changes patterns/methods and prepares both.",
+          "IgnoreManager installs private/main-chat incoming hooks. Own messages are not filtered. Ignored sender or reply-to user rejects with user_ignored (except PM users with an existing private chat); configured chat-filter match rejects message_filtered and optionally writes a log when LOG_IGNORED. Rejection is delegated through ActionHookResultGetter.",
+          "storeIgnore returns false when User already flagged ignored; otherwise inserts count=0, sets flag, dirty=true, emits IgnoreAdded, updates an existing private chat, notifies ClientManager. removeIgnore returns false if absent; otherwise erases, unsets flag, marks dirty, emits IgnoreRemoved and notifies ClientManager. getIgnoredUsers returns a locked copy; check increments ignored-message count under shared mutex.",
+          "Load appends XML ChatFilterItems; save emits their patterns/method/context/enabled attributes and writes IgnoredUsers.xml only from settings save if dirty. Separate Users XML stores CID and IgnoredMessages; load resolves users through ClientManager and reapplies ignored flag. Filter vector direct reference/replaceList are unsynchronized inline APIs; preserve that ownership/threading caveat."
+        ],
+        "events": [],
+        "errors": [],
+        "completion": "Synchronous for this inspected surface except where the source contract explicitly queues asynchronous work or callbacks. No runtime/link availability claim is made.",
+        "cancellation": "No cancellation API observed in these declarations; long-running callback/resource lifetimes are stated in the effects where applicable.",
+        "persistence": [],
+        "resources": []
+      },
+      "ownership_evidence": [
+        "Ownership follows declared value/shared/unique pointers and concrete source operations described in effects; no archive/runtime proof is claimed."
+      ],
+      "threading_evidence": [
+        "Thread and lock details are recorded in effects for this family; otherwise the available source declarations do not establish a stronger threading guarantee."
+      ],
+      "proposed_bridge_requirement": "Preserve the explicitly enumerated source semantics, state transitions, event timing, persistence and ownership for this declaration cohort; do not infer binary availability from source inventory.",
+      "acceptance_scenarios": [
+        {
+          "given": "a ChatFilterItem has nick pattern Alice, text pattern urgent, and PM context enabled",
+          "when": "it evaluates an enabled PM message",
+          "then": "both nick and text must match; a message in disabled MC context does not match."
+        },
+        {
+          "given": "storeIgnore receives an already-ignored user",
+          "when": "it runs",
+          "then": "it returns false without firing IgnoreAdded or changing counters."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/user/ignore/IgnoreManager.h:37:ClassDecl:ChatFilterItem",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:52:EnumDecl:Context",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:53:EnumConstantDecl:PM",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:54:EnumConstantDecl:MC",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:55:EnumConstantDecl:ALL",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:58:CXXMethod:getNickPattern()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:59:CXXMethod:getTextPattern()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:60:CXXMethod:getNickMethod()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:61:CXXMethod:getTextMethod()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:63:CXXMethod:match(const string &, const string &, Context)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:80:CXXMethod:updateItem(const string &, const string &, StringMatch::Method, StringMatch::Method)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:90:FieldDecl:enabled",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:92:FieldDecl:matchPM",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:93:FieldDecl:matchMainchat",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:95:FieldDecl:nickMatcher",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:96:FieldDecl:textMatcher",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:101:ClassDecl:IgnoreManager",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:104:TypeAliasDecl:IgnoreMap",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:109:TypeAliasDecl:UserSet",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:110:TypeAliasDecl:ChatFilterItemList",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:112:CXXMethod:getIgnoredUsers()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:113:CXXMethod:storeIgnore(const UserPtr &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:114:CXXMethod:removeIgnore(const UserPtr &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:116:CXXMethod:getIgnoreList()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:117:CXXMethod:replaceList(const ChatFilterItemList &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:122:CXXMethod:save()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:123:CXXMethod:load()",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:126:CXXMethod:onPrivateMessage(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:127:CXXMethod:onHubMessage(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:129:FieldDecl:cs",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:131:FieldDecl:ignoredUsers",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:132:CXXMethod:checkIgnored(const OnlineUserPtr &, bool)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:134:FieldDecl:dirty",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:136:FieldDecl:ChatFilterItems",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:138:CXXMethod:isIgnoredOrFiltered(const ChatMessagePtr &, const ActionHookResultGetter<MessageHighlightList> &, bool)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:141:CXXMethod:isChatFiltered(const string &, const string &, ChatFilterItem::Context)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:144:CXXMethod:on(SettingsManagerListener::Load, SimpleXML &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:145:CXXMethod:on(SettingsManagerListener::Save, SimpleXML &)",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:90:macro:GETSET",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:39:CXCursor_Constructor:c8ff96925d9c",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:50:CXCursor_Destructor:62c848a7f0cc",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:106:CXCursor_Constructor:a7ba0e7f3573",
+        "decl:airdcpp/user/ignore/IgnoreManager.h:107:CXCursor_Destructor:53fd63b60039"
+      ]
+    },
+    {
+      "id": "ignore.filters",
+      "kind": "operation",
+      "upstream_symbols": [
+        "IgnoreManager::storeIgnore(const UserPtr&) noexcept",
+        "IgnoreManager::removeIgnore(const UserPtr&) noexcept",
+        "IgnoreManager::getIgnoredUsers() const noexcept",
+        "IgnoreManager::isChatFiltered(const string&, const string&, ChatFilterItem::Context = ALL) const noexcept",
+        "IgnoreManager::load()",
+        "IgnoreManager::save()"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 112,
+          "end_line": 123
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.h",
+          "start_line": 141,
+          "end_line": 145
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "Distribution symbol/runtime evidence not inspected."
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "User, nick/text and chat context (PM/main chat/all)."
+        ],
+        "preconditions": [],
+        "defaults": [],
+        "effects": [
+          "getIgnoredUsers returns a locked copy of UserPtr->message-count map. storeIgnore no-ops false if user already flagged; otherwise inserts count 0, sets flag/dirty, fires IgnoreAdded, updates active PM ignore state and ClientManager. removeIgnore false if absent; otherwise removes, clears flag/dirty, fires IgnoreRemoved and ClientManager. ChatFilterItem context/pattern logic and incoming-message rejection are source-defined in ignore.filter-and-user-state. load/save serialize user CID/message counts and filter entries; settings save writes the separate IgnoredUsers.xml when dirty."
+        ],
+        "events": [
+          "IgnoreAdded/Removed carry UserPtr after the corresponding map/flag mutation. Incoming PM and hub hooks reject ignored sender/reply-to or matching filter with distinct error codes."
+        ],
+        "errors": [],
+        "completion": "Synchronous state/filter and XML operations; hook result is returned to the action-hook chain.",
+        "cancellation": "No cancellation API.",
+        "persistence": [
+          "Chat filter rows are serialized through SettingsManager XML; ignored users/counts are stored in IgnoredUsers.xml when settings save finds manager dirty."
+        ],
+        "resources": []
+      },
+      "ownership_evidence": [],
+      "threading_evidence": [],
+      "proposed_bridge_requirement": "Expose filter patterns, match methods, enabled state and context; preserve separate PM/main-chat behavior.",
+      "acceptance_scenarios": [
+        {
+          "given": "An enabled filter context and matchers match the message",
+          "when": "isChatFiltered is called",
+          "then": "it returns true."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ]
+    },
+    {
+      "id": "ignore.listener-events",
+      "kind": "capability",
+      "upstream_symbols": [
+        "class IgnoreManagerListener {",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "template<int I>\tstruct X { enum { TYPE = I }; };",
+        "typedef X<0> IgnoreAdded;",
+        "typedef X<1> IgnoreRemoved;",
+        "virtual void on(IgnoreAdded, const UserPtr&) noexcept {}",
+        "virtual void on(IgnoreRemoved, const UserPtr&) noexcept {}",
+        "\t\tvirtual ~IgnoreManagerListener() { }"
+      ],
+      "source_refs": [
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 27,
+          "end_line": 37
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 30,
+          "end_line": 30
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 32,
+          "end_line": 32
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 33,
+          "end_line": 33
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 35,
+          "end_line": 35
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 36,
+          "end_line": 36
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManagerListener.h",
+          "start_line": 29,
+          "end_line": 29
+        },
+        {
+          "path": "airdcpp/user/ignore/IgnoreManager.cpp",
+          "start_line": 95,
+          "end_line": 126
+        },
+        {
+          "path": "airdcpp/core/Speaker.h",
+          "start_line": 42,
+          "end_line": 56
+        }
+      ],
+      "availability": {
+        "source": true,
+        "installed_declaration": true,
+        "compiled": "unverified",
+        "evidence_refs": [
+          "gap:availability.unverified"
+        ]
+      },
+      "behavior": {
+        "inputs": [
+          "IgnoreAdded and IgnoreRemoved events each carry the affected UserPtr; event tag/template declarations and listener default methods are enumerated in declaration_ids."
+        ],
+        "preconditions": [
+          "IgnoreManager listener registration must be active."
+        ],
+        "defaults": [],
+        "effects": [
+          "Default callbacks are no-ops. IgnoreManager fires IgnoreAdded only after setting the ignored flag and dirty state; fires IgnoreRemoved after erasing the map entry and unsetting the flag. Speaker dispatch behavior follows Speaker::fire."
+        ],
+        "events": [
+          "IgnoreAdded(UserPtr)",
+          "IgnoreRemoved(UserPtr)"
+        ],
+        "errors": [],
+        "completion": "Synchronous listener notification from storeIgnore/removeIgnore.",
+        "cancellation": "No cancellation hook.",
+        "persistence": [],
+        "resources": [
+          "Callbacks receive shared user ownership."
+        ]
+      },
+      "ownership_evidence": [
+        "Event payload is UserPtr shared ownership."
+      ],
+      "threading_evidence": [
+        "Emitted by manager mutation path; map changes are protected by SharedMutex, callback runs after lock scope."
+      ],
+      "proposed_bridge_requirement": "Preserve event payload and fire ordering relative to user flag/map changes.",
+      "acceptance_scenarios": [
+        {
+          "given": "storeIgnore successfully adds a user",
+          "when": "IgnoreAdded is dispatched",
+          "then": "the payload is that user and the User::IGNORED flag and map insertion already exist."
+        }
+      ],
+      "bridge_api": null,
+      "implementation_tests": [],
+      "example_scenario": null,
+      "status": "inventoried",
+      "gap_ids": [
+        "availability.unverified"
+      ],
+      "declaration_ids": [
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:27:ClassDecl:IgnoreManagerListener",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:30:ClassTemplate:X<I>",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:30:EnumConstantDecl:TYPE",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:30:EnumDecl:(unnamed enum at /Users/davidalarcon/Development/Projects/AirDCCore-macOS/Source/airdcpp-core/airdcpp/user/ignore/IgnoreManagerListener.h:30:30)",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:32:TypedefDecl:IgnoreAdded",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:33:TypedefDecl:IgnoreRemoved",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:35:CXXMethod:on(IgnoreAdded, const UserPtr &)",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:36:CXXMethod:on(IgnoreRemoved, const UserPtr &)",
+        "decl:airdcpp/user/ignore/IgnoreManagerListener.h:29:CXCursor_Destructor:62114857a847"
+      ]
+    }
+  ]
+}
