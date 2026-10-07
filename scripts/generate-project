@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+xcodegen generate --spec "$ROOT/config/project.yml" --project "$ROOT"
+mkdir -p "$ROOT/AirDCObjC.xcworkspace/xcshareddata"
+cat > "$ROOT/AirDCObjC.xcworkspace/contents.xcworkspacedata" <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "container:AirDCObjC.xcodeproj">
+   </FileRef>
+</Workspace>
+XML

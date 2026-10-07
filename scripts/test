@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DERIVED_DATA="$ROOT/Build/TestDerivedData"
+PRODUCTS="$DERIVED_DATA/Build/Products/Debug"
+mkdir -p "$ROOT/Build/Logs"
+"$ROOT/scripts/generate-project"
+xcodebuild build-for-testing -quiet \
+  -workspace "$ROOT/AirDCObjC.xcworkspace" \
+  -scheme AirDCObjC \
+  -configuration Debug \
+  -destination 'platform=macOS' \
+  -derivedDataPath "$DERIVED_DATA" \
+  2>&1 | tee "$ROOT/Build/Logs/build-for-testing.log"
+xcrun xctest "$PRODUCTS/AirDCObjCPrivateTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-framework-tests.log"
+xcrun xctest "$PRODUCTS/AirDCObjCPublicTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-consumer-tests.log"
+xcrun xctest "$PRODUCTS/AirDCExampleTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/example-model-tests.log"

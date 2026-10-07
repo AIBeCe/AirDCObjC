@@ -1,0 +1,112 @@
+name: AirDCObjC
+options:
+  bundleIdPrefix: org.airdcpp
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: YES
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "6.0"
+    CLANG_CXX_LANGUAGE_STANDARD: "c++20"
+    CLANG_CXX_LIBRARY: "libc++"
+    GENERATE_INFOPLIST_FILE: YES
+targets:
+  AirDCObjC:
+    type: framework
+    platform: macOS
+    sources:
+      - path: ../Source/AirDCObjC/Public
+        excludes: ["AirDCObjC.h", "ADCBuildInfo.h"]
+      - path: ../Source/AirDCObjC/Public/AirDCObjC.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/ADCBuildInfo.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Private
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC
+        DEFINES_MODULE: YES
+        SKIP_INSTALL: NO
+        MACH_O_TYPE: mh_dylib
+        DEAD_CODE_STRIPPING: NO
+        HEADER_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/Dependencies/AirDCCore/Dist/include
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -Wl,-force_load,$(SRCROOT)/Dependencies/AirDCCore/Dist/lib/libairdcpp.a
+          - -liconv
+          - -framework
+          - Foundation
+          - -Wl,-exported_symbols_list,$(SRCROOT)/config/AirDCObjC.exports
+      configs:
+        Debug:
+          DEAD_CODE_STRIPPING: NO
+        Release:
+          DEAD_CODE_STRIPPING: NO
+  AirDCObjCPrivateTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ../Test/AirDCObjC/Private
+    dependencies:
+      - target: AirDCObjC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.PrivateTests
+  AirDCObjCPublicTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ../Test/AirDCObjC/Public
+    dependencies:
+      - target: AirDCObjC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.PublicTests
+  AirDCExample:
+    type: application
+    platform: macOS
+    sources:
+      - path: ../Example/AirDCExample/Source
+    dependencies:
+      - target: AirDCObjC
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCExample
+        PRODUCT_NAME: AirDCExample
+        INFOPLIST_KEY_CFBundleDisplayName: AirDCExample
+        INFOPLIST_KEY_LSMinimumSystemVersion: "14.0"
+        INFOPLIST_KEY_NSPrincipalClass: NSApplication
+  AirDCExampleTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ../Example/AirDCExample/Test
+      - path: ../Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift
+    dependencies:
+      - target: AirDCObjC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCExample.Tests
+schemes:
+  AirDCObjC:
+    build:
+      targets:
+        AirDCObjC: all
+        AirDCObjCPrivateTests: [test]
+        AirDCObjCPublicTests: [test]
+        AirDCExample: all
+        AirDCExampleTests: [test]
+    test:
+      targets:
+        - AirDCObjCPrivateTests
+        - AirDCObjCPublicTests
+        - AirDCExampleTests

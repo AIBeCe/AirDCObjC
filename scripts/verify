@@ -1,0 +1,103 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DIST="$ROOT/Dependencies/AirDCCore/Dist"
+BASELINE="$ROOT/docs/core-baseline.json"
+mkdir -p "$ROOT/Build/Logs"
+
+python3 - "$DIST" "$BASELINE" <<'PY'
+import hashlib, json, pathlib, subprocess, sys
+dist, baseline_path = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+if not dist.is_dir():
+    raise SystemExit("missing verified Core input; run scripts/acquire-core --dist PATH first")
+baseline = json.loads(baseline_path.read_text())
+checksums = dist / "metadata/checksums.sha256"
+entries = [line for line in checksums.read_text().splitlines() if line.strip()]
+if len(entries) != 16430:
+    raise SystemExit(f"expected 16430 Core checksum entries, found {len(entries)}")
+check = subprocess.run(["shasum", "-a", "256", "-c", str(checksums)], cwd=dist,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+if check.returncode:
+    raise SystemExit("Core input checksum failure: " + check.stderr.strip())
+digest = lambda p: hashlib.sha256((dist / p).read_bytes()).hexdigest()
+if digest("lib/libairdcpp.a") != baseline["archive_sha256"]:
+    raise SystemExit("Core archive SHA-256 differs from Phase 0 baseline")
+for path, expected in baseline["core_headers"].items():
+    if digest("include/" + path) != expected:
+        raise SystemExit(f"Core header differs from Phase 0 baseline: {path}")
+for path, expected in baseline["metadata_sha256"].items():
+    if digest(path) != expected:
+        raise SystemExit(f"Core metadata differs from Phase 0 baseline: {path}")
+print(f"Core input PASS: {len(entries)} checksums; archive, {len(baseline['core_headers'])} headers, and metadata match")
+PY
+
+"$ROOT/scripts/test"
+"$ROOT/scripts/package"
+"$ROOT/scripts/build"
+"$ROOT/script/build_and_run.sh" --verify
+
+BIN="$ROOT/Dist/AirDCObjC.xcframework/macos-arm64/AirDCObjC.framework/Versions/A/AirDCObjC"
+test -f "$BIN"
+ARCHS="$(lipo -archs "$BIN")"
+[[ "$ARCHS" == arm64 ]]
+vtool -show-build "$BIN" > "$ROOT/Build/Logs/framework-build-version.txt"
+otool -l "$BIN" > "$ROOT/Build/Logs/framework-load-commands.txt"
+nm -gjU "$BIN" > "$ROOT/Build/Logs/framework-exported-symbols.txt"
+python3 - "$ROOT/Build/Logs/framework-load-commands.txt" "$ROOT/Build/Logs/framework-build-version.txt" <<'PY'
+import pathlib, re, sys
+
+load_path, build_path = map(pathlib.Path, sys.argv[1:])
+load_commands = load_path.read_text()
+build_version = build_path.read_text()
+
+allowed_loads = {
+    "/usr/lib/libiconv.2.dylib",
+    "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+    "/usr/lib/libobjc.A.dylib",
+    "/usr/lib/libc++.1.dylib",
+    "/usr/lib/libSystem.B.dylib",
+    "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+}
+allowed_rpaths = {"@executable_path/../Frameworks"}
+allowed_id = "@rpath/AirDCObjC.framework/Versions/A/AirDCObjC"
+load_commands_kinds = {
+    "LC_LOAD_DYLIB", "LC_LOAD_WEAK_DYLIB", "LC_REEXPORT_DYLIB",
+    "LC_LOAD_UPWARD_DYLIB", "LC_LAZY_LOAD_DYLIB",
+}
+actual_loads, actual_rpaths, actual_ids = set(), set(), set()
+blocks = re.split(r"(?m)^Load command \d+\s*$", load_commands)[1:]
+for block in blocks:
+    command = re.search(r"(?m)^\s*cmd (LC_\S+)", block)
+    if not command:
+        continue
+    kind = command.group(1)
+    if kind not in load_commands_kinds and kind not in {"LC_RPATH", "LC_ID_DYLIB"}:
+        continue
+    field = "path" if kind == "LC_RPATH" else "name"
+    value = re.search(rf"(?m)^\s*{field} (.+?) \(offset \d+\)", block)
+    if not value:
+        raise SystemExit(f"could not parse {field} for {kind} in {load_path}")
+    if kind == "LC_RPATH":
+        actual_rpaths.add(value.group(1))
+    elif kind == "LC_ID_DYLIB":
+        actual_ids.add(value.group(1))
+    else:
+        actual_loads.add(value.group(1))
+
+if actual_loads != allowed_loads:
+    raise SystemExit(f"framework load dependencies differ from allowlist: {sorted(actual_loads)}")
+if actual_rpaths != allowed_rpaths:
+    raise SystemExit(f"framework rpaths differ from allowlist: {sorted(actual_rpaths)}")
+if actual_ids != {allowed_id}:
+    raise SystemExit(f"framework install identity differs from expected: {sorted(actual_ids)}")
+if not re.search(r"(?m)^\s*platform MACOS\s*$", build_version):
+    raise SystemExit("framework build platform is not MACOS")
+if not re.search(r"(?m)^\s*minos 14\.0\s*$", build_version):
+    raise SystemExit("framework minimum OS is not 14.0")
+print("Framework load commands and MACOS/minOS 14.0 assertions passed")
+PY
+EXPECTED="$(printf '%s\n' '_OBJC_CLASS_$_ADCBuildInfo' '_OBJC_METACLASS_$_ADCBuildInfo' | sort)"
+ACTUAL="$(sort "$ROOT/Build/Logs/framework-exported-symbols.txt")"
+[[ "$ACTUAL" == "$EXPECTED" ]] || { echo "Unexpected framework exports:" >&2; cat "$ROOT/Build/Logs/framework-exported-symbols.txt" >&2; exit 1; }
+echo "Phase 1 verification passed; framework architecture and metadata evidence are in Build/Logs"

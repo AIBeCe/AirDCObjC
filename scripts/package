@@ -1,0 +1,80 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export CLANG_MODULE_CACHE_PATH="$ROOT/Build/SwiftModuleCache"
+DERIVED_DATA="$ROOT/Build/PackageDerivedData"
+ARCHIVE="$ROOT/Build/Archive/AirDCObjC.xcarchive"
+FRAMEWORK="$ARCHIVE/Products/Library/Frameworks/AirDCObjC.framework"
+XCFRAMEWORK="$ROOT/Dist/AirDCObjC.xcframework"
+mkdir -p "$ROOT/Build/Logs" "$ROOT/Dist"
+"$ROOT/scripts/generate-project"
+xcodebuild archive -quiet \
+  -project "$ROOT/AirDCObjC.xcodeproj" \
+  -scheme AirDCObjC \
+  -configuration Release \
+  -destination 'generic/platform=macOS' \
+  -archivePath "$ARCHIVE" \
+  -derivedDataPath "$DERIVED_DATA" \
+  CODE_SIGNING_ALLOWED=NO \
+  2>&1 | tee "$ROOT/Build/Logs/framework-archive.log"
+test -d "$FRAMEWORK" || { echo "Archived framework not found at $FRAMEWORK" >&2; exit 1; }
+rm -rf "$XCFRAMEWORK"
+xcodebuild -create-xcframework \
+  -framework "$FRAMEWORK" \
+  -output "$XCFRAMEWORK" \
+  2>&1 | tee "$ROOT/Build/Logs/xcframework-create.log"
+swift test --package-path "$ROOT" --scratch-path "$ROOT/Build/PackageBuild" \
+  2>&1 | tee "$ROOT/Build/Logs/workspace-package-tests.log"
+
+# Relocate only the package manifest, public sources/tests, and binary artifact.
+RELOCATED="$ROOT/Build/relocated-spm/AirDCObjC"
+RELOCATED_BUILD="$ROOT/Build/RelocatedPackageBuild"
+rm -rf "$ROOT/Build/relocated-spm" "$RELOCATED_BUILD"
+mkdir -p "$RELOCATED/Example/AirDCExample" "$RELOCATED/Test/AirDCObjC" "$RELOCATED/Dist"
+cp "$ROOT/Package.swift" "$RELOCATED/Package.swift"
+ditto "$ROOT/Example/AirDCExample/Source" "$RELOCATED/Example/AirDCExample/Source"
+ditto "$ROOT/Example/AirDCExample/Test" "$RELOCATED/Example/AirDCExample/Test"
+ditto "$ROOT/Test/AirDCObjC/Private" "$RELOCATED/Test/AirDCObjC/Private"
+ditto "$XCFRAMEWORK" "$RELOCATED/Dist/AirDCObjC.xcframework"
+test ! -e "$RELOCATED/Dependencies"
+test ! -e "$RELOCATED/Source"
+swift test --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" \
+  2>&1 | tee "$ROOT/Build/Logs/relocated-package-tests.log"
+swift build --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" --product AirDCExample \
+  2>&1 | tee "$ROOT/Build/Logs/relocated-example-build.log"
+
+# Stage and ad-hoc sign the same native SwiftUI example as a relocated SPM app.
+APP="$ROOT/Build/RelocatedSPMApp/AirDCExample.app"
+CONTENTS="$APP/Contents"
+rm -rf "$APP"
+mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Frameworks"
+BIN="$RELOCATED_BUILD/arm64-apple-macosx/debug/AirDCExample"
+test -x "$BIN" || { echo "Relocated SwiftPM example binary missing: $BIN" >&2; exit 1; }
+cp "$BIN" "$CONTENTS/MacOS/AirDCExample"
+ditto "$RELOCATED/Dist/AirDCObjC.xcframework/macos-arm64/AirDCObjC.framework" "$CONTENTS/Frameworks/AirDCObjC.framework"
+cat > "$CONTENTS/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>AirDCExample</string>
+  <key>CFBundleIdentifier</key><string>org.airdcpp.AirDCExample.spm-proof</string>
+  <key>CFBundleName</key><string>AirDCExample</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>NSPrincipalClass</key><string>NSApplication</string>
+</dict></plist>
+PLIST
+codesign --force --deep --sign - "$APP"
+/usr/bin/open -n "$APP"
+sleep 1
+PACKAGE_APP_PID=""
+APP_PIDS="$(pgrep -x AirDCExample || true)"
+for PID in $APP_PIDS; do
+  if /bin/ps -p "$PID" -o command= | rg -F "$APP/Contents/MacOS/AirDCExample" >/dev/null; then
+    PACKAGE_APP_PID="$PID"
+    break
+  fi
+done
+test -n "$PACKAGE_APP_PID" || { echo "Relocated SwiftPM example did not launch from $APP" >&2; exit 1; }
+kill "$PACKAGE_APP_PID" 2>/dev/null || true

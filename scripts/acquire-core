@@ -1,0 +1,98 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+  echo "Usage: $0 --dist PATH_TO_ACCEPTED_AIRDCCORE_DIST" >&2
+  exit 64
+}
+
+DIST_INPUT=""
+while (($#)); do
+  case "$1" in
+    --dist)
+      (($# >= 2)) || usage
+      DIST_INPUT="$2"
+      shift 2
+      ;;
+    *) usage ;;
+  esac
+done
+[[ -n "$DIST_INPUT" ]] || usage
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE_DIST="$(cd "$DIST_INPUT" && pwd)"
+DEST="$ROOT/Dependencies/AirDCCore/Dist"
+BASELINE="$ROOT/docs/core-baseline.json"
+LOG_DIR="$ROOT/Build/acquire-core"
+mkdir -p "$LOG_DIR"
+
+python3 - "$SOURCE_DIST" "$BASELINE" <<'PY'
+import hashlib, json, pathlib, subprocess, sys
+src = pathlib.Path(sys.argv[1])
+baseline = json.loads(pathlib.Path(sys.argv[2]).read_text())
+checksums = src / "metadata/checksums.sha256"
+if not checksums.is_file():
+    raise SystemExit("accepted Dist is missing metadata/checksums.sha256")
+entries = [line for line in checksums.read_text().splitlines() if line.strip()]
+if len(entries) != 16430:
+    raise SystemExit(f"expected 16430 accepted checksum entries, found {len(entries)}")
+result = subprocess.run(["shasum", "-a", "256", "-c", str(checksums)], cwd=src, text=True,
+                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+if result.returncode:
+    raise SystemExit("accepted Dist checksum verification failed: " + result.stderr.strip())
+def digest(path):
+    return hashlib.sha256((src / path).read_bytes()).hexdigest()
+if digest("lib/libairdcpp.a") != baseline["archive_sha256"]:
+    raise SystemExit("aggregate Core archive differs from docs/core-baseline.json")
+for path, expected in baseline["core_headers"].items():
+    if digest("include/" + path) != expected:
+        raise SystemExit(f"accepted installed Core header mismatch: {path}")
+for path, expected in baseline["metadata_sha256"].items():
+    if digest(path) != expected:
+        raise SystemExit(f"accepted metadata mismatch: {path}")
+manifest = json.loads((src / "metadata/manifest.json").read_text())
+if manifest["core"]["build_policy"]["upstream_commit"] != "55d51ceb817ec006d4ec844d9e3788e1b0ccc352":
+    raise SystemExit("accepted Dist Core commit does not match configured pin")
+print(f"Validated accepted Dist: {len(entries)} checksums, archive, {len(baseline['core_headers'])} installed headers, metadata, pin")
+PY
+
+rm -rf "$DEST"
+mkdir -p "$(dirname "$DEST")"
+ditto "$SOURCE_DIST" "$DEST"
+
+python3 - "$DEST" "$BASELINE" <<'PY'
+import hashlib, json, pathlib, subprocess, sys
+dst = pathlib.Path(sys.argv[1])
+baseline = json.loads(pathlib.Path(sys.argv[2]).read_text())
+checksums = dst / "metadata/checksums.sha256"
+entries = [line for line in checksums.read_text().splitlines() if line.strip()]
+result = subprocess.run(["shasum", "-a", "256", "-c", str(checksums)], cwd=dst, text=True,
+                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+if result.returncode:
+    raise SystemExit("copied Core Dist checksum verification failed: " + result.stderr.strip())
+def digest(path):
+    return hashlib.sha256((dst / path).read_bytes()).hexdigest()
+if digest("lib/libairdcpp.a") != baseline["archive_sha256"]:
+    raise SystemExit("copied Core archive differs from baseline")
+for path, expected in baseline["core_headers"].items():
+    if digest("include/" + path) != expected:
+        raise SystemExit(f"copied Core header mismatch: {path}")
+for path, expected in baseline["metadata_sha256"].items():
+    if digest(path) != expected:
+        raise SystemExit(f"copied Core metadata mismatch: {path}")
+tamper = dst.parent / ".AirDCCore-tamper-check"
+tamper.mkdir(exist_ok=True)
+rel = "include/airdcpp/DCPlusPlus.h"
+bad = tamper / rel
+bad.parent.mkdir(parents=True, exist_ok=True)
+bad.write_bytes((dst / rel).read_bytes() + b"\n")
+line = next(line for line in checksums.read_text().splitlines() if line.endswith("  " + rel))
+(tamper / "one.sha256").write_text(line + "\n")
+check = subprocess.run(["shasum", "-a", "256", "-c", "one.sha256"], cwd=tamper,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+if check.returncode == 0:
+    raise SystemExit("tampered-copy negative check unexpectedly passed")
+print(f"Validated copied Dist: {len(entries)} checksums and baseline identities; tampered-copy check rejected altered {rel}")
+PY
+
+echo "Acquired verified Core Dist at $DEST"
