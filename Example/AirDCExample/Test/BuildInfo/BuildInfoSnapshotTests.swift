@@ -21,14 +21,14 @@ struct BuildInfoSnapshotTests {
         #expect(title == "AirDCCore-macOS 0.0.0")
     }
 
-    @Test("Labels the UI as an integration proof")
+    @Test("Labels the UI as an isolated runtime scenario")
     func labelsScope() {
         // Given: the minimal Phase 1 example snapshot.
         let snapshot = BuildInfoSnapshot()
 
         // When: the UI asks for its scope label.
-        // Then: the app does not imply that runtime lifecycle is implemented.
-        #expect(snapshot.scopeStatus.contains("Phase 1"))
-        #expect(snapshot.scopeStatus.contains("proof"))
+        // Then: the app does not imply networking or domain API parity.
+        #expect(snapshot.scopeStatus.contains("Phase 2"))
+        #expect(snapshot.scopeStatus.contains("isolated Core lifecycle"))
     }
 }

@@ -27,7 +27,35 @@ targets:
       - path: ../Source/AirDCObjC/Public/ADCBuildInfo.h
         buildPhase: headers
         headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCError.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCRuntimeConfiguration.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCRuntimeEvent.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCSubscription.h
+        buildPhase: headers
+        headerVisibility: public
+      - path: ../Source/AirDCObjC/Public/Runtime/ADCRuntime.h
+        buildPhase: headers
+        headerVisibility: public
       - path: ../Source/AirDCObjC/Private
+        excludes:
+          - Runtime/ADCRuntimeEvent+Private.h
+          - Runtime/ADCSubscription+Private.h
+          - Runtime/ADCRuntime+Private.h
+      - path: ../Source/AirDCObjC/Private/Runtime/ADCRuntimeEvent+Private.h
+        buildPhase: headers
+        headerVisibility: project
+      - path: ../Source/AirDCObjC/Private/Runtime/ADCSubscription+Private.h
+        buildPhase: headers
+        headerVisibility: project
+      - path: ../Source/AirDCObjC/Private/Runtime/ADCRuntime+Private.h
+        buildPhase: headers
+        headerVisibility: project
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC
@@ -38,6 +66,7 @@ targets:
         HEADER_SEARCH_PATHS:
           - $(inherited)
           - $(SRCROOT)/Dependencies/AirDCCore/Dist/include
+          - $(SRCROOT)/Dependencies/AirDCCore/Dist/include/airdcpp
         OTHER_LDFLAGS:
           - $(inherited)
           - -Wl,-force_load,$(SRCROOT)/Dependencies/AirDCCore/Dist/lib/libairdcpp.a
@@ -60,6 +89,10 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.PrivateTests
+        SWIFT_OBJC_BRIDGING_HEADER: $(SRCROOT)/Test/AirDCObjC/Private/Runtime/ADCPrivateRuntimeTestBridge.h
+        HEADER_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/Source/AirDCObjC/Private/Runtime
   AirDCObjCPublicTests:
     type: bundle.unit-test
     platform: macOS
@@ -70,6 +103,37 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.PublicTests
+        SWIFT_VERSION: "6.0"
+  AirDCRuntimeProbe:
+    type: tool
+    platform: macOS
+    sources:
+      - path: ../Test/AirDCObjC/RuntimeProbe
+    dependencies:
+      - target: AirDCObjC
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.RuntimeProbe
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - '@executable_path'
+  AirDCRuntimePrivateProbe:
+    type: tool
+    platform: macOS
+    sources:
+      - path: ../Test/AirDCObjC/RuntimeProbePrivate
+    dependencies:
+      - target: AirDCObjC
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.airdcpp.AirDCObjC.RuntimeProbePrivate
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - '@executable_path'
+        HEADER_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/Source/AirDCObjC/Private/Runtime
   AirDCExample:
     type: application
     platform: macOS
@@ -91,6 +155,9 @@ targets:
     sources:
       - path: ../Example/AirDCExample/Test
       - path: ../Example/AirDCExample/Source/BuildInfo/BuildInfoSnapshot.swift
+      - path: ../Example/AirDCExample/Source/Runtime/RuntimeAPI.swift
+      - path: ../Example/AirDCExample/Source/Runtime/RuntimeModel.swift
+      - path: ../Example/AirDCExample/Source/Runtime/RuntimeTerminationCoordinator.swift
     dependencies:
       - target: AirDCObjC
     settings:
@@ -104,6 +171,8 @@ schemes:
         AirDCObjCPrivateTests: [test]
         AirDCObjCPublicTests: [test]
         AirDCExample: all
+        AirDCRuntimeProbe: all
+        AirDCRuntimePrivateProbe: all
         AirDCExampleTests: [test]
     test:
       targets:

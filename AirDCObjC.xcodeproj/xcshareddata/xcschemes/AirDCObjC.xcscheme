@@ -77,6 +77,34 @@
                ReferencedContainer = "container:AirDCObjC.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B92AF23CF7B2B8CA8CF9027D"
+               BuildableName = "AirDCRuntimePrivateProbe"
+               BlueprintName = "AirDCRuntimePrivateProbe"
+               ReferencedContainer = "container:AirDCObjC.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "156957A439C97535B194B43B"
+               BuildableName = "AirDCRuntimeProbe"
+               BlueprintName = "AirDCRuntimeProbe"
+               ReferencedContainer = "container:AirDCObjC.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

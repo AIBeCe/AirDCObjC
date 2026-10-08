@@ -2,9 +2,9 @@
 
 Status: approved master roadmap. This is not an executable implementation plan.
 
-Detailed plans: [Phase 0 — Core contract inventory](plans/2026-10-06-phase-0-core-contract-inventory.md) and [Phase 1 — Framework/SPM proof](plans/2026-10-07-phase-1-framework-spm-proof.md). Phases 0 and 1 are complete and independently accepted; implementation is integrated on `develop`. Phase 2 has not started.
+Detailed plans: [Phase 0 — Core contract inventory](plans/2026-10-06-phase-0-core-contract-inventory.md), [Phase 1 — Framework/SPM proof](plans/2026-10-07-phase-1-framework-spm-proof.md), [Phase 2 — Runtime foundation](plans/2026-10-07-phase-2-runtime-foundation.md), and [Phase 3 — Settings and identity](plans/2026-10-08-phase-3-settings-and-identity.md). Phases 0 and 1 are complete and independently accepted; implementation is integrated on `develop`. The user subsequently authorized full Phases 2 and 3; Phase 2 implementation and verification are active.
 
-Every phase follows analysis -> focused code/test proposal -> explicit approval -> implementation -> relevant verification -> independent review where material -> durable progress update. Work proceeds point by point; the user explicitly authorized all points of Phases 0 and 1 without routine stops. That authorization does not extend to Phase 2 or later.
+Every phase follows analysis -> focused code/test proposal -> explicit approval -> implementation -> relevant verification -> independent review where material -> durable progress update. Work proceeds point by point; the user explicitly authorized all points of Phases 0–3 without routine stops. That authorization does not extend to Phase 4 or later.
 
 Repository setup occurs early on GitFlow: `AIBeCe/AirDCObjC` under `Momachilles`; `develop` is the integration branch and all features/points/phases start there. See [Git workflow](git-workflow.md).
 
