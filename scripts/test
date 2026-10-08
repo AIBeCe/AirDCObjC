@@ -13,6 +13,9 @@ xcodebuild build-for-testing -quiet \
   -destination 'platform=macOS' \
   -derivedDataPath "$DERIVED_DATA" \
   2>&1 | tee "$ROOT/Build/Logs/build-for-testing.log"
-xcrun xctest "$PRODUCTS/AirDCObjCPrivateTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-framework-tests.log"
-xcrun xctest "$PRODUCTS/AirDCObjCPublicTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-consumer-tests.log"
+AIRDC_RUNTIME_PROBE_PATH="$PRODUCTS/AirDCRuntimeProbe" \
+AIRDC_PRIVATE_RUNTIME_PROBE_PATH="$PRODUCTS/AirDCRuntimePrivateProbe" \
+  xcrun xctest "$PRODUCTS/AirDCObjCPrivateTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-framework-tests.log"
+AIRDC_RUNTIME_PROBE_PATH="$PRODUCTS/AirDCRuntimeProbe" \
+  xcrun xctest "$PRODUCTS/AirDCObjCPublicTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/objc-consumer-tests.log"
 xcrun xctest "$PRODUCTS/AirDCExampleTests.xctest" 2>&1 | tee "$ROOT/Build/Logs/example-model-tests.log"

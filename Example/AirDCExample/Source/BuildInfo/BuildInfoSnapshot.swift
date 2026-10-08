@@ -15,6 +15,6 @@ public struct BuildInfoSnapshot: Equatable, Sendable {
 
     public var displayTitle: String { "\(coreName) \(coreVersion)" }
     public var scopeStatus: String {
-        "Phase 1 integration proof — Core runtime lifecycle and networking are not started."
+        "Phase 2 runtime scenario — isolated Core lifecycle only; networking and domain APIs are not exposed here."
     }
 }

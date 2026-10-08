@@ -29,9 +29,9 @@
       "availability": {
         "source": true,
         "installed_declaration": true,
-        "compiled": "unverified",
+        "compiled": "verified-present",
         "evidence_refs": [
-          "Binary symbol/runtime evidence not inspected for this operation."
+          "docs/reports/phase-2-runtime-foundation.md: real native/root/relocated public runtime start/stop tests against the unchanged contained Core aggregate."
         ]
       },
       "behavior": {
@@ -70,19 +70,23 @@
           "then": "AppUtil, ValueGenerator and Text initialize in source order."
         }
       ],
-      "bridge_api": null,
-      "implementation_tests": [],
-      "example_scenario": null,
-      "status": "inventoried",
+      "bridge_api": "ADCRuntime.startWithConfiguration:resetUnavailableBindAddresses:completion:",
+      "implementation_tests": [
+        "Test/AirDCObjC/Public/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCSubscriptionTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/Runtime/RuntimeStatusView.swift: inspected start, stop, restart and orderly running-app termination with disposable paths.",
+      "status": "implemented",
       "gap_ids": [
-        "availability.unverified",
         "lifecycle.restart",
         "resources.host-policy"
       ],
       "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:56:FunctionDecl:initializeUtil(const string &)",
       "contract_evidence": "source-traced",
       "surface_classification": "public functionality",
-      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests.",
+      "verification_scope": "Phase 2 runtime gate PASS for isolated profiles, callbacks, subscription barriers, restart, profile conflicts, recoverable HashData failure and cleanup retention. Full original module callback extensibility, all allocation/future workload failure paths and downstream persistence effects remain future domain coverage; this family is not marked fully verified."
     },
     {
       "id": "lifecycle.shutdown",
@@ -105,9 +109,9 @@
       "availability": {
         "source": true,
         "installed_declaration": true,
-        "compiled": "unverified",
+        "compiled": "verified-present",
         "evidence_refs": [
-          "Binary symbol/runtime evidence not inspected for this operation."
+          "docs/reports/phase-2-runtime-foundation.md: real native/root/relocated public runtime start/stop tests against the unchanged contained Core aggregate."
         ]
       },
       "behavior": {
@@ -155,12 +159,15 @@
           "then": "the exception propagates before queue/settings persistence and singleton deletion; this entry point provides no automatic remaining cleanup."
         }
       ],
-      "bridge_api": null,
-      "implementation_tests": [],
-      "example_scenario": null,
-      "status": "inventoried",
+      "bridge_api": "ADCRuntime.stopWithCompletion:",
+      "implementation_tests": [
+        "Test/AirDCObjC/Public/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCSubscriptionTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/Runtime/RuntimeStatusView.swift: inspected start, stop, restart and orderly running-app termination with disposable paths.",
+      "status": "implemented",
       "gap_ids": [
-        "availability.unverified",
         "lifecycle.restart",
         "resources.host-policy",
         "lifecycle.partial-startup"
@@ -168,7 +175,8 @@
       "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:54:FunctionDecl:shutdown(StepFunction, ProgressFunction, ShutdownUnloadCallback, Callback)",
       "contract_evidence": "source-traced",
       "surface_classification": "public functionality",
-      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests.",
+      "verification_scope": "Phase 2 runtime gate PASS for isolated profiles, callbacks, subscription barriers, restart, profile conflicts, recoverable HashData failure and cleanup retention. Full original module callback extensibility, all allocation/future workload failure paths and downstream persistence effects remain future domain coverage; this family is not marked fully verified."
     },
     {
       "id": "lifecycle.startup",
@@ -191,9 +199,9 @@
       "availability": {
         "source": true,
         "installed_declaration": true,
-        "compiled": "unverified",
+        "compiled": "verified-present",
         "evidence_refs": [
-          "Binary symbol/runtime evidence not inspected for this operation."
+          "docs/reports/phase-2-runtime-foundation.md: real native/root/relocated public runtime start/stop tests against the unchanged contained Core aggregate."
         ]
       },
       "behavior": {
@@ -239,12 +247,15 @@
           "then": "default Exception is propagated, with no rollback in this function; the host must not advertise a clean retry."
         }
       ],
-      "bridge_api": null,
-      "implementation_tests": [],
-      "example_scenario": null,
-      "status": "inventoried",
+      "bridge_api": "ADCRuntime.startWithConfiguration:resetUnavailableBindAddresses:completion:",
+      "implementation_tests": [
+        "Test/AirDCObjC/Public/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCRuntimeTests.swift",
+        "Test/AirDCObjC/Private/Runtime/ADCSubscriptionTests.swift"
+      ],
+      "example_scenario": "Example/AirDCExample/Source/Runtime/RuntimeStatusView.swift: inspected start, stop, restart and orderly running-app termination with disposable paths.",
+      "status": "implemented",
       "gap_ids": [
-        "availability.unverified",
         "lifecycle.restart",
         "resources.host-policy",
         "lifecycle.partial-startup"
@@ -252,7 +263,8 @@
       "structural_declaration_id": "decl:airdcpp/DCPlusPlus.h:52:FunctionDecl:startup(StepFunction, MessageFunction, Callback, ProgressFunction, Callback, StartupLoadCallback)",
       "contract_evidence": "source-traced",
       "surface_classification": "public functionality",
-      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests."
+      "surface_rationale": "Original process lifecycle entry point; public bridge semantics require guarded runtime ownership and later real-Core tests.",
+      "verification_scope": "Phase 2 runtime gate PASS for isolated profiles, callbacks, subscription barriers, restart, profile conflicts, recoverable HashData failure and cleanup retention. Full original module callback extensibility, all allocation/future workload failure paths and downstream persistence effects remain future domain coverage; this family is not marked fully verified."
     },
     {
       "id": "lifecycle.loader-callback-storage",

@@ -7,33 +7,69 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		063AF7767301F513368FD9E8 /* ADCRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3460E401EC53AF52A01ACD /* ADCRuntimeTests.swift */; };
 		08B61732A16F990B118DEF49 /* ADCBuildInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 913319955E998146BF8B890D /* ADCBuildInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0B52F16CA7B262A31A9CCFF6 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		0F017532832E5871B4173827 /* RuntimeModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7523292607EBE7675E0ACD /* RuntimeModelTests.swift */; };
+		10FA2D4C6299EC92FCEDF77B /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1DB998DF62F3A7960D5F0047 /* ADCRuntimeEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 708B879D9FCB929949A56478 /* ADCRuntimeEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		289BABEE33F9A1FD2F79EE8E /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2A7813B9069F313629183A7B /* ADCRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = A2D3FBE8AA6AEEF095D1EB0F /* ADCRuntime.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2EBE05931F5B9DF03C28D82A /* RuntimeStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD56F6CE1E69592AE7070E6 /* RuntimeStatusView.swift */; };
+		3476654D99988721C92BE9EE /* ADCSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEFF04B5CE1B7BFAF77C977 /* ADCSubscriptionTests.swift */; };
 		3FFB97611500211F55C675F6 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
 		41D3781BD156F077900C088F /* BuildInfoSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */; };
 		4478B2940C00861D737C1AC8 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		51CBA2E78B42BBD7205FFF48 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		52879C2444F217DC8FE7052A /* ADCRuntimeEvent+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 3B28E547B6A653A82AB56D8A /* ADCRuntimeEvent+Private.h */; };
+		58A1A3ED906C1AB7DC958A29 /* ADCSubscription+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = F7D8896BA39AF7D667806889 /* ADCSubscription+Private.h */; };
 		5E095990D6EDE2656CD64A21 /* ADCErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */; };
 		5F4653032ABB952E2CA7482D /* ADCRuntimeConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */; };
+		603FB0DDE2587A981200343C /* RuntimeTerminationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A7EB04D431C07E9C50EA54 /* RuntimeTerminationCoordinator.swift */; };
 		63D86B51AC9EEFD3F21165AA /* ADCError.h in Headers */ = {isa = PBXBuildFile; fileRef = 6ED9D0B94496E2009F627471 /* ADCError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		661C3590C99E3BB3AD5635C0 /* RuntimeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CFBDEDEB17E758B01784EF6 /* RuntimeAPI.swift */; };
 		69A7ADEFDC05DF614157DD61 /* AirDCObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6A8EF19C51CBAE9240127049 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		6DE5E47A70EF87EABD659ABC /* ADCRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB3E6CBE864448B15BA1491 /* ADCRuntimeTests.swift */; };
+		763F99F66F99135A80D20FD6 /* RuntimeTerminationCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBBCFB50DA03F293714620D /* RuntimeTerminationCoordinatorTests.swift */; };
 		80E664E44F0B5C79165A10F6 /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
 		82A7ED4615F023AC32CA3457 /* ADCRuntimeConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8CE30863F1E3C0FCE297F885 /* RuntimeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFDF1721BCD829D1766EDAC4 /* RuntimeModel.swift */; };
 		96F2406C97E77F607FF196E2 /* ADCBuildInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F77699BB643119E1D2AE8EDB /* ADCBuildInfo.mm */; };
+		96FB8BBE7A7329BD17FC11A5 /* RuntimeTerminationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A7EB04D431C07E9C50EA54 /* RuntimeTerminationCoordinator.swift */; };
+		97A1C3F7453DDC4BB0B3C7C9 /* RuntimeProbePrivate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 15FC3F64314020E753844BA2 /* RuntimeProbePrivate.mm */; };
 		995177DB7C3197205455CFA4 /* ADCBuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1C482CB6963884CA927E23 /* ADCBuildInfoTests.swift */; };
 		AA79198BC02D4A7FDFE6BE6D /* BuildInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0E495CD395293DF40D4B66 /* BuildInfoView.swift */; };
+		AE831E4F034F0FA85E3753FB /* ADCRuntimeEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A91D47996FEB0B3A307FA5 /* ADCRuntimeEventTests.swift */; };
+		AE90BE20BA508FC268F457A6 /* ADCRuntimeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = A5E5AB32EE45B05B4ABBC61F /* ADCRuntimeEvent.m */; };
 		AF066123DB97FD6116967DFB /* ADCBuildInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE093E6B8647D1E571960AC6 /* ADCBuildInfoTests.m */; };
+		B504D1E50E0E942DFC64414A /* RuntimeProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092A40340B994245E318376 /* RuntimeProbe.swift */; };
 		B564129CD6592062B4B6F00A /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		B6C75D93C46BDB18F5E1D6F9 /* ADCRuntime.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0CDE3E178878A59126F1BB87 /* ADCRuntime.mm */; };
+		BC199A6C6D153D7E152E8845 /* ExampleRuntimeTerminationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB4EC23FAC2E4D53EA23382 /* ExampleRuntimeTerminationDelegate.swift */; };
 		C7A3F0F5E612DC634770939E /* ADCRuntimeConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */; };
 		D0706C0572F3B3650BD84E42 /* AirDCObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DA8B815FFA2D9AE68189F653 /* RuntimeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFDF1721BCD829D1766EDAC4 /* RuntimeModel.swift */; };
+		DEA1B4B5FA60450FE995C38F /* ADCSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B0DDC2FEDA5BF0555EF4D89 /* ADCSubscription.m */; };
 		DEA318C46CD216658EB97D15 /* BuildInfoSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */; };
 		E052F50B2D416520E7DC7BA3 /* ADCError.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F64F2D2100FDB2B0F7ED81B /* ADCError.m */; };
+		E1BAF388BA03C563645FFECD /* AirDCObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */; };
+		E1EAECE03BAAB31278C44764 /* ADCSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = 58413FF9B09FC7CE189ECA8F /* ADCSubscription.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E6CE0DDFCE25B60C3892DB15 /* ADCRuntime+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = CBC6CB0A8C3C80F403E7E23F /* ADCRuntime+Private.h */; };
 		EA42369FE1A7B2FDAD6C55F3 /* BuildInfoSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21D9301C494E6C87A6FE25 /* BuildInfoSnapshotTests.swift */; };
 		F3D25B2D1D9A2F98C8359339 /* AirDCExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF0CEF5B0EC4C6733777D68 /* AirDCExampleApp.swift */; };
+		FAE3468DD8F773754A8800A9 /* RuntimeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CFBDEDEB17E758B01784EF6 /* RuntimeAPI.swift */; };
+		FE22F72ACDB369F9E460D00D /* ADCPrivateRuntimeTestBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C9F7C35A569796C98129185 /* ADCPrivateRuntimeTestBridge.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		15875710521B940111DAE2A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7EF9034F91D184A9B01A480 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1847490E238181B26184056;
+			remoteInfo = AirDCObjC;
+		};
 		2F9999C325D5DC344FE4D462 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A7EF9034F91D184A9B01A480 /* Project object */;
@@ -49,6 +85,13 @@
 			remoteInfo = AirDCObjC;
 		};
 		480B6C1E00B302EEDFFF5E35 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7EF9034F91D184A9B01A480 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1847490E238181B26184056;
+			remoteInfo = AirDCObjC;
+		};
+		70B58337F4931DDE87914341 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A7EF9034F91D184A9B01A480 /* Project object */;
 			proxyType = 1;
@@ -72,6 +115,17 @@
 			dstSubfolderSpec = 10;
 			files = (
 				289BABEE33F9A1FD2F79EE8E /* AirDCObjC.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		40CF0BB3960903AF777BC8D8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				10FA2D4C6299EC92FCEDF77B /* AirDCObjC.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -113,28 +167,70 @@
 
 /* Begin PBXFileReference section */
 		0B74CCEE6A20C08791B68F40 /* AirDCExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AirDCExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0CDE3E178878A59126F1BB87 /* ADCRuntime.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ADCRuntime.mm; sourceTree = "<group>"; };
 		1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCRuntimeConfiguration.m; sourceTree = "<group>"; };
+		15FC3F64314020E753844BA2 /* RuntimeProbePrivate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RuntimeProbePrivate.mm; sourceTree = "<group>"; };
 		1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCRuntimeConfiguration.h; sourceTree = "<group>"; };
+		1C9F7C35A569796C98129185 /* ADCPrivateRuntimeTestBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCPrivateRuntimeTestBridge.m; sourceTree = "<group>"; };
 		1D0E495CD395293DF40D4B66 /* BuildInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoView.swift; sourceTree = "<group>"; };
+		23A91D47996FEB0B3A307FA5 /* ADCRuntimeEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCRuntimeEventTests.swift; sourceTree = "<group>"; };
+		3092A40340B994245E318376 /* RuntimeProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeProbe.swift; sourceTree = "<group>"; };
+		33A7EB04D431C07E9C50EA54 /* RuntimeTerminationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeTerminationCoordinator.swift; sourceTree = "<group>"; };
+		3B28E547B6A653A82AB56D8A /* ADCRuntimeEvent+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADCRuntimeEvent+Private.h"; sourceTree = "<group>"; };
+		48B7D866C2BF97A34FA0020E /* ADCPrivateRuntimeTestBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCPrivateRuntimeTestBridge.h; sourceTree = "<group>"; };
+		4BD56F6CE1E69592AE7070E6 /* RuntimeStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeStatusView.swift; sourceTree = "<group>"; };
+		4EB3E6CBE864448B15BA1491 /* ADCRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCRuntimeTests.swift; sourceTree = "<group>"; };
+		4F3460E401EC53AF52A01ACD /* ADCRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCRuntimeTests.swift; sourceTree = "<group>"; };
 		4F64F2D2100FDB2B0F7ED81B /* ADCError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCError.m; sourceTree = "<group>"; };
 		5791DF3C411CB51176833DAB /* BuildInfoSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoSnapshot.swift; sourceTree = "<group>"; };
+		58413FF9B09FC7CE189ECA8F /* ADCSubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCSubscription.h; sourceTree = "<group>"; };
+		5B0DDC2FEDA5BF0555EF4D89 /* ADCSubscription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCSubscription.m; sourceTree = "<group>"; };
+		5EBBCFB50DA03F293714620D /* RuntimeTerminationCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeTerminationCoordinatorTests.swift; sourceTree = "<group>"; };
 		6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AirDCObjC.h; sourceTree = "<group>"; };
+		6DEFF04B5CE1B7BFAF77C977 /* ADCSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCSubscriptionTests.swift; sourceTree = "<group>"; };
 		6ED9D0B94496E2009F627471 /* ADCError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCError.h; sourceTree = "<group>"; };
+		708B879D9FCB929949A56478 /* ADCRuntimeEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCRuntimeEvent.h; sourceTree = "<group>"; };
+		7CFBDEDEB17E758B01784EF6 /* RuntimeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeAPI.swift; sourceTree = "<group>"; };
 		8E721167FCA3BFEB45F8379F /* AirDCExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		913319955E998146BF8B890D /* ADCBuildInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCBuildInfo.h; sourceTree = "<group>"; };
 		91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AirDCObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FFED5A7BDF8B4079AA9E833 /* AirDCObjCPublicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCObjCPublicTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2D3FBE8AA6AEEF095D1EB0F /* ADCRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ADCRuntime.h; sourceTree = "<group>"; };
+		A5E5AB32EE45B05B4ABBC61F /* ADCRuntimeEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCRuntimeEvent.m; sourceTree = "<group>"; };
 		B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCRuntimeConfigurationTests.swift; sourceTree = "<group>"; };
 		BB89E7E46EC8072AE2BE1A72 /* AirDCObjCPrivateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AirDCObjCPrivateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBC6CB0A8C3C80F403E7E23F /* ADCRuntime+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADCRuntime+Private.h"; sourceTree = "<group>"; };
 		CEF0CEF5B0EC4C6733777D68 /* AirDCExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirDCExampleApp.swift; sourceTree = "<group>"; };
+		CF857F3FF8B68DD6E0BC07A4 /* AirDCRuntimePrivateProbe */ = {isa = PBXFileReference; includeInIndex = 0; path = AirDCRuntimePrivateProbe; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFC337005D0D641CD6618F59 /* AirDCRuntimeProbe */ = {isa = PBXFileReference; includeInIndex = 0; path = AirDCRuntimeProbe; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFDF1721BCD829D1766EDAC4 /* RuntimeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeModel.swift; sourceTree = "<group>"; };
 		D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCErrorTests.swift; sourceTree = "<group>"; };
+		DD7523292607EBE7675E0ACD /* RuntimeModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeModelTests.swift; sourceTree = "<group>"; };
 		DE093E6B8647D1E571960AC6 /* ADCBuildInfoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ADCBuildInfoTests.m; sourceTree = "<group>"; };
 		EE1C482CB6963884CA927E23 /* ADCBuildInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADCBuildInfoTests.swift; sourceTree = "<group>"; };
 		F77699BB643119E1D2AE8EDB /* ADCBuildInfo.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ADCBuildInfo.mm; sourceTree = "<group>"; };
+		F7D8896BA39AF7D667806889 /* ADCSubscription+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ADCSubscription+Private.h"; sourceTree = "<group>"; };
 		FC21D9301C494E6C87A6FE25 /* BuildInfoSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoSnapshotTests.swift; sourceTree = "<group>"; };
+		FCB4EC23FAC2E4D53EA23382 /* ExampleRuntimeTerminationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleRuntimeTerminationDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		161F304B0312AFEA2A1E20BE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1BAF388BA03C563645FFECD /* AirDCObjC.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43841E7AE2F59ED66CA8A273 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0B52F16CA7B262A31A9CCFF6 /* AirDCObjC.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		546C0DBD532E06683FAE438D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -174,7 +270,13 @@
 			isa = PBXGroup;
 			children = (
 				4F64F2D2100FDB2B0F7ED81B /* ADCError.m */,
+				0CDE3E178878A59126F1BB87 /* ADCRuntime.mm */,
+				CBC6CB0A8C3C80F403E7E23F /* ADCRuntime+Private.h */,
 				1432483CC8254175EA44B8FD /* ADCRuntimeConfiguration.m */,
+				A5E5AB32EE45B05B4ABBC61F /* ADCRuntimeEvent.m */,
+				3B28E547B6A653A82AB56D8A /* ADCRuntimeEvent+Private.h */,
+				5B0DDC2FEDA5BF0555EF4D89 /* ADCSubscription.m */,
+				F7D8896BA39AF7D667806889 /* ADCSubscription+Private.h */,
 			);
 			path = Runtime;
 			sourceTree = "<group>";
@@ -184,6 +286,8 @@
 			children = (
 				BB5D5F777664FC511F12F12A /* Private */,
 				6D4C5B7EA93CBA78D6AD0600 /* Public */,
+				BB0F78B45122C9028E52DAAC /* RuntimeProbe */,
+				838246B47077D655634BF6D3 /* RuntimeProbePrivate */,
 			);
 			path = AirDCObjC;
 			sourceTree = "<group>";
@@ -208,7 +312,10 @@
 			isa = PBXGroup;
 			children = (
 				6ED9D0B94496E2009F627471 /* ADCError.h */,
+				A2D3FBE8AA6AEEF095D1EB0F /* ADCRuntime.h */,
 				1A487D31E67BB2657C515E41 /* ADCRuntimeConfiguration.h */,
+				708B879D9FCB929949A56478 /* ADCRuntimeEvent.h */,
+				58413FF9B09FC7CE189ECA8F /* ADCSubscription.h */,
 			);
 			path = Runtime;
 			sourceTree = "<group>";
@@ -252,7 +359,12 @@
 			isa = PBXGroup;
 			children = (
 				D18F299E3CDBE84D67FD70FC /* ADCErrorTests.swift */,
+				48B7D866C2BF97A34FA0020E /* ADCPrivateRuntimeTestBridge.h */,
+				1C9F7C35A569796C98129185 /* ADCPrivateRuntimeTestBridge.m */,
 				B762E325B9087656A7911A27 /* ADCRuntimeConfigurationTests.swift */,
+				23A91D47996FEB0B3A307FA5 /* ADCRuntimeEventTests.swift */,
+				4EB3E6CBE864448B15BA1491 /* ADCRuntimeTests.swift */,
+				6DEFF04B5CE1B7BFAF77C977 /* ADCSubscriptionTests.swift */,
 			);
 			path = Runtime;
 			sourceTree = "<group>";
@@ -269,17 +381,39 @@
 		6D4C5B7EA93CBA78D6AD0600 /* Public */ = {
 			isa = PBXGroup;
 			children = (
+				CBE51BA2E0BFE11CD24E703B /* Runtime */,
 				DE093E6B8647D1E571960AC6 /* ADCBuildInfoTests.m */,
 			);
 			path = Public;
+			sourceTree = "<group>";
+		};
+		838246B47077D655634BF6D3 /* RuntimeProbePrivate */ = {
+			isa = PBXGroup;
+			children = (
+				15FC3F64314020E753844BA2 /* RuntimeProbePrivate.mm */,
+			);
+			path = RuntimeProbePrivate;
 			sourceTree = "<group>";
 		};
 		A0EBEE57F5737F6FFE3920B1 /* Test */ = {
 			isa = PBXGroup;
 			children = (
 				B2932E7E139881F075F4B672 /* BuildInfo */,
+				EC0DA001D188B808BEA59F5F /* Runtime */,
 			);
 			path = Test;
+			sourceTree = "<group>";
+		};
+		A1EA63581309DE77808BCDC8 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				FCB4EC23FAC2E4D53EA23382 /* ExampleRuntimeTerminationDelegate.swift */,
+				7CFBDEDEB17E758B01784EF6 /* RuntimeAPI.swift */,
+				CFDF1721BCD829D1766EDAC4 /* RuntimeModel.swift */,
+				4BD56F6CE1E69592AE7070E6 /* RuntimeStatusView.swift */,
+				33A7EB04D431C07E9C50EA54 /* RuntimeTerminationCoordinator.swift */,
+			);
+			path = Runtime;
 			sourceTree = "<group>";
 		};
 		B2932E7E139881F075F4B672 /* BuildInfo */ = {
@@ -288,6 +422,14 @@
 				FC21D9301C494E6C87A6FE25 /* BuildInfoSnapshotTests.swift */,
 			);
 			path = BuildInfo;
+			sourceTree = "<group>";
+		};
+		BB0F78B45122C9028E52DAAC /* RuntimeProbe */ = {
+			isa = PBXGroup;
+			children = (
+				3092A40340B994245E318376 /* RuntimeProbe.swift */,
+			);
+			path = RuntimeProbe;
 			sourceTree = "<group>";
 		};
 		BB5D5F777664FC511F12F12A /* Private */ = {
@@ -311,9 +453,18 @@
 			isa = PBXGroup;
 			children = (
 				43BB6DCD53AF96D550ECA6F4 /* BuildInfo */,
+				A1EA63581309DE77808BCDC8 /* Runtime */,
 				CEF0CEF5B0EC4C6733777D68 /* AirDCExampleApp.swift */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		CBE51BA2E0BFE11CD24E703B /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				4F3460E401EC53AF52A01ACD /* ADCRuntimeTests.swift */,
+			);
+			path = Runtime;
 			sourceTree = "<group>";
 		};
 		CD6CFFA15401F4531BAF340B /* Products */ = {
@@ -324,6 +475,8 @@
 				91529A4B38FBF0C8CD6F3793 /* AirDCObjC.framework */,
 				BB89E7E46EC8072AE2BE1A72 /* AirDCObjCPrivateTests.xctest */,
 				9FFED5A7BDF8B4079AA9E833 /* AirDCObjCPublicTests.xctest */,
+				CF857F3FF8B68DD6E0BC07A4 /* AirDCRuntimePrivateProbe */,
+				CFC337005D0D641CD6618F59 /* AirDCRuntimeProbe */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -336,6 +489,15 @@
 				6D8A0D7DF782AB0D8B7C70C2 /* AirDCObjC.h */,
 			);
 			path = Public;
+			sourceTree = "<group>";
+		};
+		EC0DA001D188B808BEA59F5F /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				DD7523292607EBE7675E0ACD /* RuntimeModelTests.swift */,
+				5EBBCFB50DA03F293714620D /* RuntimeTerminationCoordinatorTests.swift */,
+			);
+			path = Runtime;
 			sourceTree = "<group>";
 		};
 		FB941E7A71F78AA126BE4F66 /* AirDCObjC */ = {
@@ -358,7 +520,13 @@
 			files = (
 				08B61732A16F990B118DEF49 /* ADCBuildInfo.h in Headers */,
 				63D86B51AC9EEFD3F21165AA /* ADCError.h in Headers */,
+				E6CE0DDFCE25B60C3892DB15 /* ADCRuntime+Private.h in Headers */,
+				2A7813B9069F313629183A7B /* ADCRuntime.h in Headers */,
 				82A7ED4615F023AC32CA3457 /* ADCRuntimeConfiguration.h in Headers */,
+				52879C2444F217DC8FE7052A /* ADCRuntimeEvent+Private.h in Headers */,
+				1DB998DF62F3A7960D5F0047 /* ADCRuntimeEvent.h in Headers */,
+				58A1A3ED906C1AB7DC958A29 /* ADCSubscription+Private.h in Headers */,
+				E1EAECE03BAAB31278C44764 /* ADCSubscription.h in Headers */,
 				D0706C0572F3B3650BD84E42 /* AirDCObjC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,6 +534,25 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		156957A439C97535B194B43B /* AirDCRuntimeProbe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 56E9F9AC3B6A0F93B610DAB9 /* Build configuration list for PBXNativeTarget "AirDCRuntimeProbe" */;
+			buildPhases = (
+				B33CEB20A0152D97722AAB1E /* Sources */,
+				161F304B0312AFEA2A1E20BE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7E4D37BA09FE97247913BB6E /* PBXTargetDependency */,
+			);
+			name = AirDCRuntimeProbe;
+			packageProductDependencies = (
+			);
+			productName = AirDCRuntimeProbe;
+			productReference = CFC337005D0D641CD6618F59 /* AirDCRuntimeProbe */;
+			productType = "com.apple.product-type.tool";
+		};
 		29F715F463355D048707A30C /* AirDCObjCPublicTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6AA7043D67BFAF29120DCC0E /* Build configuration list for PBXNativeTarget "AirDCObjCPublicTests" */;
@@ -405,6 +592,26 @@
 			productName = AirDCObjCPrivateTests;
 			productReference = BB89E7E46EC8072AE2BE1A72 /* AirDCObjCPrivateTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B92AF23CF7B2B8CA8CF9027D /* AirDCRuntimePrivateProbe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46AF663DCD636C876275B39D /* Build configuration list for PBXNativeTarget "AirDCRuntimePrivateProbe" */;
+			buildPhases = (
+				45DA81899AF6704DF3612C47 /* Sources */,
+				43841E7AE2F59ED66CA8A273 /* Frameworks */,
+				40CF0BB3960903AF777BC8D8 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B65B5F999F0AF0970B9B5E3E /* PBXTargetDependency */,
+			);
+			name = AirDCRuntimePrivateProbe;
+			packageProductDependencies = (
+			);
+			productName = AirDCRuntimePrivateProbe;
+			productReference = CF857F3FF8B68DD6E0BC07A4 /* AirDCRuntimePrivateProbe */;
+			productType = "com.apple.product-type.tool";
 		};
 		C1847490E238181B26184056 /* AirDCObjC */ = {
 			isa = PBXNativeTarget;
@@ -492,6 +699,8 @@
 				C1847490E238181B26184056 /* AirDCObjC */,
 				92794697FA8E9348734B52CB /* AirDCObjCPrivateTests */,
 				29F715F463355D048707A30C /* AirDCObjCPublicTests */,
+				B92AF23CF7B2B8CA8CF9027D /* AirDCRuntimePrivateProbe */,
+				156957A439C97535B194B43B /* AirDCRuntimeProbe */,
 			);
 		};
 /* End PBXProject section */
@@ -503,7 +712,11 @@
 			files = (
 				995177DB7C3197205455CFA4 /* ADCBuildInfoTests.swift in Sources */,
 				5E095990D6EDE2656CD64A21 /* ADCErrorTests.swift in Sources */,
+				FE22F72ACDB369F9E460D00D /* ADCPrivateRuntimeTestBridge.m in Sources */,
 				5F4653032ABB952E2CA7482D /* ADCRuntimeConfigurationTests.swift in Sources */,
+				AE831E4F034F0FA85E3753FB /* ADCRuntimeEventTests.swift in Sources */,
+				6DE5E47A70EF87EABD659ABC /* ADCRuntimeTests.swift in Sources */,
+				3476654D99988721C92BE9EE /* ADCSubscriptionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,6 +727,11 @@
 				F3D25B2D1D9A2F98C8359339 /* AirDCExampleApp.swift in Sources */,
 				DEA318C46CD216658EB97D15 /* BuildInfoSnapshot.swift in Sources */,
 				AA79198BC02D4A7FDFE6BE6D /* BuildInfoView.swift in Sources */,
+				BC199A6C6D153D7E152E8845 /* ExampleRuntimeTerminationDelegate.swift in Sources */,
+				FAE3468DD8F773754A8800A9 /* RuntimeAPI.swift in Sources */,
+				8CE30863F1E3C0FCE297F885 /* RuntimeModel.swift in Sources */,
+				2EBE05931F5B9DF03C28D82A /* RuntimeStatusView.swift in Sources */,
+				96FB8BBE7A7329BD17FC11A5 /* RuntimeTerminationCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +741,27 @@
 			files = (
 				41D3781BD156F077900C088F /* BuildInfoSnapshot.swift in Sources */,
 				EA42369FE1A7B2FDAD6C55F3 /* BuildInfoSnapshotTests.swift in Sources */,
+				661C3590C99E3BB3AD5635C0 /* RuntimeAPI.swift in Sources */,
+				DA8B815FFA2D9AE68189F653 /* RuntimeModel.swift in Sources */,
+				0F017532832E5871B4173827 /* RuntimeModelTests.swift in Sources */,
+				603FB0DDE2587A981200343C /* RuntimeTerminationCoordinator.swift in Sources */,
+				763F99F66F99135A80D20FD6 /* RuntimeTerminationCoordinatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45DA81899AF6704DF3612C47 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97A1C3F7453DDC4BB0B3C7C9 /* RuntimeProbePrivate.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B33CEB20A0152D97722AAB1E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B504D1E50E0E942DFC64414A /* RuntimeProbe.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,7 +771,10 @@
 			files = (
 				96F2406C97E77F607FF196E2 /* ADCBuildInfo.mm in Sources */,
 				E052F50B2D416520E7DC7BA3 /* ADCError.m in Sources */,
+				B6C75D93C46BDB18F5E1D6F9 /* ADCRuntime.mm in Sources */,
 				C7A3F0F5E612DC634770939E /* ADCRuntimeConfiguration.m in Sources */,
+				AE90BE20BA508FC268F457A6 /* ADCRuntimeEvent.m in Sources */,
+				DEA1B4B5FA60450FE995C38F /* ADCSubscription.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +783,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AF066123DB97FD6116967DFB /* ADCBuildInfoTests.m in Sources */,
+				063AF7767301F513368FD9E8 /* ADCRuntimeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -561,6 +804,16 @@
 			isa = PBXTargetDependency;
 			target = C1847490E238181B26184056 /* AirDCObjC */;
 			targetProxy = 480B6C1E00B302EEDFFF5E35 /* PBXContainerItemProxy */;
+		};
+		7E4D37BA09FE97247913BB6E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1847490E238181B26184056 /* AirDCObjC */;
+			targetProxy = 15875710521B940111DAE2A6 /* PBXContainerItemProxy */;
+		};
+		B65B5F999F0AF0970B9B5E3E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1847490E238181B26184056 /* AirDCObjC */;
+			targetProxy = 70B58337F4931DDE87914341 /* PBXContainerItemProxy */;
 		};
 		D11FBA5E7F1146C9500AA94F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -584,6 +837,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Dependencies/AirDCCore/Dist/include",
+					"$(SRCROOT)/Dependencies/AirDCCore/Dist/include/airdcpp",
 				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -611,6 +865,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Source/AirDCObjC/Private/Runtime",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -618,6 +876,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.PrivateTests;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Test/AirDCObjC/Private/Runtime/ADCPrivateRuntimeTestBridge.h";
 			};
 			name = Release;
 		};
@@ -684,6 +943,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.PublicTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -751,6 +1011,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Source/AirDCObjC/Private/Runtime",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -758,6 +1022,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.PrivateTests;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Test/AirDCObjC/Private/Runtime/ADCPrivateRuntimeTestBridge.h";
 			};
 			name = Debug;
 		};
@@ -853,8 +1118,39 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.PublicTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
+		};
+		BAAB52B606FAEEB60B349FA2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Source/AirDCObjC/Private/Runtime",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.RuntimeProbePrivate;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C80F91F8142EF0123B234DE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.RuntimeProbe;
+				SDKROOT = macosx;
+			};
+			name = Debug;
 		};
 		D42575AF32002D267B7EF6A4 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -870,6 +1166,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Dependencies/AirDCCore/Dist/include",
+					"$(SRCROOT)/Dependencies/AirDCCore/Dist/include/airdcpp",
 				);
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -892,14 +1189,62 @@
 			};
 			name = Release;
 		};
+		D86D5D2BC6195577942B20FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Source/AirDCObjC/Private/Runtime",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.RuntimeProbePrivate;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E60071CB2A80739899B5764C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.airdcpp.AirDCObjC.RuntimeProbe;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		46AF663DCD636C876275B39D /* Build configuration list for PBXNativeTarget "AirDCRuntimePrivateProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D86D5D2BC6195577942B20FC /* Debug */,
+				BAAB52B606FAEEB60B349FA2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		51C4162510075E4D7DCD26E0 /* Build configuration list for PBXProject "AirDCObjC" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7E0A64D59BCEF98D2790FB59 /* Debug */,
 				5477A825450327D4E00CB502 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		56E9F9AC3B6A0F93B610DAB9 /* Build configuration list for PBXNativeTarget "AirDCRuntimeProbe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C80F91F8142EF0123B234DE1 /* Debug */,
+				E60071CB2A80739899B5764C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

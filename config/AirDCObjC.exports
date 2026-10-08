@@ -3,3 +3,9 @@ _OBJC_METACLASS_$_ADCBuildInfo
 _ADCErrorDomain
 _OBJC_CLASS_$_ADCRuntimeConfiguration
 _OBJC_METACLASS_$_ADCRuntimeConfiguration
+_OBJC_CLASS_$_ADCRuntime
+_OBJC_METACLASS_$_ADCRuntime
+_OBJC_CLASS_$_ADCRuntimeEvent
+_OBJC_METACLASS_$_ADCRuntimeEvent
+_OBJC_CLASS_$_ADCSubscription
+_OBJC_METACLASS_$_ADCSubscription

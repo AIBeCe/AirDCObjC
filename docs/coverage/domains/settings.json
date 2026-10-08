@@ -77658,7 +77658,7 @@
         "effects": [
           "getCurValue delegates to SettingsManager::getSettingValue(key,useDefault); isSet/isDefault/unset delegate to manager set-state APIs.",
           "getDefaultValue type-dispatches STR to getDefault, INT to get (current-or-default), BOOL to get (current-or-default), then returns variant 0 after assert on unsupported key. The INT/BOOL calls are get(), not getDefault().",
-          "getDescription returns localized STRING_I(desc). currentToString visits current value. ToString returns strings unchanged; ints use localized enum string when getEnumStrings(val,true) is nonempty else decimal text; doubles use Util::toString; bool uses localized ENABLED/DISABLED.",
+          "getDescription returns localized STRING_I(desc). currentToString visits current value. ToString returns strings unchanged; ints call getEnumStrings(val,true) using the value as a setting identifier, then STRING_I(enumStrings[val]) when that map is nonempty, otherwise Util::toString(val); doubles use Util::toString; bool uses localized ENABLED/DISABLED. The int map operator[] can insert the zero-valued ResourceManager string identifier when val is absent from a nonempty returned map; do not substitute key-based formatting.",
           "ProfileSettingItem::isProfileCurrent compares profileValue with getCurValue(false); profileToString formats profileValue with ToString. setProfileToDefault(reset=true) first unsets the key, then writes the profile value as the typed default for STR/INT/BOOL; wrong variant type may throw through boost::get and is not caught here."
         ],
         "events": [],
@@ -77686,9 +77686,9 @@
           "then": "returns the localized DISABLED string."
         },
         {
-          "given": "SettingItem is an integer key with enum value whose localized mapping exists.",
+          "given": "An integer SettingItem current value whose numeric value does not select an option map through getEnumStrings(value,true).",
           "when": "currentToString() is called",
-          "then": "returns the localized mapped enum string; when no mapping exists it returns decimal integer text."
+          "then": "returns Util::toString(value); the stored SettingItem key is not used to select the option map in this pinned integer visitor."
         },
         {
           "given": "ProfileSettingItem has profileValue=7, current explicit value=5 and reset=true.",

@@ -24,7 +24,12 @@ xcodebuild -create-xcframework \
   -framework "$FRAMEWORK" \
   -output "$XCFRAMEWORK" \
   2>&1 | tee "$ROOT/Build/Logs/xcframework-create.log"
-swift test --package-path "$ROOT" --scratch-path "$ROOT/Build/PackageBuild" \
+ROOT_PACKAGE_BUILD="$ROOT/Build/PackageBuild"
+swift build --package-path "$ROOT" --scratch-path "$ROOT_PACKAGE_BUILD" --product AirDCRuntimeProbe \
+  2>&1 | tee "$ROOT/Build/Logs/workspace-runtime-probe-build.log"
+ROOT_PACKAGE_BIN="$(swift build --package-path "$ROOT" --scratch-path "$ROOT_PACKAGE_BUILD" --show-bin-path)"
+AIRDC_RUNTIME_PROBE_PATH="$ROOT_PACKAGE_BIN/AirDCRuntimeProbe" \
+swift test --package-path "$ROOT" --scratch-path "$ROOT_PACKAGE_BUILD" \
   2>&1 | tee "$ROOT/Build/Logs/workspace-package-tests.log"
 
 # Relocate only the package manifest, public sources/tests, and binary artifact.
@@ -36,9 +41,16 @@ cp "$ROOT/Package.swift" "$RELOCATED/Package.swift"
 ditto "$ROOT/Example/AirDCExample/Source" "$RELOCATED/Example/AirDCExample/Source"
 ditto "$ROOT/Example/AirDCExample/Test" "$RELOCATED/Example/AirDCExample/Test"
 ditto "$ROOT/Test/AirDCObjC/Private" "$RELOCATED/Test/AirDCObjC/Private"
+ditto "$ROOT/Test/AirDCObjC/Public" "$RELOCATED/Test/AirDCObjC/Public"
+ditto "$ROOT/Test/AirDCObjC/RuntimeProbe" "$RELOCATED/Test/AirDCObjC/RuntimeProbe"
 ditto "$XCFRAMEWORK" "$RELOCATED/Dist/AirDCObjC.xcframework"
 test ! -e "$RELOCATED/Dependencies"
 test ! -e "$RELOCATED/Source"
+test ! -e "$RELOCATED/Test/AirDCObjC/RuntimeProbePrivate"
+swift build --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" --product AirDCRuntimeProbe \
+  2>&1 | tee "$ROOT/Build/Logs/relocated-runtime-probe-build.log"
+RELOCATED_PACKAGE_BIN="$(swift build --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" --show-bin-path)"
+AIRDC_RUNTIME_PROBE_PATH="$RELOCATED_PACKAGE_BIN/AirDCRuntimeProbe" \
 swift test --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" \
   2>&1 | tee "$ROOT/Build/Logs/relocated-package-tests.log"
 swift build --package-path "$RELOCATED" --scratch-path "$RELOCATED_BUILD" --product AirDCExample \
